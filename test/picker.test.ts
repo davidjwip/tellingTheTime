@@ -1,0 +1,101 @@
+import { describe, expect, it } from 'vitest';
+
+import { LEVELS } from '../src/levels';
+import { renderPicker, shelve } from '../src/picker';
+import { DEFAULT_PROGRESS } from '../src/progress';
+
+import type { Level } from '../src/types';
+
+const level = (id: string): Level => {
+  const found = LEVELS.find((l) => l.id === id);
+  if (!found) throw new Error(`no level ${id}`);
+  return found;
+};
+
+describe('which levels can be played today', () => {
+  it('offers a level whose round is entirely answerable', () => {
+    const [shelved] = shelve([level('t2.4')], DEFAULT_PROGRESS); // ten reading questions
+    expect(shelved?.available).toBe(true);
+    expect(shelved?.reason).toBeUndefined();
+    expect(shelved?.items).toBe(10);
+  });
+
+  it('drops the questions the app cannot ask yet, and says how many are left', () => {
+    const [shelved] = shelve([level('t2.2')], DEFAULT_PROGRESS); // six reads, four sets
+    expect(shelved?.items).toBe(6);
+    expect(shelved?.available).toBe(true);
+  });
+
+  it('marks a level unavailable when too little is left to be worth a round', () => {
+    const [shelved] = shelve([level('t2.3')], DEFAULT_PROGRESS); // three reads, seven sets
+    expect(shelved?.items).toBe(3);
+    expect(shelved?.available).toBe(false);
+    expect(shelved?.reason).toMatch(/dragg/i);
+  });
+
+  it('names what the unanswerable questions need, so the shelf is a to-do list', () => {
+    expect(shelve([level('t0.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/dragg/i); // order
+    expect(shelve([level('t1.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/tap/i);
+    expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
+    expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/build/i);
+  });
+
+  it('knows which levels have already been cleared', () => {
+    const [shelved] = shelve([level('t2.4')], { ...DEFAULT_PROGRESS, cleared: ['t2.4'] });
+    expect(shelved?.cleared).toBe(true);
+  });
+});
+
+describe('the shelf', () => {
+  const shelved = shelve(LEVELS, DEFAULT_PROGRESS);
+
+  it('is a screen, not a list: one section per tier, in order', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    const tiers = [...screen.querySelectorAll('[data-tier]')].map((n) => n.getAttribute('data-tier'));
+    expect(tiers).toEqual(['0', '1', '2', '3', '4']);
+  });
+
+  it('gives every level a button carrying its id', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    const ids = [...screen.querySelectorAll('[data-level]')].map((n) => n.getAttribute('data-level'));
+    expect(ids).toEqual(LEVELS.map((l) => l.id));
+  });
+
+  it('disables what cannot be played, and says why in the button', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    const blocked = screen.querySelector('[data-level="t2.3"]') as HTMLButtonElement;
+    expect(blocked.disabled).toBe(true);
+    expect(blocked.textContent).toMatch(/dragg/i);
+  });
+
+  it('leaves the playable ones enabled', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    expect((screen.querySelector('[data-level="t2.4"]') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('marks a cleared level without hiding it', () => {
+    const progress = { ...DEFAULT_PROGRESS, cleared: ['t2.4'] };
+    const screen = renderPicker(shelve(LEVELS, progress), progress);
+    const cleared = screen.querySelector('[data-level="t2.4"]');
+    expect(cleared?.getAttribute('data-cleared')).toBe('true');
+    expect(cleared?.textContent).toContain('✓');
+  });
+
+  it('offers a name field holding what is already known', () => {
+    const screen = renderPicker(shelved, { ...DEFAULT_PROGRESS, name: 'Sam' });
+    const input = screen.querySelector('input[name="name"]') as HTMLInputElement;
+    expect(input.value).toBe('Sam');
+    expect(input.maxLength).toBe(20);
+  });
+
+  it('asks for a name with a plain label, and never requires one', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    expect(screen.querySelector('label[for="child-name"]')?.textContent).toMatch(/name/i);
+    expect((screen.querySelector('[data-action="start"]') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('keeps the footer credit', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    expect(screen.querySelector('footer')?.textContent).toContain('Created for George and Teddy Ip.');
+  });
+});
