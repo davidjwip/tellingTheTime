@@ -70,7 +70,7 @@ export function mountPlay(
     const finished = isFinished(session) && !celebrating;
     if (finished && !reported) {
       reported = true;
-      options.onRoundEnd?.(isCleared(session));
+      if (isCleared(session)) options.onRoundEnd?.(true);
     }
     app.replaceChildren(
       finished
@@ -103,6 +103,12 @@ export function mountPlay(
     session = recordVerdict(session, verdict === 'correct');
 
     if (trackComplete(session)) {
+      // The badge is earned here, not when the child dismisses the party: closing the tab on the
+      // celebration used to lose it.
+      if (!reported) {
+        reported = true;
+        options.onRoundEnd?.(true);
+      }
       celebrating = true;
       draw(false); // the party appears at once; the fanfare is not cut off by a question
       void options.speaker?.say('celebrate');
