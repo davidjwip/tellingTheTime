@@ -1,6 +1,8 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it } from 'vitest';
 
-import { formatDigital, renderFace } from '../src/clockFace';
+import { FACE_COLOURS, formatDigital, renderFace } from '../src/clockFace';
 import type { Face } from '../src/types';
 
 /**
@@ -66,24 +68,50 @@ describe('the hands carry the geometry from clock.ts', () => {
     expect(rotationOf(hand(svg, 'hour'))).toBeCloseTo(15, 2);
   });
 
-  it('holds the minute hand at 12 when it is parked', () => {
-    const svg = renderFace({ hour: 6, minute: 0 }, baseFace({ minuteHandParked: true }));
-    expect(rotationOf(hand(svg, 'minute'))).toBeCloseTo(0, 2);
-    expect(rotationOf(hand(svg, 'hour'))).toBeCloseTo(180, 2);
+  it('holds the minute hand at 12 when it is parked, and only then', () => {
+    // A parked hand at minute 0 is indistinguishable from an unparked one, so this test used to
+    // pass with the parked feature deleted. At :30 the two cannot be confused.
+    const parked = renderFace({ hour: 6, minute: 30 }, baseFace({ minuteHandParked: true }));
+    expect(rotationOf(hand(parked, 'minute'))).toBeCloseTo(0, 2);
+    expect(rotationOf(hand(parked, 'hour'))).toBeCloseTo(195, 2); // 6.5 -> 195 deg, still geared
+
+    const moving = renderFace({ hour: 6, minute: 30 }, baseFace({ minuteHandParked: false }));
+    expect(rotationOf(hand(moving, 'minute'))).toBeCloseTo(180, 2);
   });
 
-  it('draws the hour hand shorter than the minute hand', () => {
-    const svg = renderFace({ hour: 3, minute: 15 }, baseFace());
-    const length = (which: 'hour' | 'minute') =>
-      Number(hand(svg, which)?.getAttribute('data-length'));
-    expect(length('hour')).toBeGreaterThan(0);
-    expect(length('hour')).toBeLessThan(length('minute'));
+  it('rotates each hand about the centre, not about the origin', () => {
+    const svg = renderFace({ hour: 4, minute: 20 }, baseFace());
+    for (const which of ['hour', 'minute'] as const) {
+      expect(hand(svg, which)?.getAttribute('transform')).toMatch(/rotate\([-\d.]+ 50 50\)/);
+    }
   });
 
-  it('uses the palette from the parity contract: red hour, dark minute', () => {
+  it('draws the hands at the ratios the parity contract fixes, measured from the geometry', () => {
+    // measured from y2 rather than from a data attribute the renderer reports about itself
     const svg = renderFace({ hour: 3, minute: 15 }, baseFace());
-    expect(hand(svg, 'hour')?.getAttribute('stroke')?.toLowerCase()).toBe('#ff6b6b');
-    expect(hand(svg, 'minute')?.getAttribute('stroke')?.toLowerCase()).toBe('#333333');
+    const reach = (which: 'hour' | 'minute') => {
+      const y2 = Number(hand(svg, which)?.getAttribute('y2'));
+      return 50 - y2; // the dial centre is 50 on a 100-unit viewBox
+    };
+    expect(reach('hour') / 46).toBeCloseTo(0.46, 2);
+    expect(reach('minute') / 46).toBeCloseTo(0.7, 2);
+    expect(reach('hour')).toBeLessThan(reach('minute'));
+  });
+
+  it('strokes with currentColor, taking the colour from the palette', () => {
+    const svg = renderFace({ hour: 3, minute: 15 }, baseFace());
+    for (const which of ['hour', 'minute'] as const) {
+      expect(hand(svg, which)?.getAttribute('stroke')).toBe('currentColor');
+    }
+    expect(hand(svg, 'hour')?.getAttribute('style')).toContain('#ff6b6b');
+    expect(hand(svg, 'minute')?.getAttribute('style')).toContain('#333');
+  });
+
+  it('draws only colours the parity contract names, so the palette cannot drift', () => {
+    const contract = readFileSync('specs/design-parity.md', 'utf8');
+    for (const [role, value] of Object.entries(FACE_COLOURS)) {
+      expect(contract, `${role} = ${value} is not in the parity contract`).toContain(value);
+    }
   });
 });
 
@@ -125,10 +153,19 @@ describe('the reserved paths, exercised directly', () => {
     expect(svg.querySelectorAll('[data-minute-mark]')).toHaveLength(60);
   });
 
-  it('draws the two past/to halves when pastToShade is set', () => {
+  it('draws two distinguishable past/to halves when pastToShade is set', () => {
     const svg = renderFace({ hour: 12, minute: 0 }, baseFace({ pastToShade: true }));
-    const shades = [...svg.querySelectorAll('[data-pastto-shade]')].map((n) => n.getAttribute('data-pastto-shade'));
-    expect(shades.sort()).toEqual(['past', 'to']);
+    const shades = [...svg.querySelectorAll('[data-pastto-shade]')];
+    expect(shades.map((n) => n.getAttribute('data-pastto-shade')).sort()).toEqual(['past', 'to']);
+    // a tint of the cream frame would be invisible on a cream face
+    for (const shade of shades) {
+      expect(shade.getAttribute('fill')).not.toBe(FACE_COLOURS.dial);
+    }
+  });
+
+  it('names the time for a screen reader', () => {
+    const svg = renderFace({ hour: 3, minute: 30 }, baseFace());
+    expect(svg.getAttribute('aria-label')).toBe('Clock showing 3:30');
   });
 
   it('writes a digital readout when showDigital is set', () => {

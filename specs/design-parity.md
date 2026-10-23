@@ -181,6 +181,11 @@ signature.
 
 Inside: an SVG face, `currentColor` strokes, numerals in Fredoka 600. Hour hand `#ff6b6b`, minute
 hand `#333` — both thicker than a textbook clock, because a four-year-old reads at a metre.
+
+The `color` property is set **inline** from `FACE_COLOURS` (`src/clockFace.ts`) until the play-screen
+stylesheet exists, at which point it moves to a class. A test asserts that every value in
+`FACE_COLOURS` appears somewhere in this document, so the palette cannot drift from the contract
+even while the colours live in TypeScript rather than CSS.
 Hands are visibly different lengths (`r = 0.46` and `0.70` of the radius) — the reference's
 colour-plus-length language applied to hands.
 
