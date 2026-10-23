@@ -4,9 +4,9 @@ Read this before touching anything in this repo.
 
 ## Where the repo is
 
-**Research stage.** `README.md` and `research/*.md` are written; there is no spec and no code.
-Do not scaffold an app, choose a stack in anger, or generate components until the spec in
-`specs/` has been approved in the project thread.
+**Spec stage.** `README.md`, `research/*.md` and `specs/v1.md` (v1.1) are written. The spec is a
+**draft awaiting approval** in the project thread; there is no code. Do not scaffold an app,
+choose a stack in anger, or generate components until that spec is approved.
 
 ## The one rule
 
@@ -81,8 +81,9 @@ These come from the research, not from taste. If a change would break one, stop 
 ## Stack, once approved
 
 Vite + TypeScript, no UI framework, vanilla DOM. Vitest for logic, Playwright for UI. Static build
-to `dist/`, GitHub Pages first, Cloudflare Pages later. A pure engine module with no DOM, a thin
-SVG rendering layer, tests against both — the same layering as the maths and spelling games.
+to `dist/`, deployed **straight to Cloudflare Pages** (POC scope — no GitHub Pages step). A pure
+engine module with no DOM, a thin SVG rendering layer, tests against both — the same layering as
+the maths and spelling games.
 
 Visual style is not up for redesign: it is the house style from
 `simpleKindergartenAdditionWebpage` (`maths.zt489.com`), described in `research/04-game-design-brief.md`
