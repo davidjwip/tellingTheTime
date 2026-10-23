@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "typecheck": "tsc -p tsconfig.json",
-    "validate:levels": "vite-node scripts/validate-levels.ts"
+    "validate:levels": "vite-node scripts/validate-levels.ts",
+    "gate:tests-first": "vite-node scripts/check-test-first.ts"
   },
   "engines": {
     "node": ">=20"
