@@ -7,6 +7,7 @@
 
 import './styles.css';
 
+import { Speaker } from './audio';
 import { isCleared } from './engine';
 import { LEVELS } from './levels';
 import { mountPlay } from './play';
@@ -20,13 +21,30 @@ const overlayRoot = document.getElementById('overlay-root')!;
 const store = window.localStorage;
 
 let progress = loadProgress(store);
+/** The level currently on screen, so a language change can redraw it. */
+let currentLevel: Level | null = null;
+
+// One speaker for the app's life: the clips are pre-recorded, so this only ever picks a file.
+const speaker = new Speaker(
+  (url) => {
+    const element = new Audio(url);
+    return {
+      play: () => element.play(),
+      pause: () => element.pause(),
+      onEnded: (callback) => element.addEventListener('ended', callback),
+    };
+  },
+  progress.locale,
+);
 
 function showPicker(): void {
+  currentLevel = null;
   app.replaceChildren(renderPicker(shelve(LEVELS, progress), progress));
   overlayRoot.replaceChildren();
 }
 
 function play(level: Level): void {
+  currentLevel = level;
   progress = rememberLevel(progress, level.id);
   saveProgress(store, progress);
 
@@ -35,6 +53,8 @@ function play(level: Level): void {
   app.replaceChildren(host);
 
   mountPlay(host, overlayRoot, level, {
+    speaker,
+    locale: progress.locale,
     onChangeLevel: () => showPicker(),
     onRoundEnd: (cleared) => {
       if (!cleared) return;
@@ -46,6 +66,18 @@ function play(level: Level): void {
 
 app.addEventListener('click', (event) => {
   const target = event.target as HTMLElement | null;
+
+  // The toggle was enabled and inert for a whole PR. Either it works or it is disabled; a control
+  // that looks pressable and does nothing is a lie to the adult holding the tablet.
+  const locale = target?.closest<HTMLElement>('[data-locale]')?.dataset.locale;
+  if (locale === 'en' || locale === 'yue') {
+    progress = { ...progress, locale };
+    saveProgress(store, progress);
+    speaker.setLocale(locale);
+    if (currentLevel) play(currentLevel);
+    else showPicker();
+    return;
+  }
 
   const chosen = target?.closest<HTMLElement>('[data-level]')?.dataset.level;
   if (chosen) {

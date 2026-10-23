@@ -80,11 +80,6 @@ function header(level: Level, options: PlayOptions): HTMLElement {
   profile.title = 'Names and badges arrive with the picker';
   actions.append(profile);
 
-  // The round is a goal, but the adult decides when a session is over — a level beyond the child,
-  // or a tired evening. Without this the app could not honour that at all.
-  const finish = el('button', 'action-btn small', 'Finish');
-  finish.dataset.action = 'finish';
-  actions.append(finish);
 
   head.append(actions);
   return head;

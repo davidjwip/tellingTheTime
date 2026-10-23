@@ -1,0 +1,734 @@
+{
+  "version": 1,
+  "note": "One source of truth: the app reads this for wording, the generator reads it for clips, and a test asserts every key has both files.",
+  "voices": {
+    "en": "en-GB-SoniaNeural",
+    "yue": "zh-HK-HiuMaanNeural"
+  },
+  "rate": "-12%",
+  "ui": [
+    {
+      "key": "prompt-read",
+      "en": "What time is it?",
+      "yue": "而家幾點呀？"
+    },
+    {
+      "key": "prompt-set",
+      "en": "Can you make this time?",
+      "yue": "可唔可以整到呢個時間？"
+    },
+    {
+      "key": "prompt-tap",
+      "en": "Have a go.",
+      "yue": "試吓啦。"
+    },
+    {
+      "key": "praise-1",
+      "en": "Well done!",
+      "yue": "好叻呀！"
+    },
+    {
+      "key": "praise-2",
+      "en": "That's it!",
+      "yue": "啱喇！"
+    },
+    {
+      "key": "encourage",
+      "en": "Let's try that one again.",
+      "yue": "再試多次啦。"
+    },
+    {
+      "key": "celebrate",
+      "en": "Amazing job!",
+      "yue": "好犀利呀！"
+    }
+  ],
+  "chrono": [
+    {
+      "key": "oclock-1",
+      "en": "one o'clock",
+      "yue": "一點鐘"
+    },
+    {
+      "key": "half-1",
+      "en": "half past one",
+      "yue": "一點半"
+    },
+    {
+      "key": "qpast-1",
+      "en": "quarter past one",
+      "yue": "一點三"
+    },
+    {
+      "key": "qto-1",
+      "en": "quarter to two",
+      "yue": "一點九"
+    },
+    {
+      "key": "oclock-2",
+      "en": "two o'clock",
+      "yue": "兩點鐘"
+    },
+    {
+      "key": "half-2",
+      "en": "half past two",
+      "yue": "兩點半"
+    },
+    {
+      "key": "qpast-2",
+      "en": "quarter past two",
+      "yue": "兩點三"
+    },
+    {
+      "key": "qto-2",
+      "en": "quarter to three",
+      "yue": "兩點九"
+    },
+    {
+      "key": "oclock-3",
+      "en": "three o'clock",
+      "yue": "三點鐘"
+    },
+    {
+      "key": "half-3",
+      "en": "half past three",
+      "yue": "三點半"
+    },
+    {
+      "key": "qpast-3",
+      "en": "quarter past three",
+      "yue": "三點三"
+    },
+    {
+      "key": "qto-3",
+      "en": "quarter to four",
+      "yue": "三點九"
+    },
+    {
+      "key": "oclock-4",
+      "en": "four o'clock",
+      "yue": "四點鐘"
+    },
+    {
+      "key": "half-4",
+      "en": "half past four",
+      "yue": "四點半"
+    },
+    {
+      "key": "qpast-4",
+      "en": "quarter past four",
+      "yue": "四點三"
+    },
+    {
+      "key": "qto-4",
+      "en": "quarter to five",
+      "yue": "四點九"
+    },
+    {
+      "key": "oclock-5",
+      "en": "five o'clock",
+      "yue": "五點鐘"
+    },
+    {
+      "key": "half-5",
+      "en": "half past five",
+      "yue": "五點半"
+    },
+    {
+      "key": "qpast-5",
+      "en": "quarter past five",
+      "yue": "五點三"
+    },
+    {
+      "key": "qto-5",
+      "en": "quarter to six",
+      "yue": "五點九"
+    },
+    {
+      "key": "oclock-6",
+      "en": "six o'clock",
+      "yue": "六點鐘"
+    },
+    {
+      "key": "half-6",
+      "en": "half past six",
+      "yue": "六點半"
+    },
+    {
+      "key": "qpast-6",
+      "en": "quarter past six",
+      "yue": "六點三"
+    },
+    {
+      "key": "qto-6",
+      "en": "quarter to seven",
+      "yue": "六點九"
+    },
+    {
+      "key": "oclock-7",
+      "en": "seven o'clock",
+      "yue": "七點鐘"
+    },
+    {
+      "key": "half-7",
+      "en": "half past seven",
+      "yue": "七點半"
+    },
+    {
+      "key": "qpast-7",
+      "en": "quarter past seven",
+      "yue": "七點三"
+    },
+    {
+      "key": "qto-7",
+      "en": "quarter to eight",
+      "yue": "七點九"
+    },
+    {
+      "key": "oclock-8",
+      "en": "eight o'clock",
+      "yue": "八點鐘"
+    },
+    {
+      "key": "half-8",
+      "en": "half past eight",
+      "yue": "八點半"
+    },
+    {
+      "key": "qpast-8",
+      "en": "quarter past eight",
+      "yue": "八點三"
+    },
+    {
+      "key": "qto-8",
+      "en": "quarter to nine",
+      "yue": "八點九"
+    },
+    {
+      "key": "oclock-9",
+      "en": "nine o'clock",
+      "yue": "九點鐘"
+    },
+    {
+      "key": "half-9",
+      "en": "half past nine",
+      "yue": "九點半"
+    },
+    {
+      "key": "qpast-9",
+      "en": "quarter past nine",
+      "yue": "九點三"
+    },
+    {
+      "key": "qto-9",
+      "en": "quarter to ten",
+      "yue": "九點九"
+    },
+    {
+      "key": "oclock-10",
+      "en": "ten o'clock",
+      "yue": "十點鐘"
+    },
+    {
+      "key": "half-10",
+      "en": "half past ten",
+      "yue": "十點半"
+    },
+    {
+      "key": "qpast-10",
+      "en": "quarter past ten",
+      "yue": "十點三"
+    },
+    {
+      "key": "qto-10",
+      "en": "quarter to eleven",
+      "yue": "十點九"
+    },
+    {
+      "key": "oclock-11",
+      "en": "eleven o'clock",
+      "yue": "十一點鐘"
+    },
+    {
+      "key": "half-11",
+      "en": "half past eleven",
+      "yue": "十一點半"
+    },
+    {
+      "key": "qpast-11",
+      "en": "quarter past eleven",
+      "yue": "十一點三"
+    },
+    {
+      "key": "qto-11",
+      "en": "quarter to twelve",
+      "yue": "十一點九"
+    },
+    {
+      "key": "oclock-12",
+      "en": "twelve o'clock",
+      "yue": "十二點鐘"
+    },
+    {
+      "key": "half-12",
+      "en": "half past twelve",
+      "yue": "十二點半"
+    },
+    {
+      "key": "qpast-12",
+      "en": "quarter past twelve",
+      "yue": "十二點三"
+    },
+    {
+      "key": "qto-12",
+      "en": "quarter to one",
+      "yue": "十二點九"
+    }
+  ],
+  "clips": {
+    "en": {
+      "prompt-read": {
+        "text": "What time is it?",
+        "sha256": "78b4d45c149cd8e10f849c6e6a2489b9c03daca37cd2795a6cd155bdae7a47f2"
+      },
+      "prompt-set": {
+        "text": "Can you make this time?",
+        "sha256": "9835d4e6de2bae53547e60e042070dfaed9be5b7729516e6216c8dafd4ba4fc5"
+      },
+      "prompt-tap": {
+        "text": "Have a go.",
+        "sha256": "e0b5d07758afa054d63d6614dba52917f17a7d2f71f9d9b080435d7f4b0b078c"
+      },
+      "praise-1": {
+        "text": "Well done!",
+        "sha256": "133a9875bf2bc1d0da779c6f151c38661d637bea9413496eab23db67afc2a397"
+      },
+      "praise-2": {
+        "text": "That's it!",
+        "sha256": "d3cb5e01931db709af70b08a9efc38b7480164153a41439f2143831bfc031781"
+      },
+      "encourage": {
+        "text": "Let's try that one again.",
+        "sha256": "39cf726f7ab7b987e8c7565fda4a2170e46a0ce3742b64eb057f986d6155d0ef"
+      },
+      "celebrate": {
+        "text": "Amazing job!",
+        "sha256": "1e36571f38fcd6b943ab01d5207f71aa306a746b8aed295c95d51e3da3f48678"
+      },
+      "oclock-1": {
+        "text": "one o'clock",
+        "sha256": "dfc32572f306a5303885f69720eabbf8b4645687d35d1f6d855f92b2304cba21"
+      },
+      "half-1": {
+        "text": "half past one",
+        "sha256": "53468b0264435599da72e0a277ec70b71fc1a026918f769a812f4c56a269d1d7"
+      },
+      "qpast-1": {
+        "text": "quarter past one",
+        "sha256": "2816291a2d5dc6c1d1ae5a5c13fe7602c30df8fff94131bd8210aa0af6772c8d"
+      },
+      "qto-1": {
+        "text": "quarter to two",
+        "sha256": "e16a4692beca9ad6dad00adfe79934e8613d48bffe4bf72d72339909a7344b44"
+      },
+      "oclock-2": {
+        "text": "two o'clock",
+        "sha256": "e698738e0a969b301e6bea675d2754c2b67fb9665f32462382c4192d74e7d06f"
+      },
+      "half-2": {
+        "text": "half past two",
+        "sha256": "51048becb681710848f0e638dc584b41644eada442beab15f86f6cdc838a9e0d"
+      },
+      "qpast-2": {
+        "text": "quarter past two",
+        "sha256": "af6d248ee67d90d9ec0c3dc4c9564d5f9f08398fd746d1a2771886d180c60588"
+      },
+      "qto-2": {
+        "text": "quarter to three",
+        "sha256": "87e0390c0e34f535fd503d232857c895f30751cd32fbdb268b108c8dbc31ea43"
+      },
+      "oclock-3": {
+        "text": "three o'clock",
+        "sha256": "0eb11851447c4580dc3a3ba396eeacaadbb393aafd989be0e0d675d315e89b13"
+      },
+      "half-3": {
+        "text": "half past three",
+        "sha256": "74612358c31718c81c26287638694fae5b0686500f8b7ca44299630e21d5791d"
+      },
+      "qpast-3": {
+        "text": "quarter past three",
+        "sha256": "66bd8f3a4097970d81655062102e4dd1da80c28ecc836a5beb5bab8ee54f8076"
+      },
+      "qto-3": {
+        "text": "quarter to four",
+        "sha256": "f3180c74809eab467f4963059033813c6aaf849a6c8d2919e55c914c9f4e1342"
+      },
+      "oclock-4": {
+        "text": "four o'clock",
+        "sha256": "23b029aa88dd7e912c3c1ec02393f3512c14e1a131f8bafb514b71feb2d6b010"
+      },
+      "half-4": {
+        "text": "half past four",
+        "sha256": "27a25baeada996b72ed56c0c379c6cda23a3bcdcc9cd779ac6d8d835dc6e00ac"
+      },
+      "qpast-4": {
+        "text": "quarter past four",
+        "sha256": "a063cc18d48a8f23f499522ef7db00379a926d148dbed238efacc8263d5247c8"
+      },
+      "qto-4": {
+        "text": "quarter to five",
+        "sha256": "1621c768915e856d67f32cda087d622926181b804f89d25077e1dd9c32e06ef3"
+      },
+      "oclock-5": {
+        "text": "five o'clock",
+        "sha256": "db5bb73fb9f31fbfd8b28759ae56349e80c5c15767c42b5e030443d9ec91614c"
+      },
+      "half-5": {
+        "text": "half past five",
+        "sha256": "de200efd61dfe9663fcbb800d429e5187f0fecffaf1edd85d94c1667b2a7084d"
+      },
+      "qpast-5": {
+        "text": "quarter past five",
+        "sha256": "0e0f624e123e6977f186c9d4cb3656019954f79e8fa5ee28f87c26e9d432489c"
+      },
+      "qto-5": {
+        "text": "quarter to six",
+        "sha256": "a5f4178d665bdbf53e37b7cdc84890bdc99e227da6ef9307aca331002c59742c"
+      },
+      "oclock-6": {
+        "text": "six o'clock",
+        "sha256": "dd209055f8ece295a4bd547b01e4cfa94af046fd8da32c5f4543b5958926e44c"
+      },
+      "half-6": {
+        "text": "half past six",
+        "sha256": "ef94cf0b2d1ea9ed751e80546626c5c2e600d6a9ab82a08f37e75a5c4afde1dd"
+      },
+      "qpast-6": {
+        "text": "quarter past six",
+        "sha256": "c2d1fe5ec2607a26474ed151272d66544308a096d69925d411a6f2c8cf2125eb"
+      },
+      "qto-6": {
+        "text": "quarter to seven",
+        "sha256": "5ba61a6905ab4646f5b45ff5cf4c1628cde00aaa78f7c7388123648e4afd8239"
+      },
+      "oclock-7": {
+        "text": "seven o'clock",
+        "sha256": "91ae1c3a2df120a94b32731bb5ae74c4a5d6407e1e593052b59da6dd658cf96b"
+      },
+      "half-7": {
+        "text": "half past seven",
+        "sha256": "03b58f93b2cea5a7db1eb00fc58303f10952703f1321f28324f64ab9101a361d"
+      },
+      "qpast-7": {
+        "text": "quarter past seven",
+        "sha256": "f90d85c271c528638c7cef3950df3eedce659935828737a87de7a1fd5292a92f"
+      },
+      "qto-7": {
+        "text": "quarter to eight",
+        "sha256": "059d4b3b416664d099048abcc31b5646461e5cb34a0e40336105a2638d2447e4"
+      },
+      "oclock-8": {
+        "text": "eight o'clock",
+        "sha256": "1b39bc0f15ee0985db4a772cbff1958b44521c9ea2ed726db968c5cad0b0c0df"
+      },
+      "half-8": {
+        "text": "half past eight",
+        "sha256": "bda025f96eb1f6349cf9d5c3892b7ef087a2f7927b67d58284dc447a5ebb15f2"
+      },
+      "qpast-8": {
+        "text": "quarter past eight",
+        "sha256": "3c0a6358afa4a4033621a23c8194102d659243982c8e94271b5a4b48d1f16c59"
+      },
+      "qto-8": {
+        "text": "quarter to nine",
+        "sha256": "304976178ec358b0b7a7d227e0eb85ebe5419aeeae2b323ea5215367ceb9a734"
+      },
+      "oclock-9": {
+        "text": "nine o'clock",
+        "sha256": "b318159748830b83ff415db3bd7d9663dbf624177e4e2066658dd61f973967d6"
+      },
+      "half-9": {
+        "text": "half past nine",
+        "sha256": "93a580feadb004f017c85f64cf53edc887a936c7139d6fb8a563aa9fc4256e8e"
+      },
+      "qpast-9": {
+        "text": "quarter past nine",
+        "sha256": "2582ca1358eac789bde6642eb4d8bc1e96a91935601815101662febcb36c0451"
+      },
+      "qto-9": {
+        "text": "quarter to ten",
+        "sha256": "88287d2fd96ed393e5b9597986cdd7899eacfed28656b8c557deac57fdd79924"
+      },
+      "oclock-10": {
+        "text": "ten o'clock",
+        "sha256": "195396d8c82820bd16df868607c4f6c9e077de866ef99fb2cec64b3174b113ac"
+      },
+      "half-10": {
+        "text": "half past ten",
+        "sha256": "35a1d39b9758baab68ba07315363522bbb958d725f59e70779ab68d48a657c67"
+      },
+      "qpast-10": {
+        "text": "quarter past ten",
+        "sha256": "fd4df173bc734020c5e450406c162e178a7928ce2750100270a3daca64f6e9f0"
+      },
+      "qto-10": {
+        "text": "quarter to eleven",
+        "sha256": "0d19374a56c2ea90b1f4d9247e89ee3a28b81bc2fc37f96f953b802200d370d5"
+      },
+      "oclock-11": {
+        "text": "eleven o'clock",
+        "sha256": "32b7c87d2ea3ba316ba25cf6241d1d5e33d3b232f6c4e7c8d7615d9f06bef2e4"
+      },
+      "half-11": {
+        "text": "half past eleven",
+        "sha256": "58d3b6ed771f48f837f1967e477cdb7a29f64bdc39b0720c5f5363dcab1feeb9"
+      },
+      "qpast-11": {
+        "text": "quarter past eleven",
+        "sha256": "2e7db9db1cd268ca30cda06451e24a95c4138c4d111e21f2bab3cd3befd1dda4"
+      },
+      "qto-11": {
+        "text": "quarter to twelve",
+        "sha256": "ae0596c7f25da20897fbe01b1efc925d5eb0e2b25f737f19a1f1159d9974ce17"
+      },
+      "oclock-12": {
+        "text": "twelve o'clock",
+        "sha256": "1fb151025c7a0f2f33b7a3be74716ee0f7c906f16507ca5b2c628246b1b0e81f"
+      },
+      "half-12": {
+        "text": "half past twelve",
+        "sha256": "dc6e252a80c1c599c30459fd9174cb628ba040328cf9c56bfda992eeb3cecc30"
+      },
+      "qpast-12": {
+        "text": "quarter past twelve",
+        "sha256": "d6a65e6dbd2a6b9b6890ba7d9a1ed3a5ac1858a349e88a7d9ad763e4dbde6b0d"
+      },
+      "qto-12": {
+        "text": "quarter to one",
+        "sha256": "8c5b682a30c45de6bc486ace63f515e4b48b97901630ec1309130e633ea71707"
+      }
+    },
+    "yue": {
+      "prompt-read": {
+        "text": "而家幾點呀？",
+        "sha256": "70d301934ed652fc5593ff54b276876dafd188279fe73c8f03890ac7b624a29b"
+      },
+      "prompt-set": {
+        "text": "可唔可以整到呢個時間？",
+        "sha256": "94cfcf74ed5e23d659dded8bde2beec4a05cd633014fc598af4734e6a8831231"
+      },
+      "prompt-tap": {
+        "text": "試吓啦。",
+        "sha256": "ba8d6ab5c4351a81286a76156fcf428eaa30dffd58ee4ebe65f91be566a5b230"
+      },
+      "praise-1": {
+        "text": "好叻呀！",
+        "sha256": "a779d8c54d7296255ce069fad887065fcc16fd11af0755f4317c31f4384773b3"
+      },
+      "praise-2": {
+        "text": "啱喇！",
+        "sha256": "ed7039ad58a9638db26ab4892d0ba82e6569247f7b185ded6edb3d6175da607f"
+      },
+      "encourage": {
+        "text": "再試多次啦。",
+        "sha256": "e57f910ae8ba193841ad9296219636a436477875e54d13ca77e57c8e641c96c1"
+      },
+      "celebrate": {
+        "text": "好犀利呀！",
+        "sha256": "a037c69d13381bc45df4b31b85d2d4d360c23257e47a30aae6fb9fe33c33e488"
+      },
+      "oclock-1": {
+        "text": "一點鐘",
+        "sha256": "66b38766049d7891810e1331c427bd48f63187de36c8b4dfdb3e0ba21de61042"
+      },
+      "half-1": {
+        "text": "一點半",
+        "sha256": "54d6461abeae84fc374e5419e02d798562280af4036ef092983b2dbd0fb6a917"
+      },
+      "qpast-1": {
+        "text": "一點三",
+        "sha256": "dbe4b6e0bd08be590c043611b6bd3e5bbc91c607d1e24c5ee5b8e1b669f7cca5"
+      },
+      "qto-1": {
+        "text": "一點九",
+        "sha256": "4f068dd2e560f80a05e576f24efda394ff6c6b8a97529bac424bc4f8d51d0bce"
+      },
+      "oclock-2": {
+        "text": "兩點鐘",
+        "sha256": "fc7ca1298c4b35ab8554f7a240c48cfef8420bd574e3e73177fda96a80aebd9d"
+      },
+      "half-2": {
+        "text": "兩點半",
+        "sha256": "09263f349ea0010c38b74a901d5ffeaf808db92de87ded379398aade25547ec1"
+      },
+      "qpast-2": {
+        "text": "兩點三",
+        "sha256": "ef0da9c59356f65c882885256f58fb8907fbc2886e94240bdff50edad87798b8"
+      },
+      "qto-2": {
+        "text": "兩點九",
+        "sha256": "564c1f2af42fc1c1f39e5a9c0058b6f5d189e7c91714d313431827febfdb7802"
+      },
+      "oclock-3": {
+        "text": "三點鐘",
+        "sha256": "e5d4fc68d1f40d800bfd0baf327d7eb8cfc3b6e97f6fa8d9a1bb3953375f7efd"
+      },
+      "half-3": {
+        "text": "三點半",
+        "sha256": "c38ee6b21b3c9dc0848ecd2340814bcb290a884027654d4a41b3233012a7b86a"
+      },
+      "qpast-3": {
+        "text": "三點三",
+        "sha256": "eb79fa661c5868b9f0a2b46cd04a16bc8836f303d46747ca273977514636375d"
+      },
+      "qto-3": {
+        "text": "三點九",
+        "sha256": "c609c4fd5de7f1ebd21811210fd91360286a0d643e8425ea3dd121a380ab6485"
+      },
+      "oclock-4": {
+        "text": "四點鐘",
+        "sha256": "1cd5bb427217ee62eed0105473dd0cd01db5d514c1568246c9213dd083b64dec"
+      },
+      "half-4": {
+        "text": "四點半",
+        "sha256": "32a8e9c3acd6820244170b13a7fe48e95310862f4f215a963301a146a36f361c"
+      },
+      "qpast-4": {
+        "text": "四點三",
+        "sha256": "3d954c0f4c2e04c3191d5cb4d4e9141823cde3b872ba21f3aaf2de68bb18af7a"
+      },
+      "qto-4": {
+        "text": "四點九",
+        "sha256": "7dae653110a5670b0b7d38f2282e0347f6afe140301e32c89153791affee54bb"
+      },
+      "oclock-5": {
+        "text": "五點鐘",
+        "sha256": "23b0124695279bc5dd2b5095941ad63778a8fa4b219ef124f85095920d2d3987"
+      },
+      "half-5": {
+        "text": "五點半",
+        "sha256": "57770d93c8d78a7eef068b109192a93b79e8c8549c5f54d3e2381bb2798222d6"
+      },
+      "qpast-5": {
+        "text": "五點三",
+        "sha256": "46df216bda814951990d075637f1dac2ebce070942d198864c8eb4b59849955a"
+      },
+      "qto-5": {
+        "text": "五點九",
+        "sha256": "7429800b54d5fca43932a6e2393bfab1fb2dae71f4c5155898bae90139791f6e"
+      },
+      "oclock-6": {
+        "text": "六點鐘",
+        "sha256": "49e7f5d8fd69a29ffe463444b91ccdf1971c4d3be425f0fbb8a6df2724fd035d"
+      },
+      "half-6": {
+        "text": "六點半",
+        "sha256": "fb6b2406a87e275b20f1fc0cf101a001b519f98cc76c2b871cc6e690d35f58a7"
+      },
+      "qpast-6": {
+        "text": "六點三",
+        "sha256": "f6de2c878c7e35799fe895ae2a539e5347d5187dad4fe179697041c2a87b5bbc"
+      },
+      "qto-6": {
+        "text": "六點九",
+        "sha256": "6bcebd8bbb696f08d6510aa162ebad310a05069f798468c2214a4b8720cdfa69"
+      },
+      "oclock-7": {
+        "text": "七點鐘",
+        "sha256": "6c1962a84814b49e7bff48bc8cf140460fc6bd69d044e7dfd813b5d864fa9875"
+      },
+      "half-7": {
+        "text": "七點半",
+        "sha256": "c7eacabbdf5d21e4b8460479c22f93559b423f493d67345c11f6861223370070"
+      },
+      "qpast-7": {
+        "text": "七點三",
+        "sha256": "3d04bd97a30298526f889afaa8eb14e9da0867ca37a2691154d1377515812575"
+      },
+      "qto-7": {
+        "text": "七點九",
+        "sha256": "15444acf5381514cc935b3dca49a5693e2767141137cf8e7c9f496c59626213c"
+      },
+      "oclock-8": {
+        "text": "八點鐘",
+        "sha256": "c8384a25e3db1f92adcfaef3bff1d33cfb8b462bd5868095d7dee069b4d3b53c"
+      },
+      "half-8": {
+        "text": "八點半",
+        "sha256": "949272dd8b24423c3a8114a681bfa13de8b9cd36c91d0319f0d1b25c218effa7"
+      },
+      "qpast-8": {
+        "text": "八點三",
+        "sha256": "bdf7e5ea72609126e5cca6be5e7b077598fbe6f6bfbb597a4fc9e6f8cba12fc8"
+      },
+      "qto-8": {
+        "text": "八點九",
+        "sha256": "ac825979045788a33756fb20ffa17eb26cf5560490749523ca0b21c11f18d7cd"
+      },
+      "oclock-9": {
+        "text": "九點鐘",
+        "sha256": "a55b15b8184e8ac8c49314606c95764363edd6d205182c27dfc436f954f08686"
+      },
+      "half-9": {
+        "text": "九點半",
+        "sha256": "f096c423ddef89558e21a80d92336ce4493abe260b557c8dd5233b10786d5033"
+      },
+      "qpast-9": {
+        "text": "九點三",
+        "sha256": "1cc4e65fe45cd209e26faaa2a46a2da512d11a260a20859f5687eac7cfe9d6a4"
+      },
+      "qto-9": {
+        "text": "九點九",
+        "sha256": "eb3cd5445a06f9e5979189f791052481c755cdc8749b2019ace883cb83ae69b4"
+      },
+      "oclock-10": {
+        "text": "十點鐘",
+        "sha256": "45c0b9027f17103f8dfa094cd48b47eed136ffb7828df2034a9c6bf5fee0ba86"
+      },
+      "half-10": {
+        "text": "十點半",
+        "sha256": "9234dc475b9d442d399e43d57fb444309bb4a0c8908e82163b84a4effb0b0b9c"
+      },
+      "qpast-10": {
+        "text": "十點三",
+        "sha256": "66073c381a5380584ebd1a40545be56a095b993cc264accd98f663c409713b42"
+      },
+      "qto-10": {
+        "text": "十點九",
+        "sha256": "bc5eb7ad41f82dcaef9cc734a46675e52f673335d8f4094afaded932e960d92c"
+      },
+      "oclock-11": {
+        "text": "十一點鐘",
+        "sha256": "dd6a469da447485de0c5d0fef2c2f68032714c54517a67744983cdf0477327de"
+      },
+      "half-11": {
+        "text": "十一點半",
+        "sha256": "7256de68e36d4836991f973687bae7c399e583357dc819c0e4ea107f58f7362f"
+      },
+      "qpast-11": {
+        "text": "十一點三",
+        "sha256": "d5a73f206d98e63298ae012d3b905f66d04664b53f5f1c33226da1069bb6324a"
+      },
+      "qto-11": {
+        "text": "十一點九",
+        "sha256": "eadde0a9a004c45ad6813c07ef4e7aacc7e028c52af96771109749f42d35a98f"
+      },
+      "oclock-12": {
+        "text": "十二點鐘",
+        "sha256": "3a01c6103ca304e2e895ffdfd7be517efb29816f3577c40bbaa6a6ef1f47b6bf"
+      },
+      "half-12": {
+        "text": "十二點半",
+        "sha256": "d8cdf9160f4642d1ebd9c4d934afc57c83ba06c63f3481000ca8040c5ca96d2b"
+      },
+      "qpast-12": {
+        "text": "十二點三",
+        "sha256": "7cb384e97b7b4af7076484c3adafd348dc46f900181aff1cbc8ea6030b613bfc"
+      },
+      "qto-12": {
+        "text": "十二點九",
+        "sha256": "1dca808f61eebfcef6fcba62a3ed38b98cc7c479b805c5f9e8570f5a7e02b8e7"
+      }
+    }
+  }
+}

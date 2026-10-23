@@ -50,8 +50,6 @@ export interface Session {
   goal: number;
   /** Right answers so far, however many attempts each took. */
   correct: number;
-  /** The adult ended the round before the goal. */
-  ended: boolean;
   /** Draws one more question from the same level, sharing the no-repeat window. */
   makeItem: () => Item;
 }
@@ -211,7 +209,6 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
     bestStreak: 0,
     goal: GOAL_CORRECT,
     correct: 0,
-    ended: false,
     makeItem,
   };
 
@@ -240,9 +237,14 @@ export function isCleared(session: Session): boolean {
   return trackComplete(session);
 }
 
-/** The round is over: the goal was reached, or the adult called it. */
+/**
+ * The round is over when the goal is reached.
+ *
+ * There is no "end early" control: the adult closes the page, which is what they would do with any
+ * toy. A finish button nobody presses is a button that has to be explained.
+ */
 export function isFinished(session: Session): boolean {
-  return session.ended || trackComplete(session);
+  return trackComplete(session);
 }
 
 /** Right answers given on the first showing of each item. */
@@ -294,17 +296,11 @@ export function recordVerdict(session: Session, correct: boolean): Session {
   return next;
 }
 
-/** The adult decides the round is over — a level beyond the child, or a tired evening. */
-export function endSession(session: Session): Session {
-  return { ...session, ended: true };
-}
-
 export interface Summary {
   correct: number;
   goal: number;
   firstPass: number;
   reachedGoal: boolean;
-  endedEarly: boolean;
   bestStreak: number;
 }
 
@@ -314,7 +310,6 @@ export function summarise(session: Session): Summary {
     goal: session.goal,
     firstPass: firstPassCorrect(session),
     reachedGoal: trackComplete(session),
-    endedEarly: session.ended && !trackComplete(session),
     bestStreak: session.bestStreak,
   };
 }

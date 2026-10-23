@@ -8,10 +8,19 @@
  */
 
 import { renderCelebration, renderPlay, renderSummary } from './app';
-import { createSession, endSession, isCleared, isFinished, recordVerdict, trackComplete } from './engine';
+import { promptKeyFor } from './audio';
+import {
+  createSession,
+  currentItem,
+  isCleared,
+  isFinished,
+  recordVerdict,
+  trackComplete,
+} from './engine';
 
 import type { Session } from './engine';
 import type { PlayOptions } from './app';
+import type { Speaker } from './audio';
 import type { Level } from './types';
 
 export interface Mounted {
@@ -19,17 +28,30 @@ export interface Mounted {
   celebrating(): boolean;
 }
 
+/** Play options plus the voice. Optional so a test needs no audio hardware. */
+export interface MountOptions extends PlayOptions {
+  speaker?: Speaker;
+}
+
 export function mountPlay(
   app: HTMLElement,
   overlayRoot: HTMLElement,
   level: Level,
-  options: PlayOptions = {},
+  options: MountOptions = {},
 ): Mounted {
   let session = createSession(level);
   let celebrating = false;
   let reported = false;
+  let spoken: string | undefined;
 
-  const draw = (): void => {
+  const speakPrompt = (): void => {
+    const item = currentItem(session);
+    if (!item || item.key === spoken) return;
+    spoken = item.key;
+    void options.speaker?.say(promptKeyFor(item));
+  };
+
+  const draw = (speak = true): void => {
     const finished = isFinished(session) && !celebrating;
     if (finished && !reported) {
       reported = true;
@@ -40,6 +62,10 @@ export function mountPlay(
         ? renderSummary(session, isCleared(session))
         : renderPlay(level, session, lastVerdict ? { ...options, lastVerdict } : options),
     );
+
+    // The question is said once per face, and only when the caller wants it — after a verdict the
+    // next face appears immediately but its question waits for the praise to finish being heard.
+    if (speak) speakPrompt();
 
     overlayRoot.replaceChildren();
     if (!celebrating) return;
@@ -55,9 +81,29 @@ export function mountPlay(
 
     lastVerdict = verdict;
     session = recordVerdict(session, verdict === 'correct');
-    if (trackComplete(session)) celebrating = true;
-    draw();
+
+    if (trackComplete(session)) {
+      celebrating = true;
+      draw(false); // the party appears at once; the fanfare is not cut off by a question
+      void options.speaker?.say('celebrate');
+      return;
+    }
+
+    draw(false); // the next face is on screen immediately…
+    const spokenVerdict = options.speaker?.say(verdict === 'correct' ? 'praise-1' : 'encourage');
+
+    // …but its question is asked only after the child has HEARD the verdict. Without this, `say`
+    // interrupted the praise in the same tick and "well done" was never audible at all.
+    if (spokenVerdict) void spokenVerdict.then(() => speakPrompt());
+    else speakPrompt();
   };
+
+  // iOS refuses audio until the child has touched something, so the very first question is
+  // swallowed. Re-ask it on the first touch: same question, said once, at the moment it can be heard.
+  app.addEventListener('pointerdown', () => {
+    spoken = undefined;
+    speakPrompt();
+  }, { once: true });
 
   app.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
@@ -67,13 +113,6 @@ export function mountPlay(
       session = createSession(level);
       celebrating = false;
       reported = false;
-      draw();
-      return;
-    }
-
-    if (action === 'finish') {
-      session = endSession(session);
-      celebrating = false;
       draw();
       return;
     }
