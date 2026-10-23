@@ -84,7 +84,13 @@ export function findViolations(
   const violations: Violation[] = [];
 
   for (const commit of commits) {
-    const touchedTests = new Set(commit.files.filter((f) => isTest(f.path)).map((f) => moduleOf(f.path)));
+    // `D test/engine.test.ts` used to register as "engine is tested", which is the opposite of what
+    // deleting a test means.
+    const touchedTests = new Set(
+      commit.files
+        .filter((f) => isTest(f.path) && !f.status.startsWith('D'))
+        .map((f) => moduleOf(f.path)),
+    );
 
     for (const file of commit.files) {
       if (!isSrcModule(file.path)) continue;
