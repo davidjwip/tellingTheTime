@@ -13,7 +13,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      # full history: the test-first gate reads the commit graph, and a shallow clone would make
+      # it silently pass by seeing no commits at all
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       # node 22 is deliberate: it is what the build host runs, so CI matches the machine that
       # produces the artefact rather than the newest thing that happens to work.
@@ -28,3 +32,5 @@ jobs:
       - run: npm run test:coverage
       # the content gate: the eight integrity rules over the committed level set
       - run: npm run validate:levels
+      # the process gate: tests precede the code they cover, checked against the commit graph
+      - run: npm run gate:tests-first

@@ -4,9 +4,9 @@ Read this before touching anything in this repo.
 
 ## Where the repo is
 
-**Spec stage.** `README.md`, `research/*.md` and `specs/v1.md` (v1.1) are written. The spec is a
-**draft awaiting approval** in the project thread; there is no code. Do not scaffold an app,
-choose a stack in anger, or generate components until that spec is approved.
+**Build stage.** `specs/v1.md` is approved (v1.4) and the app exists: geometry, the level validator,
+the SVG face, the round engine and the play screen. The spec gate is satisfied — but it applies to
+new behaviour, so a change that adds a rule still starts in `specs/`, not in `src/`.
 
 ## The one rule
 
@@ -14,6 +14,13 @@ choose a stack in anger, or generate components until that spec is approved.
 
 - Every behaviour lives in `specs/` first, with acceptance criteria as `Given / When / Then`.
 - Every acceptance criterion gets a test that fails **before** it passes.
+- **This is now enforced, not remembered.** `npm run gate:tests-first` reads the commit graph and
+  fails when a module under `src/` is added in a commit that no *earlier* commit tested, or changed
+  without touching its test in the same commit. CI runs it, so the honest shape is two commits: a
+  red one carrying the failing test, then the green one carrying the implementation.
+- Two exemptions exist in `scripts/check-test-first.ts`: `types` (type-only) and `main`
+  (bootstrap). Adding a third needs a reason that survives review — an exemption nobody can argue
+  with is just a hole.
 - A spec is approved only when Dave says so in the thread. "The agent thinks it's clear" is not
   approval, and silence is not approval.
 
