@@ -54,6 +54,11 @@ describe('the screen a child sees', () => {
     const cantonese = renderPlay(level('t2.2'), session('t2.2'), { locale: 'yue' });
     expect(cantonese.querySelector('[data-locale="yue"]')?.classList.contains('operator-active')).toBe(true);
     expect(cantonese.querySelector('[data-locale="en"]')?.classList.contains('operator-active')).toBe(false);
+
+    // colour alone is not a state a screen reader or a colour-blind adult can read
+    expect(english.querySelector('[data-locale="en"]')?.getAttribute('aria-pressed')).toBe('true');
+    expect(english.querySelector('[data-locale="yue"]')?.getAttribute('aria-pressed')).toBe('false');
+    expect(cantonese.querySelector('[data-locale="yue"]')?.getAttribute('aria-pressed')).toBe('true');
   });
 
   it('speaks the task as a prompt, because the child cannot read one', () => {
