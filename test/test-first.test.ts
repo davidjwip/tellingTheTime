@@ -96,6 +96,24 @@ describe('modules already tested before the branch', () => {
   });
 });
 
+describe('specialised test files', () => {
+  it('counts engine.tier.test.ts as a test of engine', () => {
+    const commits = [
+      commit('n3', [['M', 'test/engine.tier.test.ts']]),
+      commit('n4', [['M', 'src/engine.ts']]),
+    ];
+    expect(findViolations(commits)).toEqual([]);
+  });
+
+  it('does not count a merely similar name', () => {
+    const commits = [
+      commit('n5', [['M', 'test/enginex.test.ts']]),
+      commit('n6', [['M', 'src/engine.ts']]),
+    ];
+    expect(findViolations(commits)).toHaveLength(1);
+  });
+});
+
 describe('reading git output', () => {
   it('takes the new path from a rename, and treats it as an addition', () => {
     // R100<TAB>old<TAB>new - reading column 2 reports the OLD name, so a module could arrive
