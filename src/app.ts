@@ -11,6 +11,7 @@ import { renderChoose } from './choose';
 import { renderFace } from './clockFace';
 import { el, feedbackArea } from './dom';
 import { currentItem, trackProgress } from './engine';
+import { renderOrder } from './order';
 
 import type { Session, Item } from './engine';
 import type { Level, Task } from './types';
@@ -22,6 +23,8 @@ export interface PlayOptions {
   onChangeLevel?: (level: Level) => void;
   /** What the adult just said, so the feedback line can show it. */
   lastVerdict?: 'correct' | 'wrong';
+  /** The cards already tapped into an order row, in tap order. */
+  placed?: string[];
   /** Told once, when the round ends, so a clear can be remembered. */
   onRoundEnd?: (cleared: boolean) => void;
 }
@@ -120,11 +123,14 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const panel = el('div', 'problem-area');
 
   const item = currentItem(session);
-  // A choice is checkable, so the cards are the answer and the app marks the tap. There is no pad
-  // here on purpose: a ✓/✗ pair would ask the adult to re-mark something the app already knows.
+  // A choice and an order are both checkable, so the app marks them. There is no pad on either
+  // screen on purpose: a ✓/✗ pair would ask the adult to re-mark something the app already knows.
   const choosing = item?.answer !== undefined;
+  const ordering = item?.order !== undefined;
 
-  if (choosing && item) {
+  if (ordering && item) {
+    panel.append(renderOrder(item, options.placed ?? [], options.lastVerdict));
+  } else if (choosing && item) {
     panel.append(renderChoose(item, options.lastVerdict));
   } else {
     panel.append(el('div', 'prompt', item ? promptFor(item, item.task) : 'Done'));
@@ -148,7 +154,7 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   }
   main.append(panel);
 
-  if (!choosing) {
+  if (!choosing && !ordering) {
     const padContainer = el('div', 'pad-container');
     // Every task is marked by the adult who watched (B6). A "Done" button that recorded "correct"
     // was marking the child's effort as success without anyone looking — and on a set task it was

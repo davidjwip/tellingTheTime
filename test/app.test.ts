@@ -158,11 +158,16 @@ describe('the screen a child sees', () => {
   });
 
   it('renders a level with no answerable questions instead of throwing', () => {
-    // the pre-clock levels are filtered out of every round until their screens exist, so this is a
-    // zero-item session: the screen must not crash, and says there is nothing to ask
-    const faceless = LEVELS.find((l) => l.face === undefined);
-    expect(faceless, 'the ladder should contain a pre-clock level').toBeDefined();
-    const screen = renderPlay(faceless!, session(faceless!.id));
+    // every faceless level in the ladder now has a screen, so use an order step whose content has
+    // no order table: it is filtered out of the round, leaving a zero-item session that must not
+    // crash and says there is nothing to ask
+    const unaskable: Level = {
+      ...level('t0.1'),
+      id: 'test-unaskable',
+      content: { kind: 'clock' },
+      round: [{ task: 'order', items: 4 }],
+    };
+    const screen = renderPlay(unaskable, createSession(unaskable, seededRng(3)));
     expect(screen.querySelector('svg')).toBeNull();
     expect(screen.querySelector('.prompt')?.textContent).toBe('Done');
   });

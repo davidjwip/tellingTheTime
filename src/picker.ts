@@ -24,7 +24,7 @@ const NEEDS: Record<Task, string> = {
   set: 'needs hand-dragging',
   tap: 'needs tapping the dial',
   choose: 'needs choosing between dials',
-  order: 'needs dragging cards',
+  order: 'needs ordering',
   build: 'needs building the face',
 };
 
