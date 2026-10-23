@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS } from '../src/levels';
-import { renderPicker, resolveStartLevel, shelve } from '../src/picker';
+import { levelFromClick, renderPicker, resolveStartLevel, shelve } from '../src/picker';
 import { DEFAULT_PROGRESS } from '../src/progress';
 
 import type { Level } from '../src/types';
@@ -107,6 +107,40 @@ describe('where a visit starts', () => {
 
   it('has nothing to resume on a first visit', () => {
     expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, null)).toBeNull();
+  });
+});
+
+describe('which click means a level', () => {
+  const build = () => {
+    document.body.replaceChildren();
+    const picker = document.createElement('div');
+    picker.className = 'container picker';
+    const button = document.createElement('button');
+    button.dataset.level = 't0.4';
+    picker.append(button);
+
+    // the play screen's container carries data-level too - that is what made every tap a remount
+    const playing = document.createElement('div');
+    playing.className = 'container';
+    playing.dataset.level = 't0.1';
+    const card = document.createElement('button');
+    card.dataset.card = 'morning';
+    playing.append(card);
+
+    document.body.append(picker, playing);
+    return { button, card };
+  };
+
+  it('reads a level from a shelf button', () => {
+    expect(levelFromClick(build().button)).toBe('t0.4');
+  });
+
+  it('ignores a tap inside a round, even though the screen carries data-level', () => {
+    expect(levelFromClick(build().card)).toBeNull();
+  });
+
+  it('ignores a tap on nothing', () => {
+    expect(levelFromClick(null)).toBeNull();
   });
 });
 
