@@ -25,3 +25,5 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
+      # the content gate: the eight integrity rules over the committed level set
+      - run: npm run validate:levels
