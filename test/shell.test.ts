@@ -126,6 +126,16 @@ describe('the shell decides what a click means', () => {
     expect(saved().cleared).toContain('t2.4');
   });
 
+  it('does not hear from inputs that are not the name field', () => {
+    shell().start(null);
+    const other = document.createElement('input');
+    other.name = 'something-else';
+    app.append(other);
+    other.value = 'x';
+    other.dispatchEvent(new Event('input', { bubbles: true }));
+    expect(saved().name).toBeUndefined(); // nothing was written at all
+  });
+
   it('remembers the name the adult types, and ignores other fields', () => {
     shell().start(null);
     const input = app.querySelector('#child-name') as HTMLInputElement;
