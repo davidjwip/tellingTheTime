@@ -301,6 +301,31 @@ describe('what a tap does', () => {
     expect(mounted.celebrating()).toBe(true);
   });
 
+  it('marks the chosen language as pressed, and keeps the round and its placed cards', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t0.1'));
+    const localeButton = (locale: 'en' | 'yue'): HTMLButtonElement | null =>
+      app.querySelector<HTMLButtonElement>(`[data-locale="${locale}"]`);
+
+    expect(localeButton('en')?.getAttribute('aria-pressed')).toBe('true');
+    expect(localeButton('en')?.classList.contains('operator-active')).toBe(true);
+    expect(localeButton('yue')?.getAttribute('aria-pressed')).toBe('false');
+    expect(localeButton('yue')?.classList.contains('operator-active')).toBe(false);
+
+    const firstCard = app.querySelector('[data-card]') as HTMLElement;
+    firstCard.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 100, clientY: 300 }));
+    expect(app.querySelectorAll('.order-slot [data-card]')).toHaveLength(1);
+    const before = mounted.session();
+
+    mounted.setLocale('yue');
+
+    expect(localeButton('yue')?.getAttribute('aria-pressed')).toBe('true');
+    expect(localeButton('yue')?.classList.contains('operator-active')).toBe(true);
+    expect(localeButton('en')?.getAttribute('aria-pressed')).toBe('false');
+    expect(localeButton('en')?.classList.contains('operator-active')).toBe(false);
+    expect(mounted.session()).toBe(before);
+    expect(app.querySelectorAll('.order-slot [data-card]')).toHaveLength(1);
+  });
+
   it('leaves for the shelf from the Level button, which used to be inert', () => {
     const asked: string[] = [];
     mountPlay(app, overlayRoot, level('t2.2'), { onChangeLevel: (l) => asked.push(l.id) });
