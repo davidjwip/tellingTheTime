@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cleared</title>
+<style>
+/* Parity tokens and layout, copied from simpleKindergartenAdditionWebpage/src/style.css.
+   Classes keep the reference's names so the two apps stay recognisably the same object.
+   See specs/design-parity.md. The only new classes are the clock frame, the verdict pad,
+   the prompt line and the setup shelf — all listed in §7 of that document. */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Fredoka', 'Comic Sans MS', 'Chalkboard SE', 'Marker Felt', sans-serif;
+  background: linear-gradient(135deg, #ffd1dc, #a2d8f1);
+  color: #333;
+  min-height: 100vh;
+  margin: 0;
+  padding: 10px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 15px;
+  text-align: center;
+}
+
+header {
+  margin-bottom: 10px;
+}
+
+h1 {
+  color: #ff6b6b;
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 0 #ffd1dc;
+  margin-bottom: 10px;
+}
+
+.instructions {
+  color: #4ecdc4;
+  font-size: 1.2rem;
+}
+
+.header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.action-btn {
+  border: none;
+  border-radius: 50px;
+  background-color: #ff6b6b;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 12px 20px;
+}
+
+.action-btn.small {
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
+.action-btn:hover {
+  background-color: #ff5252;
+  transform: scale(1.05);
+}
+
+.operator-toggle {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.operator-toggle .action-btn {
+  padding: 8px 24px;
+  border-radius: 8px 0 0 8px;
+}
+
+.operator-toggle .action-btn:last-child {
+  border-radius: 0 8px 8px 0;
+}
+
+.operator-toggle .action-btn:first-child.operator-active {
+  background-color: #4ecdc4;
+  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.4);
+}
+
+.operator-toggle .action-btn:last-child.operator-active {
+  background-color: #ff6b6b;
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.4);
+}
+
+.mute-btn {
+  background-color: #4ecdc4;
+}
+
+.mute-btn:hover {
+  background-color: #3aa897;
+}
+
+main {
+  margin-bottom: 15px;
+}
+
+.problem-area {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.prompt {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #4ecdc4;
+  margin-bottom: 10px;
+}
+
+/* The reference's answer box, scaled up: cream face, 3px teal border. */
+.clock-frame {
+  width: min(320px, 68vw);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  background: #fff9c4;
+  border: 3px solid #4ecdc4;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.clock-face {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.feedback-area {
+  margin: 10px 0;
+}
+
+#feedback {
+  font-size: 1.5rem;
+  font-weight: bold;
+  min-height: 40px;
+  margin-bottom: 10px;
+}
+
+.pad-container {
+  margin: 10px 0;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+}
+
+.pad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.touchpad-btn {
+  border: 2px solid #4ecdc4;
+  border-radius: 10px;
+  background-color: #fff;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  font-weight: bold;
+  font-size: 1.5rem;
+}
+
+.touchpad-btn:hover {
+  background-color: #e0f7fa;
+  transform: scale(1.05);
+}
+
+.pad-btn {
+  min-height: 96px;
+  font-size: 1.6rem;
+}
+
+.pad-yes {
+  background-color: #4ecdc4;
+  border-color: #4ecdc4;
+  color: #fff;
+}
+
+.pad-yes:hover {
+  background-color: #3aa897;
+}
+
+.pad-no {
+  background-color: #fff;
+  border-color: #4ecdc4;
+  color: #333;
+}
+
+.streak-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+  padding: 10px;
+  background: linear-gradient(135deg, #fff3cd, #ffe69c);
+  border-radius: 15px;
+}
+
+.streak-fire {
+  font-size: 2rem;
+}
+
+.streak-count {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #e67e22;
+}
+
+.streak-best {
+  font-size: 1rem;
+  color: #7f8c8d;
+  margin-left: 10px;
+}
+
+.progress-area {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 10px;
+}
+
+.progress-area h2 {
+  color: #ff6b6b;
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+
+.goal-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 15px;
+}
+
+.goal-steps-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.goal-steps {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.step {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #7f8c8d;
+  transition: all 0.3s ease;
+}
+
+.step.filled {
+  background: linear-gradient(135deg, #4ecdc4, #ff6b6b);
+  color: white;
+  box-shadow: 0 2px 8px rgba(78, 205, 196, 0.4);
+}
+
+.mascot {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+.goal-end {
+  font-size: 2.5rem;
+  flex-shrink: 0;
+}
+
+footer {
+  margin-top: 20px;
+  color: #4ecdc4;
+  font-size: 1.2rem;
+}
+
+.celebration-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.celebration-overlay.visible {
+  display: flex;
+  animation: fadeIn 0.5s ease;
+}
+
+.celebration-title {
+  font-size: 3rem;
+  color: #ffd1dc;
+  text-shadow: 3px 3px 0 #ff6b6b;
+  margin: 20px 0;
+}
+
+.celebration-close-btn {
+  margin-top: 30px;
+  padding: 15px 40px;
+  font-size: 1.5rem;
+  border: none;
+  border-radius: 50px;
+  background-color: #4ecdc4;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  font-family: inherit;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .container { padding: 10px; }
+  h1 { font-size: 2rem; }
+  .clock-frame { width: min(320px, 76vw); }
+}
+
+@media (max-width: 480px) {
+  h1 { font-size: 1.6rem; }
+  .header-actions { gap: 6px; }
+  .header-actions .action-btn.small { padding: 6px 12px; font-size: 0.85rem; }
+  .operator-toggle .action-btn.small { padding: 6px 14px; }
+  .step { width: 100%; max-width: 42px; aspect-ratio: 1; height: auto; font-size: 0.85rem; }
+  .goal-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; }
+  .pad-btn { min-height: 80px; font-size: 1.2rem; }
+  .mascot, .goal-end { font-size: 1.5rem; }
+}
+
+/* artefact preview only: this file is generated by the test suite, not shipped */
+body { display: flex; align-items: flex-start; justify-content: center; }
+</style>
+</head>
+<body>
+<div class="container summary" data-level="t2.2"><h1>Level cleared!</h1><p class="instructions">0 of 10 · best streak 0</p><div class="header-actions"><button class="action-btn" data-action="again">Again</button><button class="action-btn" data-action="change-level">Change level</button></div></div>
+</body>
+</html>
