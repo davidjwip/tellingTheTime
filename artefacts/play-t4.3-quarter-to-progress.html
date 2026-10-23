@@ -194,6 +194,78 @@ main {
   color: #333;
 }
 
+/* The order screens: shuffled cards in a pool above the row of slots they are tapped into. */
+.order-pool,
+.order-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.order-row {
+  min-height: 110px;
+  padding: 10px;
+  background: #f8f9fa;
+  border-radius: 15px;
+}
+
+.order-slot {
+  min-width: 90px;
+  min-height: 100px;
+  border: 3px dashed #4ecdc4;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.order-slot:has(.order-card) {
+  border-style: solid;
+}
+
+.order-card {
+  min-width: 80px;
+  min-height: 90px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #fff9c4;
+  border: 3px solid #4ecdc4;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.order-card:hover,
+.order-card:focus-visible {
+  background: #fff3a3;
+  outline: 3px solid #ff6b6b;
+  outline-offset: 2px;
+}
+
+.order-number {
+  font-size: 2.2rem;
+  font-weight: bold;
+  line-height: 1;
+  color: #ff6b6b;
+}
+
+.order-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+}
+
+.order-word {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
 .feedback-area {
   margin: 10px 0;
 }

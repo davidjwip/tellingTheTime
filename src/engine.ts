@@ -14,8 +14,10 @@
 
 import { chooseFor } from './choose';
 import { clockTimes } from './levels';
+import { orderFor } from './order';
 
-import type { Card, Choice } from './choose';
+import type { Choice } from './choose';
+import type { Card, Order } from './order';
 import type { Content, Level, Task } from './types';
 
 export interface ClockTime {
@@ -32,6 +34,8 @@ export interface Item {
   cards?: Card[];
   /** Id of the card that answers a `choose` item. Its presence is what makes a screen a choose one. */
   answer?: string;
+  /** The correct id sequence for an `order` item. Its presence is what makes a screen an order one. */
+  order?: string[];
   /** The question for a `choose` item, decided by the content kind when the item was built. */
   question?: string;
   /** Position in the original round plan, so a re-queued item is recognisable. */
@@ -67,14 +71,15 @@ export type Rng = () => number;
 /**
  * The task kinds the app can actually present today.
  *
- * `set`, `tap`, `order` and `build` still need a screen. Asking a four-year-old a question he cannot
- * answer is worse than asking fewer, so those steps are dropped until their screens land — and the
- * level data keeps them, so nothing is retyped when they do.
+ * `set`, `tap` and `build` still need a screen. Asking a four-year-old a question he cannot answer is
+ * worse than asking fewer, so those steps are dropped until their screens land — and the level data
+ * keeps them, so nothing is retyped when they do.
  *
- * `choose` is supported, but only for the content kinds with a card table. `canPresent` makes that
- * second check, so a clock-choice level does not appear playable with no cards to show.
+ * `choose` and `order` are supported, but only for the content kinds with a card table. `canPresent`
+ * makes that second check, so a clock-choice or clock-order level does not appear playable with no
+ * cards to show.
  */
-export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read', 'choose']);
+export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read', 'choose', 'order']);
 
 /** Right answers needed to finish a round. */
 export const GOAL_CORRECT = 10;
@@ -109,6 +114,7 @@ const sameTime = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =
 export function canPresent(level: Level, task: Task): boolean {
   if (!SUPPORTED_TASKS.has(task)) return false;
   if (task === 'choose') return chooseFor(level.content) !== undefined;
+  if (task === 'order') return orderFor(level.content) !== undefined;
   return true;
 }
 
@@ -123,6 +129,7 @@ export function canPresent(level: Level, task: Task): boolean {
 export interface Drawer {
   nextTime: () => ClockTime | undefined;
   nextChoice: (content: Content) => Choice;
+  nextOrder: (content: Content) => Order | undefined;
 }
 
 export function makeDrawer(level: Level, rng: Rng): Drawer {
@@ -131,6 +138,7 @@ export function makeDrawer(level: Level, rng: Rng): Drawer {
   // The draw order is not the display order once a missed item is re-inserted, so the queue is
   // repaired as well. This only remembers what was last drawn, like the clock window above.
   let previousChoice: string | undefined;
+  let previousOrder: string[] | undefined;
 
   return {
     nextTime: () => {
@@ -149,6 +157,11 @@ export function makeDrawer(level: Level, rng: Rng): Drawer {
       previousChoice = choice.answer;
       return choice;
     },
+    nextOrder: (content) => {
+      const order = orderFor(content, previousOrder, rng);
+      if (order) previousOrder = order.cards.map((card) => card.id);
+      return order;
+    },
   };
 }
 
@@ -158,6 +171,7 @@ function itemFor(
   key: string,
   extra?: boolean,
   choice?: Choice,
+  order?: Order,
 ): Item {
   const item: Item = { task: step, key };
   if (time) item.time = time;
@@ -166,6 +180,10 @@ function itemFor(
     item.cards = choice.cards;
     item.answer = choice.answer;
     item.question = choice.question;
+  }
+  if (order) {
+    item.cards = order.cards;
+    item.order = order.answer;
   }
   return item;
 }
@@ -187,6 +205,15 @@ export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer
         const choice = draw.nextChoice(level.content);
         const key = `${step.task}:${choice.answer}:${stepIndex}.${i}`;
         queue.push(itemFor(step.task, undefined, key, undefined, choice));
+        continue;
+      }
+
+      if (step.task === 'order') {
+        const order = draw.nextOrder(level.content);
+        if (!order) continue;
+        queue.push(
+          itemFor(step.task, undefined, `${step.task}:${stepIndex}.${i}`, undefined, undefined, order),
+        );
         continue;
       }
 
@@ -214,9 +241,17 @@ function choiceKey(item: Item | undefined): string | undefined {
   return `${item.answer}:${cards}`;
 }
 
+function orderKey(item: Item): string | undefined {
+  return item.cards?.map((card) => card.id).join(',');
+}
+
 function sameQuestion(a: Item | undefined, b: Item | undefined): boolean {
   if (!a || !b) return false;
   if (sameTime(a.time, b.time)) return true;
+  if (a.task === 'order' && b.task === 'order') {
+    const key = orderKey(a);
+    return key !== undefined && key === orderKey(b);
+  }
   const key = choiceKey(a);
   return key !== undefined && key === choiceKey(b);
 }
@@ -267,6 +302,10 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
       const choice = drawer.nextChoice(level.content);
       return itemFor(step, undefined, `${step}:extra:${extras}`, true, choice);
     }
+    if (step === 'order') {
+      const order = drawer.nextOrder(level.content);
+      return itemFor(step, undefined, `${step}:extra:${extras}`, true, undefined, order);
+    }
     const time = step === 'read' || step === 'set' ? drawer.nextTime() : undefined;
     return itemFor(step, time, `${step}:extra:${extras}`, true);
   };
@@ -285,8 +324,10 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
 
   // nothing to ask: leave the queue empty rather than inventing questions for a level with no screen
   if (queue.length > 0) {
-    repairNeighbours(session.queue, session.makeItem);
+    // Draw first, then repair: a question appended after the repair would never be checked against
+    // the queue it lands in, and could repeat its neighbour.
     ensureNext(session);
+    repairNeighbours(session.queue, session.makeItem);
   }
   return session;
 }
@@ -362,8 +403,9 @@ export function recordVerdict(session: Session, correct: boolean): Session {
     correct: right,
   };
 
-  repairNeighbours(next.queue, next.makeItem);
+  // Draw first, then repair: ensureNext appends after the repair would otherwise skip the new item.
   ensureNext(next);
+  repairNeighbours(next.queue, next.makeItem);
   return next;
 }
 

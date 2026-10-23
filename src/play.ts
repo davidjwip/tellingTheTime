@@ -50,6 +50,7 @@ export function mountPlay(
   let spoken: string | undefined;
   let choiceLocked = false;
   let lastChoiceId: string | undefined;
+  let placed: string[] = [];
 
   const speakPrompt = (): void => {
     const item = currentItem(session);
@@ -67,7 +68,11 @@ export function mountPlay(
     app.replaceChildren(
       finished
         ? renderSummary(session, isCleared(session))
-        : renderPlay(level, session, lastVerdict ? { ...options, lastVerdict } : options),
+        : renderPlay(level, session, {
+            ...options,
+            ...(lastVerdict ? { lastVerdict } : {}),
+            placed,
+          }),
     );
 
     // The question is said once per face, and only when the caller wants it — after a verdict the
@@ -122,6 +127,7 @@ export function mountPlay(
       reported = false;
       choiceLocked = false;
       lastChoiceId = undefined;
+      placed = [];
       draw();
       return;
     }
@@ -135,7 +141,34 @@ export function mountPlay(
       return;
     }
 
-    // A card tap is already the answer. Compare it with the item the app built, so the verdict is
+    // An order card fills the next slot, and a placed card goes back to the pool. The row is checked
+    // only when it is full, so a half-built answer records nothing.
+    const card = target?.closest<HTMLElement>('[data-card]')?.dataset.card;
+    if (card !== undefined) {
+      const item = currentItem(session);
+      const expected = item?.order;
+      if (!item || !expected) return;
+
+      if (placed.includes(card)) {
+        placed = placed.filter((id) => id !== card);
+      } else if (placed.length < expected.length) {
+        placed = [...placed, card];
+      } else {
+        return;
+      }
+
+      if (placed.length < expected.length) {
+        draw(false);
+        return;
+      }
+
+      const correct = placed.every((id, index) => id === expected[index]);
+      placed = [];
+      onVerdict(correct ? 'correct' : 'wrong');
+      return;
+    }
+
+    // A choice tap is already the answer. Compare it with the item the app built, so the verdict is
     // recorded by the same path as an adult's tap and a miss still returns three places later.
     const choice = target?.closest<HTMLElement>('[data-choice]')?.dataset.choice;
     if (choice !== undefined) {
