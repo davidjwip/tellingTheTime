@@ -38,6 +38,8 @@ export interface Item {
   order?: string[];
   /** The question for a `choose` item, decided by the content kind when the item was built. */
   question?: string;
+  /** The level this item was drawn from, so a tier round can still honour `?level=`. */
+  levelId?: string;
   /** Position in the original round plan, so a re-queued item is recognisable. */
   key: string;
   /** True on the second and later showing of an item the child missed. */

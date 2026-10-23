@@ -154,43 +154,56 @@ describe('where Start goes', () => {
 describe('the shelf', () => {
   const shelved = shelve(LEVELS, DEFAULT_PROGRESS);
 
-  it('is a screen, not a list: one section per tier, in order', () => {
+  const entries = (screen: HTMLElement): HTMLElement[] => [
+    ...screen.querySelectorAll<HTMLElement>('.picker [data-level]'),
+  ];
+
+  const firstPlayable = (tier: number): Level => {
+    const found = LEVELS.filter((l) => l.tier === tier).find(
+      (l) => shelve([l], DEFAULT_PROGRESS)[0]?.available === true,
+    );
+    if (!found) throw new Error(`tier ${tier} has no playable level`);
+    return found;
+  };
+
+  it('is a screen, not a list: one section per playable tier, in order', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const tiers = [...screen.querySelectorAll('[data-tier]')].map((n) => n.getAttribute('data-tier'));
-    expect(tiers).toEqual(['0', '1', '2', '3', '4']);
+    // tier 1 has no playable exercise, so it has no door of its own
+    expect(tiers).toEqual(['0', '2', '3', '4']);
   });
 
-  it('gives every level a button carrying its id', () => {
+  it('gives each playable tier one entry carrying its first playable level', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
-    const ids = [...screen.querySelectorAll('[data-level]')].map((n) => n.getAttribute('data-level'));
-    expect(ids).toEqual(LEVELS.map((l) => l.id));
+    const ids = entries(screen).map((n) => n.dataset.level);
+    expect(ids).toEqual(['t0.1', 't2.1', 't3.2', 't4.2']);
   });
 
-  it('disables what cannot be played, and says why in the button', () => {
+  it('keeps the exercises off the shelf and inside the entry tooltip', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
-    const blocked = screen.querySelector('[data-level="t2.3"]') as HTMLButtonElement;
-    expect(blocked.disabled).toBe(true);
-    expect(blocked.textContent).toMatch(/dragg/i);
+
+    for (const tier of [0, 2, 3, 4]) {
+      const tierLevels = LEVELS.filter((l) => l.tier === tier);
+      const entry = screen.querySelector<HTMLElement>(`[data-level="${firstPlayable(tier).id}"]`);
+      const names = tierLevels.map((l) => l.title.en).join(', ');
+
+      expect(entry, `tier ${tier}`).not.toBeNull();
+      expect(entry?.title, `tier ${tier} title`).toBe(names);
+      expect(entry?.getAttribute('aria-description'), `tier ${tier} description`).toBe(names);
+    }
   });
 
-  it('leaves the playable ones enabled', () => {
+  it('leaves the playable tier entries enabled', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
-    expect((screen.querySelector('[data-level="t2.4"]') as HTMLButtonElement).disabled).toBe(false);
+    for (const entry of entries(screen)) {
+      expect((entry as HTMLButtonElement).disabled).toBe(false);
+    }
   });
 
-  it('leaves the two order levels enabled now their screen exists', () => {
-    const screen = renderPicker(
-      shelve([level('t0.1'), level('t0.4')], DEFAULT_PROGRESS),
-      DEFAULT_PROGRESS,
-    );
-    expect((screen.querySelector('[data-level="t0.1"]') as HTMLButtonElement).disabled).toBe(false);
-    expect((screen.querySelector('[data-level="t0.4"]') as HTMLButtonElement).disabled).toBe(false);
-  });
-
-  it('marks a cleared level without hiding it', () => {
-    const progress = { ...DEFAULT_PROGRESS, cleared: ['t2.4'] };
+  it('marks a cleared tier entry without hiding it', () => {
+    const progress = { ...DEFAULT_PROGRESS, cleared: ['t2.1'] };
     const screen = renderPicker(shelve(LEVELS, progress), progress);
-    const cleared = screen.querySelector('[data-level="t2.4"]');
+    const cleared = screen.querySelector('[data-level="t2.1"]');
     expect(cleared?.getAttribute('data-cleared')).toBe('true');
     expect(cleared?.textContent).toContain('✓');
   });
@@ -219,24 +232,21 @@ describe('the shelf', () => {
     expect([...screen.querySelectorAll('[data-tier]')].map((n) => n.getAttribute('data-tier'))).toEqual(['2']);
   });
 
-  it('still shows a cleared level that is not playable yet', () => {
-    // cleared and unavailable: the tick wins, because it happened
-    const progress = { ...DEFAULT_PROGRESS, cleared: ['t2.3'] };
-    const screen = renderPicker(shelve(LEVELS, progress), progress);
-    const button = screen.querySelector('[data-level="t2.3"]') as HTMLButtonElement;
-    expect(button.disabled).toBe(true);
-    expect(button.querySelector('.level-note')?.textContent).toBe('✓');
-  });
-
-  it('says so when a level has too few questions and nothing to blame', () => {
+  it('leaves out a tier whose only level cannot be played', () => {
+    // A level with too few answerable questions is still shelved, but it is not a door
     const thin: Level = {
       ...level('t2.4'),
       id: 'test-thin',
       round: [{ task: 'read', items: 2 }],
     };
-    const [shelved] = shelve([thin], DEFAULT_PROGRESS);
-    expect(shelved?.available).toBe(false);
-    expect(shelved?.reason).toBe('nothing to ask yet');
+    const shelvedThin = shelve([thin], DEFAULT_PROGRESS)[0];
+    if (!shelvedThin) throw new Error('thin level was not shelved');
+    expect(shelvedThin.available).toBe(false);
+    expect(shelvedThin.reason).toBe('nothing to ask yet');
+
+    const screen = renderPicker([shelvedThin], DEFAULT_PROGRESS);
+    expect(screen.querySelector('[data-tier="2"]')).toBeNull();
+    expect(entries(screen)).toHaveLength(0);
   });
 
   it('offers the language before a level is chosen, marked with the saved choice', () => {
