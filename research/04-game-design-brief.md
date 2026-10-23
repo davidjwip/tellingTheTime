@@ -363,3 +363,19 @@ Given / When / Then, for the spec review:
 | 4 | Does the setup screen show the child's name? | No names in the repo; a name *may* be typed on-device and stored locally only |
 | 5 | Tiers locked until cleared, or all open? | All open, with a suggested next level — the adult is the scheduler |
 | 6 | Domain | `clock.zt489.com`, Cloudflare Pages, after GitHub Pages proves it |
+
+## Part 12 — Decisions taken
+
+**2026-10-23 — the UK ladder is the spine.** o'clock → half past → quarter past / quarter to →
+five minutes → nearest minute. This confirms tiers T2–T6 as the sequence and removes the
+alternative ("HK's short, steep spine") from consideration as the teaching order.
+
+Consequences for the build:
+
+- **T4 (quarter turns) is a real rung, not an optional extra** — so it stays in v1's scope.
+- **T5 (five minutes) is a designed rung, deliberately deferred** from v1. It is *data plus audio*,
+  not architecture: the `Level` schema already expresses it, so shipping it later is 4 levels in
+  `levels.json` and 144 generated phrases. Nothing has to be redesigned.
+- **Drawing hands stays** (T1.4 build-the-face, T2.3/T3.3 set-the-hands) as an assessment device,
+  not because Hong Kong requires it.
+- Tier locking stays off, so if school moves faster than the game the adult can jump a tier.

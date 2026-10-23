@@ -114,6 +114,21 @@ This changes what the spine of the game should be:
 - The real hidden prerequisite that school will assume: **reading the numerals 1–12**. The
   taxonomy makes this a *hard* edge into clock reading, and it is testable in thirty seconds.
 
+### Decision, 2026-10-23: the UK ladder is the spine
+
+o'clock → half past → quarter past / quarter to → five minutes → nearest minute.
+
+It is the better teaching sequence, it is what the taxonomy's age bands describe, and nothing in
+it is wasted for a Hong Kong school — it reaches P2's nearest-minute target by a gentler route
+than HK's own jump from half past straight to the minute. Two consequences:
+
+- **Drawing hands is in.** UK requires it; HK's P1 and P2 explicitly do not. It stays in the game
+  as an *assessment* device (a child can read a face he cannot construct), not as a school
+  requirement being chased.
+- **The "HK has no quarter-hour rung" finding is now a divergence to be aware of, not the
+  sequence to follow.** If school ever moves faster than the game, the adult can jump a tier —
+  which is why no level is locked.
+
 ## 5. Reading a clock ≠ sensing time
 
 These are separate developmental tracks and the game must not confuse them.
