@@ -213,6 +213,15 @@ export function isFinished(session: Session): boolean {
 export const REQUEUE_GAP = 3;
 
 /**
+ * How much practice a single round may invent.
+ *
+ * Without a ceiling the filler rule amplifies: a miss near the end adds practice, missing the
+ * practice adds more, and a child who answers nothing never reaches the end of the round — the
+ * review measured 306 questions and still growing. Six is enough to honour the gap twice over.
+ */
+export const MAX_FILLERS = 6;
+
+/**
  * Record a verdict and return the next session.
  *
  * A wrong answer re-enters the queue at least three positions later (B2), so the child cannot
@@ -232,17 +241,31 @@ export function recordVerdict(session: Session, correct: boolean): Session {
   const answered = session.answered + 1;
 
   let queue = session.queue;
-  if (!correct) {
+
+  // A missed item is shown at most twice, and practice is not assessed at all.
+  //
+  // Both guards are load-bearing. Re-queueing a filler made a round grow without end; so did
+  // re-queueing a retry, because a child who misses everything simply moved the same item down the
+  // queue for ever (the review measured 306 questions and still counting). A round must end even
+  // for a child who answers nothing, which is what the ceiling in the next line buys.
+  if (!correct && item.retry !== true && item.filler !== true) {
     const again = { ...item, key: `${item.key}#again`, retry: true };
     const at = answered + REQUEUE_GAP;
 
     // If the round has fewer than three items left, extend it with practice from the same level.
     // Without this, a miss on the final item is re-shown immediately - the child copies the answer
-    // they were just told was wrong, which is the exact behaviour B2 exists to prevent.
+    // they were just told was wrong, which is exactly what B2 exists to prevent.
     const padded = [...queue];
-    while (padded.length < at) padded.push(session.makeFiller());
+    const already = padded.filter((queued) => queued.filler === true).length;
+    let invented = 0;
+    while (padded.length < at && already + invented < MAX_FILLERS) {
+      padded.push(session.makeFiller());
+      invented += 1;
+    }
 
-    queue = [...padded.slice(0, at), again, ...padded.slice(at)];
+    // if the ceiling bites, the gap is shorter than three rather than the round never ending
+    const insertAt = Math.min(at, padded.length);
+    queue = [...padded.slice(0, insertAt), again, ...padded.slice(insertAt)];
   }
 
   return {
