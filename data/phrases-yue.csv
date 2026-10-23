@@ -1,53 +1,53 @@
-# 粵語讀鐘錶片語表 — 待審閱 (PROPOSED, UNREVIEWED)
-# 48 條：12 個鐘 × 4 個時段（正點 / 半 / 過一刻 / 差一刻）
-# 請 Kathy 每行揀一個講法；如有更好講法，直接改 content。
-# 音檔會用 reviewed=y 嘅版本；未審閱前 app 只出英文。
-id,time24,english,yue_rec,yue_school,yue_collo,note
-oclock-1,01:00,one o'clock,一點鐘,一點,一點鐘,
-half-1,01:30,half past one,一點半,一點三十分,一點半,
-qpast-1,01:15,quarter past one,一點十五分,一點十五分,一點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-1,01:45,quarter to two,一點四十五分,一點四十五分,一點九,英文講下一個鐘（two）；粵語講剛過去嘅鐘（一）
-oclock-2,02:00,two o'clock,兩點鐘,兩點,兩點鐘,
-half-2,02:30,half past two,兩點半,兩點三十分,兩點半,
-qpast-2,02:15,quarter past two,兩點十五分,兩點十五分,兩點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-2,02:45,quarter to three,兩點四十五分,兩點四十五分,兩點九,英文講下一個鐘（three）；粵語講剛過去嘅鐘（兩）
-oclock-3,03:00,three o'clock,三點鐘,三點,三點鐘,
-half-3,03:30,half past three,三點半,三點三十分,三點半,
-qpast-3,03:15,quarter past three,三點十五分,三點十五分,三點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-3,03:45,quarter to four,三點四十五分,三點四十五分,三點九,英文講下一個鐘（four）；粵語講剛過去嘅鐘（三）
-oclock-4,04:00,four o'clock,四點鐘,四點,四點鐘,
-half-4,04:30,half past four,四點半,四點三十分,四點半,
-qpast-4,04:15,quarter past four,四點十五分,四點十五分,四點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-4,04:45,quarter to five,四點四十五分,四點四十五分,四點九,英文講下一個鐘（five）；粵語講剛過去嘅鐘（四）
-oclock-5,05:00,five o'clock,五點鐘,五點,五點鐘,
-half-5,05:30,half past five,五點半,五點三十分,五點半,
-qpast-5,05:15,quarter past five,五點十五分,五點十五分,五點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-5,05:45,quarter to six,五點四十五分,五點四十五分,五點九,英文講下一個鐘（six）；粵語講剛過去嘅鐘（五）
-oclock-6,06:00,six o'clock,六點鐘,六點,六點鐘,
-half-6,06:30,half past six,六點半,六點三十分,六點半,
-qpast-6,06:15,quarter past six,六點十五分,六點十五分,六點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-6,06:45,quarter to seven,六點四十五分,六點四十五分,六點九,英文講下一個鐘（seven）；粵語講剛過去嘅鐘（六）
-oclock-7,07:00,seven o'clock,七點鐘,七點,七點鐘,
-half-7,07:30,half past seven,七點半,七點三十分,七點半,
-qpast-7,07:15,quarter past seven,七點十五分,七點十五分,七點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-7,07:45,quarter to eight,七點四十五分,七點四十五分,七點九,英文講下一個鐘（eight）；粵語講剛過去嘅鐘（七）
-oclock-8,08:00,eight o'clock,八點鐘,八點,八點鐘,
-half-8,08:30,half past eight,八點半,八點三十分,八點半,
-qpast-8,08:15,quarter past eight,八點十五分,八點十五分,八點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-8,08:45,quarter to nine,八點四十五分,八點四十五分,八點九,英文講下一個鐘（nine）；粵語講剛過去嘅鐘（八）
-oclock-9,09:00,nine o'clock,九點鐘,九點,九點鐘,
-half-9,09:30,half past nine,九點半,九點三十分,九點半,
-qpast-9,09:15,quarter past nine,九點十五分,九點十五分,九點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-9,09:45,quarter to ten,九點四十五分,九點四十五分,九點九,英文講下一個鐘（ten）；粵語講剛過去嘅鐘（九）
-oclock-10,10:00,ten o'clock,十點鐘,十點,十點鐘,
-half-10,10:30,half past ten,十點半,十點三十分,十點半,
-qpast-10,10:15,quarter past ten,十點十五分,十點十五分,十點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-10,10:45,quarter to eleven,十點四十五分,十點四十五分,十點九,英文講下一個鐘（eleven）；粵語講剛過去嘅鐘（十）
-oclock-11,11:00,eleven o'clock,十一點鐘,十一點,十一點鐘,
-half-11,11:30,half past eleven,十一點半,十一點三十分,十一點半,
-qpast-11,11:15,quarter past eleven,十一點十五分,十一點十五分,十一點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-11,11:45,quarter to twelve,十一點四十五分,十一點四十五分,十一點九,英文講下一個鐘（twelve）；粵語講剛過去嘅鐘（十一）
-oclock-12,12:00,twelve o'clock,十二點鐘,十二點,十二點鐘,
-half-12,12:30,half past twelve,十二點半,十二點三十分,十二點半,
-qpast-12,12:15,quarter past twelve,十二點十五分,十二點十五分,十二點三,口語「點三」＝ 3 個字 ＝ 15 分鐘
-qto-12,12:45,quarter to one,十二點四十五分,十二點四十五分,十二點九,英文講下一個鐘（one）；粵語講剛過去嘅鐘（十二）
+# 粵語讀鐘錶片語表 — REVIEWED 2026-10-23
+# 決定：全部用口語（Dave, 2026-10-23）。48 條 = 12 個鐘 × 4 個時段。
+# 口語系統：講嘅鐘永遠係「手指剛過去嗰個」，四款時段一致。
+# 注意：「三點三」＝3:15（三個字）；「三點九」＝3:45（九個字）。
+id,time24,english,yue,note
+oclock-1,01:00,one o'clock,一點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-1,01:30,half past one,一點半,同英文一樣講剛過去嗰個鐘
+qpast-1,01:15,quarter past one,一點三,三個字＝15 分鐘；亦可講「三個字」
+qto-1,01:45,quarter to two,一點九,九個字＝45 分鐘；英文講 two，粵語講剛過去嘅 一
+oclock-2,02:00,two o'clock,兩點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-2,02:30,half past two,兩點半,同英文一樣講剛過去嗰個鐘
+qpast-2,02:15,quarter past two,兩點三,三個字＝15 分鐘；亦可講「三個字」
+qto-2,02:45,quarter to three,兩點九,九個字＝45 分鐘；英文講 three，粵語講剛過去嘅 兩
+oclock-3,03:00,three o'clock,三點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-3,03:30,half past three,三點半,同英文一樣講剛過去嗰個鐘
+qpast-3,03:15,quarter past three,三點三,三個字＝15 分鐘；亦可講「三個字」
+qto-3,03:45,quarter to four,三點九,九個字＝45 分鐘；英文講 four，粵語講剛過去嘅 三
+oclock-4,04:00,four o'clock,四點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-4,04:30,half past four,四點半,同英文一樣講剛過去嗰個鐘
+qpast-4,04:15,quarter past four,四點三,三個字＝15 分鐘；亦可講「三個字」
+qto-4,04:45,quarter to five,四點九,九個字＝45 分鐘；英文講 five，粵語講剛過去嘅 四
+oclock-5,05:00,five o'clock,五點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-5,05:30,half past five,五點半,同英文一樣講剛過去嗰個鐘
+qpast-5,05:15,quarter past five,五點三,三個字＝15 分鐘；亦可講「三個字」
+qto-5,05:45,quarter to six,五點九,九個字＝45 分鐘；英文講 six，粵語講剛過去嘅 五
+oclock-6,06:00,six o'clock,六點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-6,06:30,half past six,六點半,同英文一樣講剛過去嗰個鐘
+qpast-6,06:15,quarter past six,六點三,三個字＝15 分鐘；亦可講「三個字」
+qto-6,06:45,quarter to seven,六點九,九個字＝45 分鐘；英文講 seven，粵語講剛過去嘅 六
+oclock-7,07:00,seven o'clock,七點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-7,07:30,half past seven,七點半,同英文一樣講剛過去嗰個鐘
+qpast-7,07:15,quarter past seven,七點三,三個字＝15 分鐘；亦可講「三個字」
+qto-7,07:45,quarter to eight,七點九,九個字＝45 分鐘；英文講 eight，粵語講剛過去嘅 七
+oclock-8,08:00,eight o'clock,八點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-8,08:30,half past eight,八點半,同英文一樣講剛過去嗰個鐘
+qpast-8,08:15,quarter past eight,八點三,三個字＝15 分鐘；亦可講「三個字」
+qto-8,08:45,quarter to nine,八點九,九個字＝45 分鐘；英文講 nine，粵語講剛過去嘅 八
+oclock-9,09:00,nine o'clock,九點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-9,09:30,half past nine,九點半,同英文一樣講剛過去嗰個鐘
+qpast-9,09:15,quarter past nine,九點三,三個字＝15 分鐘；亦可講「三個字」
+qto-9,09:45,quarter to ten,九點九,九個字＝45 分鐘；英文講 ten，粵語講剛過去嘅 九
+oclock-10,10:00,ten o'clock,十點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-10,10:30,half past ten,十點半,同英文一樣講剛過去嗰個鐘
+qpast-10,10:15,quarter past ten,十點三,三個字＝15 分鐘；亦可講「三個字」
+qto-10,10:45,quarter to eleven,十點九,九個字＝45 分鐘；英文講 eleven，粵語講剛過去嘅 十
+oclock-11,11:00,eleven o'clock,十一點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-11,11:30,half past eleven,十一點半,同英文一樣講剛過去嗰個鐘
+qpast-11,11:15,quarter past eleven,十一點三,三個字＝15 分鐘；亦可講「三個字」
+qto-11,11:45,quarter to twelve,十一點九,九個字＝45 分鐘；英文講 twelve，粵語講剛過去嘅 十一
+oclock-12,12:00,twelve o'clock,十二點鐘,口語；`點鐘` 比單講 `點` 清楚
+half-12,12:30,half past twelve,十二點半,同英文一樣講剛過去嗰個鐘
+qpast-12,12:15,quarter past twelve,十二點三,三個字＝15 分鐘；亦可講「三個字」
+qto-12,12:45,quarter to one,十二點九,九個字＝45 分鐘；英文講 one，粵語講剛過去嘅 十二

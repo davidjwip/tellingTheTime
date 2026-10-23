@@ -45,9 +45,12 @@ These come from the research, not from taste. If a change would break one, stop 
 
 ## Guardrails — public repo, non-negotiable
 
-1. **No child-identifying data.** No names, school, class, birth date or photos — in any commit,
-   fixture, screenshot, log or error string. Write "a four-year-old". A name typed into the app at
-   runtime lives in `localStorage` on that device and nowhere else.
+1. **No child-identifying data — with one narrow exception.** No names, school, class, birth date or
+   photos in any commit, fixture, screenshot, log or error string. Write "a four-year-old". A name
+   typed into the app at runtime lives in `localStorage` on that device and nowhere else.
+   **Exception (Dave, 2026-10-23):** the `footer` credit line names the two children, matching the
+   maths app verbatim. That line and nothing else. The guardrail scan must allow exactly that string
+   and still fail on the names anywhere else in the tree.
 2. **Never commit a derived taxonomy dataset.** Quoting a handful of topics in prose is reference;
    shipping a generated or trimmed export of `os-taxonomy` creates an ODbL share-alike obligation
    on the whole database. Read the fork; do not vendor it. Our own hand-written evidence statements
