@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { currentItem, isFinished, REQUEUE_GAP } from '../src/engine';
 import { LEVELS } from '../src/levels';
@@ -315,6 +315,31 @@ describe('choosing a card', () => {
 
     for (let i = 1; i < answers.length; i += 1) {
       expect(answers[i]).not.toBe(answers[i - 1]);
+    }
+  });
+
+  it('ignores a second card tap in the same breath, then accepts one after the pause', () => {
+    vi.useFakeTimers();
+    try {
+      const mounted = mount('t0.2');
+      const first = currentItem(mounted.session());
+      if (!first?.answer) throw new Error('no choose answer');
+
+      tap(`[data-choice="${first.answer}"]`);
+      expect(mounted.session().answered).toBe(1);
+
+      tap(`[data-choice="${first.answer}"]`);
+      expect(mounted.session().answered).toBe(1);
+
+      vi.advanceTimersByTime(349);
+      tap(`[data-choice="${first.answer}"]`);
+      expect(mounted.session().answered).toBe(1);
+
+      vi.advanceTimersByTime(1);
+      tap(`[data-choice="${first.answer}"]`);
+      expect(mounted.session().answered).toBe(2);
+    } finally {
+      vi.useRealTimers();
     }
   });
 
