@@ -288,6 +288,19 @@ describe('what a tap does', () => {
     expect(mounted.session()).toBe(before);
   });
 
+  it('stops listening to the overlay once disposed', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t2.4'));
+    for (let i = 0; i < 10; i += 1) tap('[data-verdict="correct"]');
+    expect(mounted.celebrating()).toBe(true);
+
+    mounted.dispose();
+    tap('[data-action="close-celebration"]');
+
+    // nothing happened: the overlay keeps its content and the round still thinks it is celebrating
+    expect(overlayRoot.children.length).toBeGreaterThan(0);
+    expect(mounted.celebrating()).toBe(true);
+  });
+
   it('leaves for the shelf from the Level button, which used to be inert', () => {
     const asked: string[] = [];
     mountPlay(app, overlayRoot, level('t2.2'), { onChangeLevel: (l) => asked.push(l.id) });
