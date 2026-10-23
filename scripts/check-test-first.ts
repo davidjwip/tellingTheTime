@@ -7,8 +7,10 @@
  *
  *   NEW module   - a test naming it must ALREADY exist in an earlier commit (strictly: that is what
  *                  test-first means, and it is what makes a red commit visible in the log)
- *   CHANGED      - the same commit must touch that module's test (behaviour change plus assertion
- *                  change is the honest minimum)
+ *   CHANGED      - the module must already be tested somewhere earlier in the range. The commit does
+ *                  NOT have to touch the test, deliberately: forcing a test edit on every change to
+ *                  a file buys assertion churn, not coverage, and a comment fix should not need a
+ *                  fake expectation to get past a gate.
  *
  * Exemptions are listed below with a reason each, because an exemption nobody can argue with is
  * just a hole.

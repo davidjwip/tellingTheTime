@@ -48,14 +48,25 @@ describe('the test-first rule', () => {
     expect(violations).toEqual([]);
   });
 
-  it('fails a change that leaves the test untouched', () => {
+  it('allows a change to a module that is already tested, without forcing test churn', () => {
+    // This started as the stricter rule — every src change must touch its test — and that is worse:
+    // it buys empty assertions for comment fixes and renames. The load-bearing rule is that a NEW
+    // module arrives tested, which is the shape the last two increments actually got wrong.
     const violations = findViolations([
       commit('e1', [['A', 'test/engine.test.ts']]),
       commit('e2', [['A', 'src/engine.ts']]),
       commit('e3', [['M', 'src/engine.ts']]),
     ]);
-    expect(violations).toHaveLength(1);
-    expect(violations[0]?.why).toContain('without touching its test');
+    expect(violations).toEqual([]);
+  });
+
+  it('still fails a change to a module that was never tested at all', () => {
+    const violations = findViolations([
+      commit('h1', [['A', 'src/engine.ts']]),
+      commit('h2', [['M', 'src/engine.ts']]),
+    ]);
+    // both commits are violations: the module arrived untested and stays untested
+    expect(violations).toHaveLength(2);
   });
 
   it('does not let a test added later retroactively excuse an earlier module', () => {
