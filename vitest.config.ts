@@ -10,7 +10,10 @@ export default defineConfig({
       include: ['src/**/*.ts'],
       // types.ts is type-only: excluding it keeps the number honest rather than padding it
       exclude: ['src/types.ts'],
+      // perFile matters more than the numbers: a global aggregate lets one file sit at 78% as long
+      // as the rest are high, which is exactly how a gate becomes decoration.
       thresholds: {
+        perFile: true,
         lines: 90,
         statements: 90,
         functions: 90,
