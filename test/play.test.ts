@@ -1,0 +1,166 @@
+import { beforeEach, describe, expect, it } from 'vitest';
+
+import { LEVELS } from '../src/levels';
+import { mountPlay } from '../src/play';
+
+import type { Mounted } from '../src/play';
+import type { Level } from '../src/types';
+
+const level = (id: string): Level => {
+  const found = LEVELS.find((l) => l.id === id);
+  if (!found) throw new Error(`no level ${id}`);
+  return found;
+};
+
+let app: HTMLElement;
+let overlayRoot: HTMLElement;
+
+beforeEach(() => {
+  document.body.replaceChildren();
+  app = document.createElement('div');
+  overlayRoot = document.createElement('div');
+  app.id = 'app';
+  overlayRoot.id = 'overlay-root';
+  document.body.append(app, overlayRoot);
+});
+
+function tap(selector: string): void {
+  const target = document.querySelector(selector);
+  if (!target) throw new Error(`nothing to tap: ${selector}`);
+  (target as HTMLElement).click();
+}
+
+function mount(id: string): Mounted {
+  return mountPlay(app, overlayRoot, level(id));
+}
+
+/**
+ * Answer the item on screen correctly, whichever pad it offers.
+ *
+ * t2.2 asks six reading questions and then four setting ones, and the pad changes with the task —
+ * so a test that taps "correct" ten times runs out of buttons at item seven.
+ */
+function answerRight(): void {
+  const correct = app.querySelector<HTMLElement>('[data-verdict="correct"]');
+  if (correct) {
+    correct.click();
+    return;
+  }
+  const done = app.querySelector<HTMLElement>('[data-verdict="done"]');
+  if (done) {
+    done.click();
+    return;
+  }
+  throw new Error('no way to answer the item on screen');
+}
+
+describe('what a tap does', () => {
+  it('draws the play screen on mount', () => {
+    mount('t2.2');
+    expect(app.querySelector('.container')).not.toBeNull();
+    expect(app.querySelector('svg[data-face]')).not.toBeNull();
+    expect(overlayRoot.children).toHaveLength(0);
+  });
+
+  it('advances the track on a correct verdict and does not on a miss', () => {
+    mount('t2.2');
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(0);
+
+    tap('[data-verdict="correct"]');
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(1);
+
+    tap('[data-verdict="wrong"]');
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(1);
+
+    tap('[data-verdict="correct"]');
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(2);
+  });
+
+  it('moves to the next item after a verdict', () => {
+    const mounted = mount('t2.2');
+    const before = mounted.session().answered;
+    tap('[data-verdict="correct"]');
+    expect(mounted.session().answered).toBe(before + 1);
+  });
+
+  it('records a setting attempt as correct when the adult taps Done', () => {
+    const mounted = mount('t2.2');
+    for (let i = 0; i < 6; i += 1) tap('[data-verdict="correct"]'); // the six reads
+    expect(app.querySelector('[data-verdict="done"]')).not.toBeNull();
+
+    tap('[data-verdict="done"]');
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+  });
+
+  it('celebrates a full track, and closes back to the round', () => {
+    mount('t2.2');
+    for (let i = 0; i < 9; i += 1) answerRight();
+    expect(overlayRoot.querySelector('[data-celebration]')).toBeNull();
+
+    answerRight(); // the tenth fills the track
+    // the overlay is mounted into its own root, above the screen, so it can outlive a re-render
+    const overlay = overlayRoot.querySelector('[data-celebration]');
+    expect(overlay).not.toBeNull();
+    expect(overlay?.classList.contains('visible')).toBe(true);
+    expect(app.querySelector('[data-celebration]')).toBeNull();
+
+    tap('[data-action="close-celebration"]');
+    expect(overlayRoot.querySelector('[data-celebration]')).toBeNull();
+  });
+
+  it('does not celebrate a cleared-but-incomplete round', () => {
+    const mounted = mount('t2.2');
+    for (let i = 0; i < 8; i += 1) answerRight();
+    expect(app.querySelector('[data-celebration]')).toBeNull();
+    expect(mounted.celebrating()).toBe(false);
+  });
+
+  it('ends on the summary once the queue is exhausted', () => {
+    const mounted = mount('t2.2');
+    while (mounted.session().answered < mounted.session().queue.length) {
+      answerRight();
+    }
+    tap('[data-action="close-celebration"]');
+
+    expect(app.querySelector('.summary')).not.toBeNull();
+    expect(app.querySelector('h1')?.textContent).toBe('Level cleared!');
+  });
+
+  it('starts a fresh round on Again', () => {
+    const mounted = mount('t2.2');
+    answerRight();
+    answerRight();
+    expect(mounted.session().answered).toBe(2);
+
+    for (let i = 0; i < 8; i += 1) answerRight();
+    tap('[data-action="close-celebration"]');
+
+    tap('[data-action="again"]');
+    expect(mounted.session().answered).toBe(0);
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(0);
+  });
+
+  it('asks where to go when the adult wants another level', () => {
+    const asked: string[] = [];
+    mountPlay(app, overlayRoot, level('t2.2'), { onChangeLevel: (l) => asked.push(l.id) });
+    for (let i = 0; i < 10; i += 1) answerRight();
+    tap('[data-action="close-celebration"]');
+    tap('[data-action="change-level"]');
+    expect(asked).toEqual(['t2.2']);
+  });
+
+  it('falls back to navigating by URL when nothing else is wired', () => {
+    mount('t2.2');
+    for (let i = 0; i < 10; i += 1) answerRight();
+    tap('[data-action="close-celebration"]');
+    tap('[data-action="change-level"]');
+    expect(window.location.search).toContain('level=t2.2');
+  });
+
+  it('ignores a tap that is not a verdict or an action', () => {
+    const mounted = mount('t2.2');
+    const heading = app.querySelector('h1') as HTMLElement;
+    heading.click();
+    expect(mounted.session().answered).toBe(0);
+  });
+});
