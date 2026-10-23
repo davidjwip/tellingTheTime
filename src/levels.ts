@@ -253,12 +253,8 @@ export function validateLevels(levels: readonly Level[] = LEVELS, options: Valid
         const c = level.content as Extract<Level['content'], { kind: 'numberOrder' }>;
         if (c.from !== 1 || c.to !== 12) fail(5, level.id, 'numberOrder must run 1–12');
       }
-      if (kind === 'durationPair' && items < 2) {
-        fail(5, level.id, `durationPair needs ≥2 distinct event pairs; round has ${items} items`);
-      }
-      if (kind === 'dayStrip' && items < 2) {
-        fail(5, level.id, `choose level needs ≥2 distinct option-sets; round has ${items} items`);
-      }
+      // No items < 2 checks for durationPair/dayStrip: rule 2 already requires 3–12 items,
+      // so such a branch could never fire. Dead branches are worse than absent ones.
     }
 
     // ---- rule 6: content ↔ face consistency ----

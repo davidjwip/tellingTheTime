@@ -166,6 +166,113 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
   });
 });
 
+describe('parseLevelsFile — every rejection path, since that is the parser\'s whole job', () => {
+  /** a well-formed level, so each case below breaks exactly one thing */
+  const good = (): Record<string, unknown> => structuredClone(LEVELS[0]) as unknown as Record<string, unknown>;
+  const oneRule = (entry: unknown) => {
+    const out = parseLevelsFile({ levels: [entry] });
+    return [...new Set(out.violations.map((v) => v.rule))].sort();
+  };
+
+  it('accepts the untouched fixture', () => {
+    expect(oneRule(good())).toEqual([]);
+  });
+
+  it('rejects a level that is not an object', () => {
+    expect(oneRule('not a level')).toContain(1);
+  });
+
+  it('rule 1: missing id, and a tier that is not an integer 0–6', () => {
+    const noId = good();
+    delete noId.id;
+    expect(oneRule(noId)).toContain(1);
+    expect(oneRule({ ...good(), tier: 9 })).toContain(1);
+    expect(oneRule({ ...good(), tier: 'T1' })).toContain(1);
+  });
+
+  it('rule 2: a missing round, and a malformed step', () => {
+    const noRound = good();
+    delete noRound.round;
+    expect(oneRule(noRound)).toContain(2);
+    expect(oneRule({ ...good(), round: [{ task: 'fly', items: 3 }] })).toContain(2);
+    expect(oneRule({ ...good(), round: [{ task: 'order', items: 0 }] })).toContain(2);
+  });
+
+  it('rule 4: minutes that are not an array', () => {
+    expect(oneRule({ ...good(), minutes: 'none' })).toContain(4);
+  });
+
+  it('rule 4: a missing or malformed badge time', () => {
+    const noBadge = good();
+    delete noBadge.badge;
+    expect(oneRule(noBadge)).toContain(4);
+    expect(oneRule({ ...good(), badge: { time: 'noon' } })).toContain(4);
+    expect(oneRule({ ...good(), badge: { time: [13, 0] } })).toContain(4);
+    expect(oneRule({ ...good(), badge: { time: [3, 99] } })).toContain(4);
+  });
+
+  it('rule 5: content with no kind', () => {
+    const noContent = good();
+    delete noContent.content;
+    expect(oneRule(noContent)).toContain(5);
+  });
+
+  it('rule 8: no knobs declaration', () => {
+    const noKnobs = good();
+    delete noKnobs.knobs;
+    expect(oneRule(noKnobs)).toContain(8);
+  });
+});
+
+describe('rule boundaries that depend on optional fields', () => {
+  it('clockTimes defaults to twelve hours and no minutes', () => {
+    const level = structuredClone(LEVELS.find((l) => l.id === 't2.2')!);
+    delete level.hours;
+    delete level.minutes;
+    expect(clockTimes(level)).toHaveLength(0); // no minutes -> no times
+    level.minutes = [0];
+    expect(clockTimes(level)).toHaveLength(12); // hours default to 1–12
+  });
+
+  it('rule 4: a clock level with no minutes, and values out of range', () => {
+    const noMinutes = clone();
+    delete noMinutes.find((l) => l.id === 't4.2')!.minutes;
+    expect(rules(noMinutes)).toContain(4);
+    expect(rules(mutated('t4.2', (l) => { l.minutes = [65]; }))).toContain(4);
+    expect(rules(mutated('t4.2', (l) => { l.hours = [13]; }))).toContain(4);
+  });
+
+  it('rule 5: numberOrder that does not run 1–12', () => {
+    expect(rules(mutated('t1.1', (l) => {
+      (l.content as { from: number; to: number }).from = 0;
+    }))).toContain(5);
+  });
+
+  it('rule 6: hands:none carrying a read step, and hands:hour setting an unfixed minute', () => {
+    expect(rules(mutated('t1.1', (l) => {
+      l.round = [{ task: 'read', items: 4 }];
+      l.knobs.task = 'read';
+    }))).toContain(6);
+    expect(rules(mutated('t2.1', (l) => { l.minutes = [0, 30]; }))).toContain(6);
+  });
+
+  it('rule 1: tiers that are not contiguous, and a tier with no levels', () => {
+    const gapped = clone();
+    for (const level of gapped.filter((l) => l.tier === 1)) level.tier = 2;
+    expect(rules(gapped)).toContain(1);
+  });
+
+  it('rule 8: a T2–T4 level with no clock-reading face is skipped by the reveal check', () => {
+    // deriveRep -> 'numerals' (hand count 0): the reveal loop must skip it, not crash
+    const levels = mutated('t2.1', (l) => {
+      l.face!.hands = 'none';
+      l.knobs.rep = 'numerals';
+    });
+    expect(() => validateLevels(levels)).not.toThrow();
+    expect(rules(levels)).toContain(6); // and rule 6 still objects, correctly
+  });
+});
+
 describe('rule 8 — reveal order ranks the number of hands, not the motion', () => {
   it('allows hour → parked → both inside a tier', () => {
     // The first implementation ranked parked below both and called this sequence two reveals.
