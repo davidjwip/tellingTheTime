@@ -1,14 +1,14 @@
 /**
  * The level shelf.
  *
- * The level data asks for six kinds of question and the app can only present one of them so far
- * (`read`). Rather than hide that behind a half-working screen, the shelf computes what is actually
- * playable from the data: a level survives if at least MIN_ITEMS questions can be asked after the
- * ones with no UI are dropped, and the rest say what they are waiting for. That makes the shelf a
- * to-do list rather than a lie.
+ * The level data asks for six kinds of question and the app can present `read` and, for the two
+ * card levels, `choose`. Rather than hide the rest behind a half-working screen, the shelf computes
+ * what is actually playable from the data: a level survives if at least MIN_ITEMS questions can be
+ * asked after the ones with no UI are dropped, and the rest say what they are waiting for. That
+ * makes the shelf a to-do list rather than a lie.
  */
 
-import { SUPPORTED_TASKS } from './engine';
+import { canPresent } from './engine';
 
 import { NAME_MAX } from './progress';
 
@@ -48,10 +48,10 @@ export interface Shelved {
 export function shelve(levels: readonly Level[], progress: Progress): Shelved[] {
   return levels.map((level) => {
     const items = level.round
-      .filter((step) => SUPPORTED_TASKS.has(step.task))
+      .filter((step) => canPresent(level, step.task))
       .reduce((sum, step) => sum + step.items, 0);
 
-    const unbuilt = level.round.find((step) => !SUPPORTED_TASKS.has(step.task));
+    const unbuilt = level.round.find((step) => !canPresent(level, step.task));
     const available = items >= MIN_ITEMS;
 
     const shelved: Shelved = {

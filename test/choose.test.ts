@@ -119,9 +119,9 @@ describe('the choose screen', () => {
   });
 
   it('always asks which took longer for a duration pair', () => {
-    const screen = renderChoose(
-      item({ cards: durationTable[0]?.cards, answer: durationTable[0]?.answer }),
-    );
+    const first = durationTable[0];
+    if (!first) throw new Error('the duration table is empty');
+    const screen = renderChoose(item({ cards: [...first.cards], answer: first.answer }));
     expect(screen.querySelector('.prompt')?.textContent).toBe('Which took longer?');
   });
 
@@ -145,6 +145,12 @@ describe('the choose screen', () => {
       const button = screen.querySelector<HTMLButtonElement>(`[data-choice="${card.id}"]`);
       expect(button?.getAttribute('aria-label')).toBe(card.word);
     }
+  });
+
+  it('draws no cards when the item has none, rather than throwing', () => {
+    const screen = renderChoose({ task: 'choose', key: 'choose:no-cards' });
+    expect(screen.querySelectorAll('[data-choice]')).toHaveLength(0);
+    expect(screen.querySelector('.prompt')?.textContent).toBe('Which took longer?');
   });
 
   it('keeps the last verdict in #feedback, as every other screen does', () => {

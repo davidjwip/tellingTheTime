@@ -12,9 +12,11 @@
  *   - the adult can end the round at any point, and the summary never says the child failed
  */
 
+import { chooseFor } from './choose';
 import { clockTimes } from './levels';
 
-import type { Level, Task } from './types';
+import type { Card, Choice } from './choose';
+import type { Content, Level, Task } from './types';
 
 export interface ClockTime {
   hour: number;
@@ -24,8 +26,12 @@ export interface ClockTime {
 /** One thing the child is shown. What `time` means depends on the task. */
 export interface Item {
   task: Task;
-  /** Present for read/set/choose on a clock level. */
+  /** Present for read/set on a clock level. */
   time?: ClockTime;
+  /** The choices for a `choose` item, emoji and word included. */
+  cards?: Card[];
+  /** Id of the card that answers a `choose` item. Its presence is what makes a screen a choose one. */
+  answer?: string;
   /** Position in the original round plan, so a re-queued item is recognisable. */
   key: string;
   /** True on the second and later showing of an item the child missed. */
@@ -59,11 +65,14 @@ export type Rng = () => number;
 /**
  * The task kinds the app can actually present today.
  *
- * `set`, `tap`, `choose`, `order` and `build` all need a screen that does not exist yet. Asking a
- * four-year-old a question he cannot answer is worse than asking fewer, so those steps are dropped
- * until their screens land — and the level data keeps them, so nothing is retyped when they do.
+ * `set`, `tap`, `order` and `build` still need a screen. Asking a four-year-old a question he cannot
+ * answer is worse than asking fewer, so those steps are dropped until their screens land — and the
+ * level data keeps them, so nothing is retyped when they do.
+ *
+ * `choose` is supported, but only for the content kinds with a card table. `canPresent` makes that
+ * second check, so a clock-choice level does not appear playable with no cards to show.
  */
-export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read']);
+export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read', 'choose']);
 
 /** Right answers needed to finish a round. */
 export const GOAL_CORRECT = 10;
@@ -94,6 +103,13 @@ function pick<T>(rng: Rng, from: readonly T[]): T {
 const sameTime = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =>
   a !== undefined && b !== undefined && a.hour === b.hour && a.minute === b.minute;
 
+/** Whether a level's data gives this task something it can actually put on screen. */
+export function canPresent(level: Level, task: Task): boolean {
+  if (!SUPPORTED_TASKS.has(task)) return false;
+  if (task === 'choose') return chooseFor(level.content) !== undefined;
+  return true;
+}
+
 /**
  * A time drawer that remembers what it has just produced.
  *
@@ -104,11 +120,15 @@ const sameTime = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =
  */
 export interface Drawer {
   nextTime: () => ClockTime | undefined;
+  nextChoice: (content: Content) => Choice | undefined;
 }
 
 export function makeDrawer(level: Level, rng: Rng): Drawer {
   const times = clockTimes(level);
   const recent: ClockTime[] = [];
+  // The draw order is not the display order once a missed item is re-inserted, so the queue is
+  // repaired as well. This only remembers what was last drawn, like the clock window above.
+  let previousChoice: string | undefined;
 
   return {
     nextTime: () => {
@@ -122,13 +142,28 @@ export function makeDrawer(level: Level, rng: Rng): Drawer {
       if (recent.length > NO_REPEAT_WINDOW) recent.shift();
       return chosen;
     },
+    nextChoice: (content) => {
+      const choice = chooseFor(content, previousChoice);
+      if (choice) previousChoice = choice.answer;
+      return choice;
+    },
   };
 }
 
-function itemFor(step: Task, time: ClockTime | undefined, key: string, extra?: boolean): Item {
+function itemFor(
+  step: Task,
+  time: ClockTime | undefined,
+  key: string,
+  extra?: boolean,
+  choice?: Choice,
+): Item {
   const item: Item = { task: step, key };
   if (time) item.time = time;
   if (extra) item.extra = true;
+  if (choice) {
+    item.cards = choice.cards;
+    item.answer = choice.answer;
+  }
   return item;
 }
 
@@ -143,11 +178,17 @@ export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer
   const queue: Item[] = [];
 
   level.round.forEach((step, stepIndex) => {
-    if (!SUPPORTED_TASKS.has(step.task)) return; // no screen for it yet
+    if (!canPresent(level, step.task)) return; // no screen for it yet
     for (let i = 0; i < step.items; i += 1) {
-      const time = step.task === 'read' || step.task === 'set' || step.task === 'choose'
-        ? draw.nextTime()
-        : undefined;
+      if (step.task === 'choose') {
+        const choice = draw.nextChoice(level.content);
+        if (!choice) continue;
+        const key = `${step.task}:${choice.answer}:${stepIndex}.${i}`;
+        queue.push(itemFor(step.task, undefined, key, undefined, choice));
+        continue;
+      }
+
+      const time = step.task === 'read' || step.task === 'set' ? draw.nextTime() : undefined;
       const key = time
         ? `${step.task}:${time.hour}:${time.minute}:${stepIndex}.${i}`
         : `${step.task}:${stepIndex}.${i}`;
@@ -165,13 +206,26 @@ export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer
  * item is re-inserted: the insertion shifts everything after it and can create a clash between two
  * neighbours that were fine apart. Checking the queue itself is the only way to keep the promise.
  */
+function choiceKey(item: Item | undefined): string | undefined {
+  if (!item?.cards || item.answer === undefined) return undefined;
+  const cards = item.cards.map((card) => card.id).sort().join(',');
+  return `${item.answer}:${cards}`;
+}
+
+function sameQuestion(a: Item | undefined, b: Item | undefined): boolean {
+  if (!a || !b) return false;
+  if (sameTime(a.time, b.time)) return true;
+  const key = choiceKey(a);
+  return key !== undefined && key === choiceKey(b);
+}
+
 function repairNeighbours(queue: Item[], makeItem: () => Item): void {
   for (let i = 1; i < queue.length; i += 1) {
     let guard = 0;
     while (
       guard < 12 &&
-      (sameTime(queue[i]?.time, queue[i - 1]?.time) ||
-        (i >= 2 && sameTime(queue[i]?.time, queue[i - 2]?.time)))
+      (sameQuestion(queue[i], queue[i - 1]) ||
+        (i >= 2 && sameQuestion(queue[i], queue[i - 2])))
     ) {
       queue[i] = makeItem();
       guard += 1;
@@ -189,14 +243,18 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
   const drawer = makeDrawer(level, rng);
   const queue = buildQueue(level, rng, drawer);
 
-  const step = level.round.find((s) => SUPPORTED_TASKS.has(s.task))?.task ?? 'read';
+  const step = level.round.find((s) => canPresent(level, s.task))?.task ?? 'read';
   let extras = 0;
 
   const makeItem = (): Item => {
     // One question, drawn through the SAME drawer, so the no-repeat window spans the whole round
     // rather than restarting each time the planned questions run out.
     extras += 1;
-    const time = step === 'read' || step === 'set' || step === 'choose' ? drawer.nextTime() : undefined;
+    if (step === 'choose') {
+      const choice = drawer.nextChoice(level.content);
+      if (choice) return itemFor(step, undefined, `${step}:extra:${extras}`, true, choice);
+    }
+    const time = step === 'read' || step === 'set' ? drawer.nextTime() : undefined;
     return itemFor(step, time, `${step}:extra:${extras}`, true);
   };
 
