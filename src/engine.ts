@@ -28,6 +28,8 @@ export interface Item {
   time?: ClockTime;
   /** Position in the original round plan, so a re-queued item is recognisable. */
   key: string;
+  /** True on the second and later showing of an item the child missed. */
+  retry?: boolean;
 }
 
 export interface Verdict {
@@ -77,7 +79,9 @@ function pick<T>(rng: Rng, from: readonly T[]): T {
 export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
   const times = clockTimes(level);
   const queue: Item[] = [];
-  let previous: ClockTime | undefined;
+  // AC-09 asks for no repeat within two positions, not merely no immediate repeat: seeing 3:00,
+  // 3:15, 3:00 lets a child answer from echo rather than from reading.
+  const recent: ClockTime[] = [];
 
   /**
    * Draw the next time.
@@ -86,13 +90,18 @@ export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
    * twice running" is structural instead of a 40-attempt hope. A level with a single time falls back
    * to allowing the repeat, which is the only thing it can do.
    */
+  const same = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =>
+    a !== undefined && b !== undefined && a.hour === b.hour && a.minute === b.minute;
+
   const nextTime = (): ClockTime | undefined => {
-    const pool =
-      times.length > 1
-        ? times.filter((t) => !(previous && t.hour === previous.hour && t.minute === previous.minute))
-        : times;
+    const notRecent = times.filter((t) => !recent.some((r) => same(t, r)));
+    const notPrevious = times.filter((t) => !same(t, recent[recent.length - 1]));
+    // a level with fewer times than the window cannot honour it, so fall back rather than loop
+    const pool = notRecent.length > 0 ? notRecent : notPrevious.length > 0 ? notPrevious : times;
+
     const chosen = pick(rng, pool);
-    previous = chosen;
+    recent.push(chosen);
+    if (recent.length > 2) recent.shift();
     return chosen;
   };
 
@@ -133,13 +142,27 @@ export function correctCount(session: Session): number {
   return session.results.filter((r) => r.correct).length;
 }
 
+/**
+ * Correct answers on the FIRST showing of an item.
+ *
+ * This is the number that decides whether a round was cleared, and the review is why: a round with
+ * a miss appends the missed item, the child answers it again, and a plain count of correct verdicts
+ * therefore ends at the full total every time. Every round looked perfect, "Good try!" was
+ * unreachable through the app, and the 80% threshold could never fail. Counting first attempts is
+ * what the threshold was always meant to measure.
+ */
+export function firstPassCorrect(session: Session): number {
+  return session.results.filter((r) => r.correct && r.item.retry !== true).length;
+}
+
 export function isCleared(session: Session): boolean {
-  return correctCount(session) >= clearThreshold(session.total);
+  return firstPassCorrect(session) >= clearThreshold(session.total);
 }
 
 /** The track fills one step per correct answer; a full track is the celebration. */
 export function trackProgress(session: Session): number {
-  return Math.min(correctCount(session), session.total);
+  // a re-queued item does not fill a step: the track shows what the child knew first time
+  return Math.min(firstPassCorrect(session), session.total);
 }
 
 export function trackComplete(session: Session): boolean {
@@ -178,7 +201,7 @@ export function recordVerdict(session: Session, correct: boolean): Session {
 
   let queue = session.queue;
   if (!correct) {
-    const again = { ...item, key: `${item.key}#again` };
+    const again = { ...item, key: `${item.key}#again`, retry: true };
     const at = Math.min(answered + REQUEUE_GAP, queue.length);
     queue = [...queue.slice(0, at), again, ...queue.slice(at)];
   }
@@ -202,7 +225,7 @@ export interface Summary {
 
 export function summarise(session: Session): Summary {
   return {
-    correct: correctCount(session),
+    correct: firstPassCorrect(session),
     total: session.total,
     cleared: isCleared(session),
     bestStreak: session.bestStreak,

@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { findViolations, moduleOf } from '../scripts/check-test-first';
+import { assertRuleWorks, findViolations, moduleOf, parseNameStatus } from '../scripts/test-first-rule';
 
-import type { Commit } from '../scripts/check-test-first';
+import type { Commit } from '../scripts/test-first-rule';
 
 const commit = (sha: string, files: Array<[string, string]>): Commit => ({
   sha,
@@ -12,11 +12,12 @@ const commit = (sha: string, files: Array<[string, string]>): Commit => ({
 
 describe('the test-first rule', () => {
   it('passes when the test lands in an earlier commit than the module', () => {
-    const violations = findViolations([
-      commit('a1', [['A', 'test/engine.test.ts']]),
-      commit('a2', [['A', 'src/engine.ts']]),
-    ]);
-    expect(violations).toEqual([]);
+    expect(
+      findViolations([
+        commit('a1', [['A', 'test/engine.test.ts']]),
+        commit('a2', [['A', 'src/engine.ts']]),
+      ]),
+    ).toEqual([]);
   });
 
   it('fails when a module is added with its test in the same commit', () => {
@@ -36,28 +37,16 @@ describe('the test-first rule', () => {
     expect(violations[0]?.why).toContain('no test');
   });
 
-  it('allows a change to a tested module when the test changes in the same commit', () => {
-    const violations = findViolations([
-      commit('d1', [['A', 'test/engine.test.ts']]),
-      commit('d2', [['A', 'src/engine.ts']]),
-      commit('d3', [
-        ['M', 'src/engine.ts'],
-        ['M', 'test/engine.test.ts'],
-      ]),
-    ]);
-    expect(violations).toEqual([]);
-  });
-
   it('allows a change to a module that is already tested, without forcing test churn', () => {
-    // This started as the stricter rule — every src change must touch its test — and that is worse:
-    // it buys empty assertions for comment fixes and renames. The load-bearing rule is that a NEW
-    // module arrives tested, which is the shape the last two increments actually got wrong.
-    const violations = findViolations([
-      commit('e1', [['A', 'test/engine.test.ts']]),
-      commit('e2', [['A', 'src/engine.ts']]),
-      commit('e3', [['M', 'src/engine.ts']]),
-    ]);
-    expect(violations).toEqual([]);
+    // started stricter - every src change must touch its test - and that is worse: it buys empty
+    // assertions for comment fixes. The load-bearing rule is that a NEW module arrives tested.
+    expect(
+      findViolations([
+        commit('e1', [['A', 'test/engine.test.ts']]),
+        commit('e2', [['A', 'src/engine.ts']]),
+        commit('e3', [['M', 'src/engine.ts']]),
+      ]),
+    ).toEqual([]);
   });
 
   it('still fails a change to a module that was never tested at all', () => {
@@ -65,7 +54,6 @@ describe('the test-first rule', () => {
       commit('h1', [['A', 'src/engine.ts']]),
       commit('h2', [['M', 'src/engine.ts']]),
     ]);
-    // both commits are violations: the module arrived untested and stays untested
     expect(violations).toHaveLength(2);
   });
 
@@ -91,5 +79,38 @@ describe('the test-first rule', () => {
   it('reads the module name out of src and test paths', () => {
     expect(moduleOf('src/clockFace.ts')).toBe('clockFace');
     expect(moduleOf('test/clockFace.test.ts')).toBe('clockFace');
+  });
+});
+
+describe('reading git output', () => {
+  it('takes the new path from a rename, and treats it as an addition', () => {
+    // R100<TAB>old<TAB>new - reading column 2 reports the OLD name, so a module could arrive
+    // untested simply by being renamed into place
+    expect(parseNameStatus('R100\tsrc/types.ts\tsrc/engine.ts')).toEqual([
+      { status: 'A', path: 'src/engine.ts' },
+    ]);
+  });
+
+  it('treats a copied file as an addition too', () => {
+    expect(parseNameStatus('C075\tsrc/a.ts\tsrc/b.ts')).toEqual([{ status: 'A', path: 'src/b.ts' }]);
+  });
+
+  it('reads ordinary additions, modifications and deletions', () => {
+    expect(parseNameStatus('A\tsrc/x.ts\nM\tsrc/y.ts\nD\tsrc/z.ts')).toEqual([
+      { status: 'A', path: 'src/x.ts' },
+      { status: 'M', path: 'src/y.ts' },
+      { status: 'D', path: 'src/z.ts' },
+    ]);
+  });
+
+  it('ignores blank lines, which git emits around commit headers', () => {
+    expect(parseNameStatus('\n\nA\tsrc/x.ts\n\n')).toEqual([{ status: 'A', path: 'src/x.ts' }]);
+  });
+});
+
+describe('the gate proves it can fail', () => {
+  it('flags a planted same-commit violation and clears a planted correct pair', () => {
+    // the previous gate could not fail, because it never ran at all
+    expect(() => assertRuleWorks()).not.toThrow();
   });
 });

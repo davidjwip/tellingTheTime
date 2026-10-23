@@ -128,6 +128,14 @@ main {
 }
 
 /* The reference's answer box, scaled up: cream face, 3px teal border. */
+.target {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #ff6b6b;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
 .clock-frame {
   width: min(320px, 68vw);
   aspect-ratio: 1;

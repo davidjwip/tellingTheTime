@@ -96,15 +96,23 @@ describe('viewable artefacts, written by the tests', () => {
   });
 
   it('fails loudly when a committed artefact has changed, rather than redrawing it', () => {
-    const path = `${ARTEFACT_DIR}/face-t2.2-oclock.svg`;
-    const before = readFileSync(path, 'utf8');
+    // re-blessing switches the guard off process-wide, so this test must force the guarded path or
+    // it fails exactly when someone runs UPDATE_ARTEFACTS=1 - the moment it matters least
+    const bless = process.env.UPDATE_ARTEFACTS;
+    delete process.env.UPDATE_ARTEFACTS;
+    try {
+      const path = `${ARTEFACT_DIR}/face-t2.2-oclock.svg`;
+      const before = readFileSync(path, 'utf8');
     // simulate a committed artefact that no longer matches what the code draws
     writeFileSync(path, 'stale');
 
     expect(() => writeSvg('face-t2.2-oclock', renderPlay(level('t2.2'), session('t2.2')).querySelector('svg')!))
       .toThrow(/changed/);
 
-    writeFileSync(path, before);
-    expect(readFileSync(path, 'utf8')).toBe(before);
+      writeFileSync(path, before);
+      expect(readFileSync(path, 'utf8')).toBe(before);
+    } finally {
+      if (bless !== undefined) process.env.UPDATE_ARTEFACTS = bless;
+    }
   });
 });
