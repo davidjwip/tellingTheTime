@@ -27,10 +27,8 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run typecheck
-      # coverage thresholds are enforced by vitest.config.ts: any figure below 90% fails the run
-      - run: npm run test:coverage
-      # the content gate: the eight integrity rules over the committed level set
-      - run: npm run validate:levels
-      # the process gate: tests precede the code they cover, checked against the commit graph
-      - run: npm run gate:tests-first
+      # the hook checks itself: executable, and valid POSIX shell
+      - run: test -x .githooks/pre-push && sh -n .githooks/pre-push
+      # ONE list of checks, shared with .githooks/pre-push through `npm run verify`, so the two
+      # cannot drift the first time somebody adds a check to one of them
+      - run: npm run verify
