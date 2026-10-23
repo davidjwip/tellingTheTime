@@ -64,7 +64,8 @@ Fredoka at weights **400 and 600**. Sizes:
 | `h1` | `2.5rem`, `text-shadow: 2px 2px 0 #ffd1dc` | `2rem` ≤768 |
 | `.instructions` (subtitle) | `1.2rem`, teal | — |
 | `.problem input` (value box) | `4rem` | `3.5rem` ≤768, `3rem` ≤480 |
-| `.operator` / `.equal-sign` | `2rem` bold | `1.5rem` ≤480 |
+| `.operator` | `2rem` bold | `1.5rem` ≤480 |
+| `.equal-sign` | `2rem` bold | **unchanged** at ≤480 (no rule in that breakpoint) |
 | `.touchpad-btn` | `1.5rem` bold | `1.2rem` ≤768, `1rem` ≤480 |
 | `.action-btn` | `1rem` | `0.9rem` ≤480 |
 | `.action-btn.small` | `0.9rem` | `0.85rem` ≤480 |
@@ -80,7 +81,8 @@ Fredoka at weights **400 and 600**. Sizes:
 | Element | Radius | Shadow |
 | --- | --- | --- |
 | `.container` | `20px` | `0 10px 30px rgba(0,0,0,0.2)` |
-| `.problem-area`, `.progress-area`, `.touchpad-container`, `.settings-panel`, `.goal-track`, `.streak-area` | `15px` | `0 5px 15px rgba(0,0,0,0.1)` |
+| `.problem-area`, `.progress-area`, `.settings-panel` | `15px` | `0 5px 15px rgba(0,0,0,0.1)` |
+| `.touchpad-container`, `.goal-track`, `.streak-area` | `15px` | **none** — verified: no `box-shadow` in the reference |
 | inputs, `.touchpad-btn`, `.step` | `10px` / `8px` (step) | — |
 | `.action-btn` | `50px` (pill) | `0 5px 15px rgba(0,0,0,0.2)` |
 | segmented pair | `8px` outer corners only | — |
@@ -223,8 +225,8 @@ The reference has a `.settings-panel` with a name input and **eight mascots**
 (`🦊🐱🐶🐰🦁🐼🚀🦄`), and the chosen mascot rides the goal track. `v1` only specified a name.
 
 **Add both**: name (max 20 chars, `maxlength` as in the reference) and the same eight mascots, same
-`.mascot-btn` 60×60 grid, same `.selected` gradient. Default mascot: `🦄` (the reference's
-`DEFAULT_MASCOT` is taken from its own preferences file; match it).
+`.mascot-btn` 60×60 grid, same `.selected` gradient. Default mascot: **`🦊`** — the reference's
+`DEFAULT_MASCOT`, `src/usePreferences.js` l.13.
 
 ### 4.7 Celebration overlay
 
@@ -258,6 +260,7 @@ Same as the reference's shape otherwise: `<div id="app">`, one module script, vi
 | D6 | Google Fonts `@import` | Self-hosted Fredoka woff2 | AC-34 offline, no third-party request |
 | D7 | Footer names the children | **Same footer, names kept** (your call, 2026-10-23) — the one permitted exception to the no-child-names rule, recorded in `AGENTS.md` | The maths repo is public and does; this repo's guardrail says no child data |
 | D8 | Vue 3 SFCs | Vanilla TS (decided) | Consistency with `plm-flashcards`; the CSS does the visual work |
+| D9 | Five header pills including `How to Use`, plus an `.instructions-panel` | Four pills, no instructions panel | A four-year-old reads no instructions, and the adult needs four controls, not five. The panel's styling is still the place to put level help if it is ever wanted |
 
 ## 6. Parity gate — how "the same" gets proved, not asserted
 

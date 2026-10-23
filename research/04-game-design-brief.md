@@ -27,6 +27,11 @@ That is exactly the jump the research says young children cannot make.
 
 Difficulty here is **three independent knobs**, and **only one may turn per level step**:
 
+*(Corrected 2026-10-23: the enforceable form of this — and the form the spec actually shipped — is
+the **representation** axis plus a declared knob table. The committed level set varies the task mix
+within a tier on purpose, because that is how a level paces reading before doing. See
+`specs/v1.md` §4.5 rule 8. Do not re-derive "exactly one knob" as a validator heuristic.)*
+
 | Knob | Values | What turning it does |
 | --- | --- | --- |
 | **Content** — which times exist | o'clock → half past → quarter → five-minute → minute | changes what is being named |

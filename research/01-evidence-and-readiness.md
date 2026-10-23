@@ -49,8 +49,9 @@ The strongest single piece of evidence for starting early:
 > Chinese children acquire clock-reading knowledge — for analog and digital clocks — **2 years
 > earlier** than their Flemish peers, due to a 2-year earlier exposure. […] the Flemish
 > curriculum tends to underestimate what children are capable of.
-> — Burny, Valcke, Desoete & Van Luit (2013), *Curriculum sequencing and the acquisition of
-> clock-reading skills among Chinese and Flemish children*, IJSME 11:761–785. n = 11,743.
+> — **Paraphrased** from the published abstract of Burny, Valcke, Desoete & Van Luit (2013),
+> *Curriculum sequencing and the acquisition of clock-reading skills among Chinese and Flemish
+> children*, IJSME 11:761–785. n = 11,743. Not a verbatim quotation — the full text is paywalled.
 
 The mechanism is exposure, not aptitude. The paper's conclusion is a criticism of a late
 curriculum. Applied here: **starting at four is defensible; expecting mastery at four is not.**
