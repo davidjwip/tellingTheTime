@@ -7,6 +7,7 @@
  * (test/artefacts.ts).
  */
 
+import { renderChoose } from './choose';
 import { renderFace } from './clockFace';
 import { currentItem, trackProgress } from './engine';
 
@@ -129,44 +130,54 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const panel = el('div', 'problem-area');
 
   const item = currentItem(session);
-  panel.append(el('div', 'prompt', item ? promptFor(item, item.task) : 'Done'));
+  // A choice is checkable, so the cards are the answer and the app marks the tap. There is no pad
+  // here on purpose: a ✓/✗ pair would ask the adult to re-mark something the app already knows.
+  const choosing = item?.answer !== undefined;
 
-  const frame = el('div', 'clock-frame');
-  if (level.face) {
-    // The dial belongs to the level, never to the task: a level with a face shows one even when its
-    // item carries no time of its own, or the ladder renders empty boxes.
-    //
-    // There is no set-task branch here any more. With set steps filtered out of every round there is
-    // no way to reach one, and untested code that cannot run is the thing this project keeps
-    // finding. Drawing a set task properly needs hand-dragging, and that branch returns with it.
-    const face = renderFace(item?.time ?? { hour: 12, minute: 0 }, level.face);
-    face.setAttribute('class', 'clock-face');
-    frame.append(face);
+  if (choosing && item) {
+    panel.append(renderChoose(item, options.lastVerdict));
+  } else {
+    panel.append(el('div', 'prompt', item ? promptFor(item, item.task) : 'Done'));
+
+    const frame = el('div', 'clock-frame');
+    if (level.face) {
+      // The dial belongs to the level, never to the task: a level with a face shows one even when its
+      // item carries no time of its own, or the ladder renders empty boxes.
+      //
+      // There is no set-task branch here any more. With set steps filtered out of every round there is
+      // no way to reach one, and untested code that cannot run is the thing this project keeps
+      // finding. Drawing a set task properly needs hand-dragging, and that branch returns with it.
+      const face = renderFace(item?.time ?? { hour: 12, minute: 0 }, level.face);
+      face.setAttribute('class', 'clock-face');
+      frame.append(face);
+    }
+    panel.append(frame);
+
+    const feedbackArea = el('div', 'feedback-area');
+    const feedback = el('div');
+    feedback.id = 'feedback';
+    // AC-42: the last verdict stays on screen until the next one, for the adult as much as the child
+    if (options.lastVerdict === 'correct') feedback.textContent = '✓ Got it!';
+    if (options.lastVerdict === 'wrong') feedback.textContent = 'Not yet — have another go';
+    feedbackArea.append(feedback);
+    panel.append(feedbackArea);
   }
-  panel.append(frame);
-
-  const feedbackArea = el('div', 'feedback-area');
-  const feedback = el('div');
-  feedback.id = 'feedback';
-  // AC-42: the last verdict stays on screen until the next one, for the adult as much as the child
-  if (options.lastVerdict === 'correct') feedback.textContent = '✓ Got it!';
-  if (options.lastVerdict === 'wrong') feedback.textContent = 'Not yet — have another go';
-  feedbackArea.append(feedback);
-  panel.append(feedbackArea);
   main.append(panel);
 
-  const padContainer = el('div', 'pad-container');
-  // Every task is marked by the adult who watched (B6). A "Done" button that recorded "correct"
-  // was marking the child's effort as success without anyone looking — and on a set task it was
-  // confirming an answer the dial had just displayed.
-  const pad = el('div', 'pad');
-  const yes = el('button', 'touchpad-btn pad-btn pad-yes', '✓ Got it');
-  yes.dataset.verdict = 'correct';
-  const no = el('button', 'touchpad-btn pad-btn pad-no', '✗ Not yet');
-  no.dataset.verdict = 'wrong';
-  pad.append(yes, no);
-  padContainer.append(pad);
-  main.append(padContainer);
+  if (!choosing) {
+    const padContainer = el('div', 'pad-container');
+    // Every task is marked by the adult who watched (B6). A "Done" button that recorded "correct"
+    // was marking the child's effort as success without anyone looking — and on a set task it was
+    // confirming an answer the dial had just displayed.
+    const pad = el('div', 'pad');
+    const yes = el('button', 'touchpad-btn pad-btn pad-yes', '✓ Got it');
+    yes.dataset.verdict = 'correct';
+    const no = el('button', 'touchpad-btn pad-btn pad-no', '✗ Not yet');
+    no.dataset.verdict = 'wrong';
+    pad.append(yes, no);
+    padContainer.append(pad);
+    main.append(padContainer);
+  }
   container.append(main);
 
   if (session.streak > 0) {

@@ -126,6 +126,15 @@ export function mountPlay(
       return;
     }
 
+    // A card tap is already the answer. Compare it with the item the app built, so the verdict is
+    // recorded by the same path as an adult's tap and a miss still returns three places later.
+    const choice = target?.closest<HTMLElement>('[data-choice]')?.dataset.choice;
+    if (choice !== undefined) {
+      const item = currentItem(session);
+      if (item?.answer !== undefined) onVerdict(choice === item.answer ? 'correct' : 'wrong');
+      return;
+    }
+
     onVerdict(target?.closest<HTMLElement>('[data-verdict]')?.dataset.verdict);
   });
 
