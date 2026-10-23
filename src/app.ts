@@ -131,8 +131,13 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   if (level.face) {
     // A tap level shows the dial but carries no time of its own: the child is counting round it.
     // The face depends on the level, never on the task, or half the ladder renders an empty box.
-    const shown = item?.task === 'set' ? { hour: 12, minute: 0 } : item?.time ?? { hour: 12, minute: 0 };
-    const face = renderFace(shown, level.face);
+    // A set task gets a BLANK dial. Parking it at 12:00 looked neutral and was not: 12:00 is a
+    // legal target on t2.1-t2.3, so "Make twelve o'clock" drew its own answer. No hands is the only
+    // position that cannot be the answer.
+    const face =
+      item?.task === 'set'
+        ? renderFace({ hour: 12, minute: 0 }, { ...level.face, hands: 'none' })
+        : renderFace(item?.time ?? { hour: 12, minute: 0 }, level.face);
     face.setAttribute('class', 'clock-face');
     frame.append(face);
   }

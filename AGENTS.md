@@ -24,9 +24,12 @@ new behaviour, so a change that adds a rule still starts in `specs/`, not in `sr
 - The gate checks it can fail before it judges: a planted same-commit violation must be flagged, or
   it aborts. The first version never ran at all (`argv[1]` under vite-node is the vite-node binary)
   and passed every history by doing nothing.
-- Two exemptions exist in `scripts/check-test-first.ts`: `types` (type-only) and `main`
+- Two exemptions exist in `scripts/test-first-rule.ts` (`EXEMPT`): `types` (type-only) and `main`
   (bootstrap). Adding a third needs a reason that survives review — an exemption nobody can argue
   with is just a hole.
+- The baseline may advance, but only in a commit that touches **nothing but**
+  `tests-first.baseline`, reviewed like any other. Moving it alongside real work is refused, which
+  is the difference between extending a rule and escaping it.
 - A spec is approved only when Dave says so in the thread. "The agent thinks it's clear" is not
   approval, and silence is not approval.
 
@@ -51,9 +54,10 @@ These come from the research, not from taste. If a change would break one, stop 
    passed*, never the nearest numeral.
 5. **No timers, no lives, no coins, no leaderboards.** The adult's word is "not yet".
 6. **Every task is marked by the adult.** A button that records "correct" on press marks the
-   child's effort as success without anyone looking, and on a `set` task it confirms an answer the
-   dial had just displayed. The target of a `set` task is stated, never drawn on the dial.
-7. **A round can fail.** Clearing counts first attempts only. A round where a missed item is
+   child's effort as success without anyone looking. The pad is always the adult's two verdicts.
+7. **A `set` task never shows its own answer.** The target is stated as text and the dial is drawn
+   with no hands — parking it at 12:00 was wrong, because 12:00 is a legal target on t2.1–t2.3.
+8. **A round can fail.** Clearing counts first attempts only. A round where a missed item is
    re-shown and answered must not report a perfect total — if every round ends at 100%, the 80%
    threshold and the "Good try!" screen are decoration.
 6. **`read` tasks are adult-marked.** `set` tasks may self-evaluate but still need an adult to

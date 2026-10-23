@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 
-import { assertRuleWorks, findViolations, moduleOf, parseNameStatus } from '../scripts/test-first-rule';
+import {
+  assertRuleWorks,
+  auditBaselineMove,
+  findViolations,
+  moduleOf,
+  parseNameStatus,
+} from '../scripts/test-first-rule';
 
 import type { Commit } from '../scripts/test-first-rule';
 
@@ -105,6 +111,37 @@ describe('reading git output', () => {
 
   it('ignores blank lines, which git emits around commit headers', () => {
     expect(parseNameStatus('\n\nA\tsrc/x.ts\n\n')).toEqual([{ status: 'A', path: 'src/x.ts' }]);
+  });
+});
+
+describe('advancing the baseline', () => {
+  const file = 'tests-first.baseline';
+
+  it('allows a commit that moves nothing but the baseline', () => {
+    expect(auditBaselineMove([commit('m1', [['M', file]])], 'aaaaaaa', 'bbbbbbb')).toBeNull();
+  });
+
+  it('refuses a baseline moved alongside real work', () => {
+    const why = auditBaselineMove(
+      [commit('m2', [['M', file], ['A', 'src/engine.ts']])],
+      'aaaaaaa',
+      'bbbbbbb',
+    );
+    expect(why).toContain('how you escape the rule');
+  });
+
+  it('refuses a baseline that changed in more than one commit', () => {
+    const why = auditBaselineMove(
+      [commit('m3', [['M', file]]), commit('m4', [['M', file]])],
+      'aaaaaaa',
+      'bbbbbbb',
+    );
+    expect(why).toContain('may advance once');
+  });
+
+  it('refuses a baseline that differs from main with no commit to explain it', () => {
+    const why = auditBaselineMove([commit('m5', [['A', 'src/x.ts']])], 'aaaaaaa', 'bbbbbbb');
+    expect(why).toContain('no commit in it changed the baseline');
   });
 });
 

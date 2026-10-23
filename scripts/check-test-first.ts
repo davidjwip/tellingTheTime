@@ -3,14 +3,14 @@
  *
  * Runs unconditionally on import. The first version guarded the entry point with
  * `process.argv[1]?.includes('check-test-first')`; under vite-node argv[1] is the vite-node binary,
- * so main() never ran and the gate passed every history by doing nothing. The rule now lives in
- * test-first-rule.ts where a test can import it, and this file has no entry-point condition at all.
+ * so main() never ran and the gate passed every history by doing nothing. The rule lives in
+ * test-first-rule.ts where a test can import it, and this file has no entry-point condition.
  */
 
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 
-import { assertRuleWorks, findViolations, parseNameStatus } from './test-first-rule';
+import { assertRuleWorks, auditBaselineMove, findViolations, parseNameStatus } from './test-first-rule';
 
 import type { Commit, Violation } from './test-first-rule';
 
@@ -21,10 +21,8 @@ function git(args: string[]): string {
   return execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
 }
 
-function readCommits(baseline: string): Commit[] {
-  const shas = git(['rev-list', '--reverse', `${baseline}..HEAD`])
-    .split('\n')
-    .filter(Boolean);
+function readCommits(from: string): Commit[] {
+  const shas = git(['rev-list', '--reverse', `${from}..HEAD`]).split('\n').filter(Boolean);
 
   return shas.map((sha) => ({
     sha: sha.slice(0, 7),
@@ -33,22 +31,12 @@ function readCommits(baseline: string): Commit[] {
   }));
 }
 
-/**
- * The baseline decides where the rule starts, so moving it is how you get out of the rule. On a
- * branch it may not differ from the copy on main; only a commit on main may advance it.
- */
-function checkBaselineUnmoved(baseline: string): string | null {
-  let onMain: string;
+function readBaselineOnMain(): string | null {
   try {
-    onMain = git(['show', `origin/main:${BASELINE_FILE}`]).trim();
+    return git(['show', `origin/main:${BASELINE_FILE}`]).trim();
   } catch {
-    return null; // no origin/main locally (fresh clone, offline) — cannot verify
+    return null; // fresh clone or offline: cannot verify, and the run says so
   }
-  if (onMain !== baseline) {
-    return `baseline moved on this branch: main has ${onMain}, this branch has ${baseline}. ` +
-      'Only a commit on main may advance the baseline — otherwise anyone edits one line and is exempt.';
-  }
-  return null;
 }
 
 function main(): void {
@@ -59,25 +47,32 @@ function main(): void {
     process.exit(1);
   }
 
-  const baseline = readFileSync(BASELINE_FILE, 'utf8').trim();
-
-  const moved = checkBaselineUnmoved(baseline);
-  if (moved) {
-    console.error(`test-first gate failed:\n\n  ${moved}`);
-    process.exit(1);
-  }
+  const branchBaseline = readFileSync(BASELINE_FILE, 'utf8').trim();
+  const onMain = readBaselineOnMain();
+  const from = onMain ?? branchBaseline;
 
   let commits: Commit[];
   try {
-    commits = readCommits(baseline);
+    commits = readCommits(from);
   } catch {
-    console.error(`cannot read ${baseline}..HEAD — is ${baseline} an ancestor? (CI needs fetch-depth: 0)`);
+    console.error(`cannot read ${from}..HEAD - is it an ancestor? (CI needs fetch-depth: 0)`);
     process.exit(1);
+  }
+
+  if (onMain === null) {
+    console.log('test-first: origin/main unavailable, baseline move not verified');
+  } else if (branchBaseline !== onMain) {
+    const problem = auditBaselineMove(commits, onMain, branchBaseline);
+    if (problem) {
+      console.error(`test-first gate failed:\n\n  ${problem}`);
+      process.exit(1);
+    }
+    console.log(`test-first: baseline advanced ${onMain.slice(0, 7)} -> ${branchBaseline.slice(0, 7)}`);
   }
 
   const violations: Violation[] = findViolations(commits);
   if (violations.length === 0) {
-    console.log(`test-first: ${commits.length} commit(s) since ${baseline.slice(0, 7)}, no violations`);
+    console.log(`test-first: ${commits.length} commit(s) since ${from.slice(0, 7)}, no violations`);
     return;
   }
 
