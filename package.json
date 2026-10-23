@@ -1,0 +1,23 @@
+{
+  "name": "telling-the-time",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Supervised clock-reading practice for a four-year-old",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11",
+    "vitest": "^1.6.1"
+  }
+}
