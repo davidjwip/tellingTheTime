@@ -57,6 +57,11 @@ if [ ! -d node_modules ]; then
   echo "pre-push: node_modules missing - run 'npm ci' in $(pwd)"; exit 1
 fi
 
+# Refresh the base first: the test-first gate measures `merge-base origin/main HEAD`, and a stale
+# origin/main quietly shifts that range - which is how the same commit passed the gate in one clone
+# and failed it in another.
+git fetch -q origin main 2>/dev/null || echo "pre-push: could not refresh origin/main"
+
 # One list, shared with CI: if a check is added to `verify`, both get it.
 npm run --silent verify
 echo "pre-push: all checks passed on $(echo "$head_sha" | cut -c1-7)"
