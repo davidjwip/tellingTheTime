@@ -7,7 +7,7 @@
  * (test/artefacts.ts).
  */
 
-import { formatDigital, renderFace } from './clockFace';
+import { renderFace } from './clockFace';
 import { currentItem, firstPassCorrect, trackProgress } from './engine';
 
 import type { Session, Item } from './engine';
@@ -20,6 +20,8 @@ export interface PlayOptions {
   onChangeLevel?: (level: Level) => void;
   /** What the adult just said, so the feedback line can show it. */
   lastVerdict?: 'correct' | 'wrong';
+  /** Told once, when the round ends, so a clear can be remembered. */
+  onRoundEnd?: (cleared: boolean) => void;
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -118,26 +120,15 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const item = currentItem(session);
   panel.append(el('div', 'prompt', item ? promptFor(item, item.task) : 'Done'));
 
-  // A set task must not show the time it is asking the child to make — drawing the answer on the
-  // dial turns the exercise into copying. The target is stated for the adult, and the dial stays
-  // blank until hand-dragging lands.
-  if (item?.task === 'set' && item.time) {
-    const target = el('div', 'target', formatDigital(item.time));
-    target.dataset.target = 'true';
-    panel.append(target);
-  }
-
   const frame = el('div', 'clock-frame');
   if (level.face) {
-    // A tap level shows the dial but carries no time of its own: the child is counting round it.
-    // The face depends on the level, never on the task, or half the ladder renders an empty box.
-    // A set task gets a BLANK dial. Parking it at 12:00 looked neutral and was not: 12:00 is a
-    // legal target on t2.1-t2.3, so "Make twelve o'clock" drew its own answer. No hands is the only
-    // position that cannot be the answer.
-    const face =
-      item?.task === 'set'
-        ? renderFace({ hour: 12, minute: 0 }, { ...level.face, hands: 'none' })
-        : renderFace(item?.time ?? { hour: 12, minute: 0 }, level.face);
+    // The dial belongs to the level, never to the task: a level with a face shows one even when its
+    // item carries no time of its own, or the ladder renders empty boxes.
+    //
+    // There is no set-task branch here any more. With set steps filtered out of every round there is
+    // no way to reach one, and untested code that cannot run is the thing this project keeps
+    // finding. Drawing a set task properly needs hand-dragging, and that branch returns with it.
+    const face = renderFace(item?.time ?? { hour: 12, minute: 0 }, level.face);
     face.setAttribute('class', 'clock-face');
     frame.append(face);
   }

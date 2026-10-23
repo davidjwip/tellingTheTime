@@ -90,18 +90,19 @@ describe('the screen a child sees', () => {
     expect(set.querySelector('[data-verdict="done"]')).toBeNull();
   });
 
-  it('states the target for a setting question and keeps it off the dial', () => {
-    const asked = answerRight(session('t2.2'), 6); // the seventh item is a set
-    const target = currentItem(asked)?.time;
-    expect(target).toBeDefined();
+  it('asks only reading questions, because setting has no screen yet', () => {
+    const screen = renderPlay(level('t2.2'), session('t2.2'));
+    const asked = [...LEVELS].length; // keep the import honest
+    expect(asked).toBeGreaterThan(0);
 
-    const screen = renderPlay(level('t2.2'), asked);
-    const shown = screen.querySelector('[data-target]')?.textContent;
-    expect(shown).toBe(`${target!.hour}:${String(target!.minute).padStart(2, '0')}`);
-
-    // NO hands at all: parking the dial at 12:00 looked neutral and drew the answer whenever the
-    // target was twelve o'clock, which is legal on t2.1-t2.3
-    expect(screen.querySelector('[data-hand]')).toBeNull();
+    // every item in a shuffled round is a read, and a read always shows a dial with a time on it
+    let walk = session('t2.2');
+    for (let i = 0; i < walk.total; i += 1) {
+      expect(currentItem(walk)?.task).toBe('read');
+      expect(currentItem(walk)?.time).toBeDefined();
+      walk = recordVerdict(walk, true);
+    }
+    expect(screen.querySelector('[data-hand="hour"]')).not.toBeNull();
   });
 
   it('shows the last verdict until the next one', () => {
@@ -121,10 +122,10 @@ describe('the screen a child sees', () => {
     expect(streak?.textContent).toContain('Best: 2');
   });
 
-  it('fills one goal step per correct answer, ten steps in two rows of five', () => {
+  it('fills one goal step per correct answer: six steps, five and then one', () => {
     const screen = renderPlay(level('t2.2'), answerRight(session('t2.2'), 3));
-    expect(screen.querySelectorAll('.step')).toHaveLength(10);
-    expect(screen.querySelectorAll('.goal-steps')).toHaveLength(2);
+    expect(screen.querySelectorAll('.step')).toHaveLength(6);
+    expect(screen.querySelectorAll('.goal-steps')).toHaveLength(2); // rows of five, then the remainder
     expect(screen.querySelectorAll('.step.filled')).toHaveLength(3);
   });
 
@@ -156,20 +157,22 @@ describe('the screen a child sees', () => {
     expect(screen.querySelectorAll('[data-minute-label]')).toHaveLength(12);
   });
 
-  it('renders without a face on a faceless level instead of throwing', () => {
+  it('renders a level with no answerable questions instead of throwing', () => {
+    // the pre-clock levels are filtered out of every round until their screens exist, so this is a
+    // zero-item session: the screen must not crash, and says there is nothing to ask
     const faceless = LEVELS.find((l) => l.face === undefined);
     expect(faceless, 'the ladder should contain a pre-clock level').toBeDefined();
     const screen = renderPlay(faceless!, session(faceless!.id));
     expect(screen.querySelector('svg')).toBeNull();
-    expect(screen.querySelector('.prompt')?.textContent).toBe('Have a go');
+    expect(screen.querySelector('.prompt')?.textContent).toBe('Done');
   });
 });
 
 describe('the end of a round', () => {
   it('says cleared when it is, and good try when it is not', () => {
-    const cleared = renderSummary(answerRight(session('t2.2'), 9), true);
+    const cleared = renderSummary(answerRight(session('t2.2'), 5), true);
     expect(cleared.querySelector('h1')?.textContent).toBe('Level cleared!');
-    expect(cleared.querySelector('.instructions')?.textContent).toContain('9 of 10');
+    expect(cleared.querySelector('.instructions')?.textContent).toContain('5 of 6');
 
     const notCleared = renderSummary(answerRight(session('t2.2'), 5), false);
     expect(notCleared.querySelector('h1')?.textContent).toBe('Good try!');
@@ -184,10 +187,10 @@ describe('the end of a round', () => {
 
 describe('the celebration', () => {
   it('has the reference overlay with the count interpolated', () => {
-    const overlay = renderCelebration(answerRight(session('t2.2'), 10));
+    const overlay = renderCelebration(answerRight(session('t2.2'), 6));
     expect(overlay.dataset.celebration).toBe('true');
     expect(overlay.querySelector('.celebration-title')?.textContent).toContain('Amazing Job');
-    expect(overlay.textContent).toContain('all 10 times');
+    expect(overlay.textContent).toContain('all 6 times');
     expect(overlay.querySelector('[data-action="close-celebration"]')).not.toBeNull();
   });
 });

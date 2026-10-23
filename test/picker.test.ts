@@ -90,8 +90,39 @@ describe('the shelf', () => {
 
   it('asks for a name with a plain label, and never requires one', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
-    expect(screen.querySelector('label[for="child-name"]')?.textContent).toMatch(/name/i);
+    // "Who is playing?" reads better to a parent than "Name", so the label says that; what matters
+    // is that it is attached to the field and that the field is optional
+    const label = screen.querySelector('label[for="child-name"]');
+    expect(label?.textContent).toBe('Who is playing?');
+    const input = screen.querySelector('#child-name') as HTMLInputElement;
+    expect(input.required).toBe(false);
     expect((screen.querySelector('[data-action="start"]') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('leaves out a tier with nothing on it', () => {
+    const onlyTierTwo = shelve([level('t2.4')], DEFAULT_PROGRESS);
+    const screen = renderPicker(onlyTierTwo, DEFAULT_PROGRESS);
+    expect([...screen.querySelectorAll('[data-tier]')].map((n) => n.getAttribute('data-tier'))).toEqual(['2']);
+  });
+
+  it('still shows a cleared level that is not playable yet', () => {
+    // cleared and unavailable: the tick wins, because it happened
+    const progress = { ...DEFAULT_PROGRESS, cleared: ['t2.3'] };
+    const screen = renderPicker(shelve(LEVELS, progress), progress);
+    const button = screen.querySelector('[data-level="t2.3"]') as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+    expect(button.querySelector('.level-note')?.textContent).toBe('✓');
+  });
+
+  it('says so when a level has too few questions and nothing to blame', () => {
+    const thin: Level = {
+      ...level('t2.4'),
+      id: 'test-thin',
+      round: [{ task: 'read', items: 2 }],
+    };
+    const [shelved] = shelve([thin], DEFAULT_PROGRESS);
+    expect(shelved?.available).toBe(false);
+    expect(shelved?.reason).toBe('nothing to ask yet');
   });
 
   it('keeps the footer credit', () => {

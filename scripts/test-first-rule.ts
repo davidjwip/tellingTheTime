@@ -62,39 +62,6 @@ export function parseNameStatus(raw: string): ChangedFile[] {
     .filter((file) => file.path.length > 0);
 }
 
-/**
- * The baseline decides where the rule starts, so moving it is how you get out of the rule.
- *
- * Refusing every move made it impossible to advance at all - the rule would be frozen forever, and
- * a PR that tried to extend the exemption list could never satisfy it. So a move is allowed only in
- * a commit that touches NOTHING BUT the baseline file: one file, one commit, reviewed like any
- * other. Moving it next to real work is refused, which is the difference between extending a rule
- * and escaping it.
- */
-export function auditBaselineMove(
-  commits: readonly Commit[],
-  onMain: string,
-  branch: string,
-  baselineFile = 'tests-first.baseline',
-): string | null {
-  const touching = commits.filter((c) => c.files.some((f) => f.path === baselineFile));
-
-  if (touching.length === 0) {
-    return `this branch says ${branch} but no commit in it changed the baseline (main has ${onMain})`;
-  }
-  if (touching.length > 1) {
-    return `the baseline changed in ${touching.length} commits; it may advance once, on its own`;
-  }
-
-  const mover = touching[0]!;
-  const others = mover.files.filter((f) => f.path !== baselineFile).map((f) => f.path);
-  if (others.length > 0) {
-    return `${mover.sha} moves the baseline and also changes ${others.join(', ')} - ` +
-      'moving the start line alongside real work is how you escape the rule';
-  }
-  return null;
-}
-
 export function findViolations(commits: readonly Commit[]): Violation[] {
   const tested = new Set<string>();
   const violations: Violation[] = [];

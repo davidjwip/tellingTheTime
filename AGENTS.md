@@ -18,18 +18,18 @@ new behaviour, so a change that adds a rule still starts in `specs/`, not in `sr
   fails when a module under `src/` is added in a commit that no *earlier* commit tested. A change to
   a module that is already tested needs no test edit — forcing one buys empty assertions — but a new
   module must arrive with its test already in the history.
-- CI runs it with `fetch-depth: 0` (no history means no commits means a silent pass), and the gate
-  refuses a branch that edits `tests-first.baseline` away from the copy on `main`, because moving
-  the start line is how you opt out of a rule.
+- CI runs it with `fetch-depth: 0` (no history means no commits, which would pass silently). The
+  start line is the **merge base with `origin/main`**, not a pinned SHA in a file: a merge rewrites
+  SHAs, so a pin goes stale the first time a PR lands and quietly widens the range. A merge base
+  cannot go stale, cannot be edited, and cannot be moved without rewriting `main`.
 - The gate checks it can fail before it judges: a planted same-commit violation must be flagged, or
   it aborts. The first version never ran at all (`argv[1]` under vite-node is the vite-node binary)
   and passed every history by doing nothing.
 - Two exemptions exist in `scripts/test-first-rule.ts` (`EXEMPT`): `types` (type-only) and `main`
   (bootstrap). Adding a third needs a reason that survives review — an exemption nobody can argue
   with is just a hole.
-- The baseline may advance, but only in a commit that touches **nothing but**
-  `tests-first.baseline`, reviewed like any other. Moving it alongside real work is refused, which
-  is the difference between extending a rule and escaping it.
+- There is no baseline file to edit. Commits already on `main` are not re-judged; only the branch's
+  own commits are, which is the only set a PR can be held responsible for.
 - A spec is approved only when Dave says so in the thread. "The agent thinks it's clear" is not
   approval, and silence is not approval.
 

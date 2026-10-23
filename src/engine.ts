@@ -30,6 +30,8 @@ export interface Item {
   key: string;
   /** True on the second and later showing of an item the child missed. */
   retry?: boolean;
+  /** Extra practice inserted to keep a missed item from returning immediately. */
+  filler?: boolean;
 }
 
 export interface Verdict {
@@ -48,9 +50,21 @@ export interface Session {
   bestStreak: number;
   /** Track length: the round's item count, fixed at creation. */
   total: number;
+  /** Draws one more question from the same level, used to keep the re-queue gap honest. */
+  makeFiller: () => Item;
 }
 
 export type Rng = () => number;
+
+/**
+ * The task kinds the app can actually present today.
+ *
+ * `set`, `tap`, `choose`, `order` and `build` all need a screen that does not exist yet. Asking a
+ * four-year-old a question he cannot answer is worse than asking fewer questions, so those steps are
+ * dropped until their screens land — and the level data keeps them, so nothing has to be retyped
+ * when they do.
+ */
+export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read']);
 
 /** Small deterministic PRNG so a test can ask for "the same round" twice. */
 export function seededRng(seed: number): Rng {
@@ -106,6 +120,7 @@ export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
   };
 
   level.round.forEach((step, stepIndex) => {
+    if (!SUPPORTED_TASKS.has(step.task)) return; // no screen for it yet
     for (let i = 0; i < step.items; i += 1) {
       const time = step.task === 'read' || step.task === 'set' || step.task === 'choose' ? nextTime() : undefined;
       const key = time
@@ -122,6 +137,19 @@ export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
 
 export function createSession(level: Level, rng: Rng = Math.random): Session {
   const queue = buildQueue(level, rng);
+
+  // A filler is only ever needed when a miss lands so near the end of a round that three items
+  // cannot sit between the miss and its return. Rather than let the same dial come back
+  // immediately — which teaches copying — one more question comes from the same level.
+  let fillers = 0;
+  const makeFiller = (): Item => {
+    // A round only exists for a level with enough answerable items, so this draw cannot come back
+    // empty; the non-null assertion is the honest form of that guarantee.
+    const drawn = buildQueue(level, rng)[0]!;
+    fillers += 1;
+    return { ...drawn, key: `${drawn.key}~filler${fillers}`, filler: true };
+  };
+
   return {
     levelId: level.id,
     queue,
@@ -129,7 +157,9 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
     results: [],
     streak: 0,
     bestStreak: 0,
-    total: itemsPerRound(level),
+    // the round is what the app can ask, not what the data requested
+    total: queue.length,
+    makeFiller,
   };
 }
 
@@ -152,10 +182,12 @@ export function correctCount(session: Session): number {
  * what the threshold was always meant to measure.
  */
 export function firstPassCorrect(session: Session): number {
-  return session.results.filter((r) => r.correct && r.item.retry !== true).length;
+  return session.results.filter((r) => r.correct && r.item.retry !== true && r.item.filler !== true).length;
 }
 
 export function isCleared(session: Session): boolean {
+  // an empty round is not a pass: the shelf should have stopped it, and this stops it too
+  if (session.total === 0) return false;
   return firstPassCorrect(session) >= clearThreshold(session.total);
 }
 
@@ -202,8 +234,15 @@ export function recordVerdict(session: Session, correct: boolean): Session {
   let queue = session.queue;
   if (!correct) {
     const again = { ...item, key: `${item.key}#again`, retry: true };
-    const at = Math.min(answered + REQUEUE_GAP, queue.length);
-    queue = [...queue.slice(0, at), again, ...queue.slice(at)];
+    const at = answered + REQUEUE_GAP;
+
+    // If the round has fewer than three items left, extend it with practice from the same level.
+    // Without this, a miss on the final item is re-shown immediately - the child copies the answer
+    // they were just told was wrong, which is the exact behaviour B2 exists to prevent.
+    const padded = [...queue];
+    while (padded.length < at) padded.push(session.makeFiller());
+
+    queue = [...padded.slice(0, at), again, ...padded.slice(at)];
   }
 
   return {
