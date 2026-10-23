@@ -43,7 +43,7 @@ describe('the screen a child sees', () => {
     const actions = [...screen.querySelectorAll('.header-actions [data-action]')].map((n) =>
       n.getAttribute('data-action'),
     );
-    expect(actions).toEqual(['level', 'sound', 'profile']);
+    expect(actions).toEqual(['level', 'sound', 'profile', 'finish']);
     expect(screen.querySelectorAll('[data-locale]')).toHaveLength(2);
   });
 

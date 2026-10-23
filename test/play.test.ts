@@ -159,6 +159,20 @@ describe('what a tap does', () => {
     expect(window.location.search).toContain('level=t2.2');
   });
 
+  it('lets the adult end the round early, without calling it a failure', () => {
+    const mounted = mount('t2.2');
+    answerRight();
+    answerRight();
+
+    tap('[data-action="finish"]');
+    expect(isFinished(mounted.session())).toBe(true);
+    expect(app.querySelector('.summary')).not.toBeNull();
+
+    const heading = app.querySelector('.summary h1');
+    expect(heading?.textContent).toBe('Nice work today!');
+    expect(heading?.textContent).not.toMatch(/try again|good try|fail/i);
+  });
+
   it('ignores a tap that is not a verdict or an action', () => {
     const mounted = mount('t2.2');
     const heading = app.querySelector('h1') as HTMLElement;

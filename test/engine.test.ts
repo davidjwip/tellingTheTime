@@ -110,6 +110,55 @@ describe('the round is a goal, not a length', () => {
   });
 });
 
+describe('the no-repeat rule covers the whole round, not just the planned questions', () => {
+  it('holds through the extra questions drawn after the plan runs out', () => {
+    // the review found extras restarting the window from scratch, so 3:00 could appear three times
+    // running once the planned six were used up
+    for (let seed = 1; seed <= 40; seed += 1) {
+      let session = createSession(level('t2.2'), seededRng(seed));
+      const shown: Array<{ hour: number; minute: number } | undefined> = [];
+
+      while (!isFinished(session)) {
+        const item = currentItem(session);
+        if (item?.time) shown.push(item.time);
+        session = recordVerdict(session, true);
+      }
+
+      for (let i = 2; i < shown.length; i += 1) {
+        expect(shown[i], `seed ${seed}, position ${i}`).not.toEqual(shown[i - 1]);
+        expect(shown[i], `seed ${seed}, position ${i}`).not.toEqual(shown[i - 2]);
+      }
+    }
+  });
+
+  it('gives up gracefully when a level has only one time to show', () => {
+    // every draw is the same dial, so the repair loop can never fix the clash: it must stop
+    const oneTime: Level = {
+      ...level('t2.1'),
+      id: 'test-one',
+      hours: [3],
+      minutes: [0],
+      round: [{ task: 'read', items: 4 }],
+    };
+    const session = createSession(oneTime, seededRng(1));
+    expect(session.queue.length).toBeGreaterThan(0);
+    expect(session.queue.every((item) => item.time?.hour === 3)).toBe(true);
+  });
+
+  it('does not put a re-shown dial next to an identical neighbour', () => {
+    for (let seed = 1; seed <= 30; seed += 1) {
+      let session = createSession(level('t2.2'), seededRng(seed));
+      for (let i = 0; i < 30 && !isFinished(session); i += 1) {
+        session = recordVerdict(session, i % 3 === 0 ? false : true);
+      }
+      const times = session.queue.map((item) => item.time).filter(Boolean);
+      for (let i = 1; i < times.length; i += 1) {
+        expect(times[i], `seed ${seed}`).not.toEqual(times[i - 1]);
+      }
+    }
+  });
+});
+
 describe('misses are not failures', () => {
   it('keeps going however many misses there are, and still ends on ten right', () => {
     let session = createSession(level('t2.2'), seededRng(9));
