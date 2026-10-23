@@ -99,9 +99,9 @@ describe('the screen a child sees', () => {
     const shown = screen.querySelector('[data-target]')?.textContent;
     expect(shown).toBe(`${target!.hour}:${String(target!.minute).padStart(2, '0')}`);
 
-    // the hour hand must sit at 12, not at the answer — otherwise the exercise is copying
-    const hand = screen.querySelector('[data-hand="hour"]')?.getAttribute('transform');
-    expect(hand).toMatch(/rotate\(0 50 50\)/);
+    // NO hands at all: parking the dial at 12:00 looked neutral and drew the answer whenever the
+    // target was twelve o'clock, which is legal on t2.1-t2.3
+    expect(screen.querySelector('[data-hand]')).toBeNull();
   });
 
   it('shows the last verdict until the next one', () => {
