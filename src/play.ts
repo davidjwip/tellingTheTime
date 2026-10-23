@@ -31,7 +31,9 @@ export function mountPlay(
   const draw = (): void => {
     const finished = isFinished(session) && !celebrating;
     app.replaceChildren(
-      finished ? renderSummary(session, isCleared(session)) : renderPlay(level, session, options),
+      finished
+        ? renderSummary(session, isCleared(session))
+        : renderPlay(level, session, lastVerdict ? { ...options, lastVerdict } : options),
     );
 
     overlayRoot.replaceChildren();
@@ -41,14 +43,13 @@ export function mountPlay(
     overlayRoot.append(overlay);
   };
 
-  const onVerdict = (verdict: string | undefined): void => {
-    if (verdict === 'correct') session = recordVerdict(session, true);
-    else if (verdict === 'wrong') session = recordVerdict(session, false);
-    else if (verdict === 'done') {
-      // setting and building are marked by the adult who watched the hands land
-      session = recordVerdict(session, true);
-    } else return;
+  let lastVerdict: 'correct' | 'wrong' | undefined;
 
+  const onVerdict = (verdict: string | undefined): void => {
+    if (verdict !== 'correct' && verdict !== 'wrong') return;
+
+    lastVerdict = verdict;
+    session = recordVerdict(session, verdict === 'correct');
     if (trackComplete(session)) celebrating = true;
     draw();
   };

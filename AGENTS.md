@@ -15,9 +15,15 @@ new behaviour, so a change that adds a rule still starts in `specs/`, not in `sr
 - Every behaviour lives in `specs/` first, with acceptance criteria as `Given / When / Then`.
 - Every acceptance criterion gets a test that fails **before** it passes.
 - **This is now enforced, not remembered.** `npm run gate:tests-first` reads the commit graph and
-  fails when a module under `src/` is added in a commit that no *earlier* commit tested, or changed
-  without touching its test in the same commit. CI runs it, so the honest shape is two commits: a
-  red one carrying the failing test, then the green one carrying the implementation.
+  fails when a module under `src/` is added in a commit that no *earlier* commit tested. A change to
+  a module that is already tested needs no test edit — forcing one buys empty assertions — but a new
+  module must arrive with its test already in the history.
+- CI runs it with `fetch-depth: 0` (no history means no commits means a silent pass), and the gate
+  refuses a branch that edits `tests-first.baseline` away from the copy on `main`, because moving
+  the start line is how you opt out of a rule.
+- The gate checks it can fail before it judges: a planted same-commit violation must be flagged, or
+  it aborts. The first version never ran at all (`argv[1]` under vite-node is the vite-node binary)
+  and passed every history by doing nothing.
 - Two exemptions exist in `scripts/check-test-first.ts`: `types` (type-only) and `main`
   (bootstrap). Adding a third needs a reason that survives review — an exemption nobody can argue
   with is just a hole.
@@ -44,6 +50,12 @@ These come from the research, not from taste. If a change would break one, stop 
 4. **Half past keeps the minute hand hidden** (T3), and half past means *the number the hand has
    passed*, never the nearest numeral.
 5. **No timers, no lives, no coins, no leaderboards.** The adult's word is "not yet".
+6. **Every task is marked by the adult.** A button that records "correct" on press marks the
+   child's effort as success without anyone looking, and on a `set` task it confirms an answer the
+   dial had just displayed. The target of a `set` task is stated, never drawn on the dial.
+7. **A round can fail.** Clearing counts first attempts only. A round where a missed item is
+   re-shown and answered must not report a perfect total — if every round ends at 100%, the 80%
+   threshold and the "Good try!" screen are decoration.
 6. **`read` tasks are adult-marked.** `set` tasks may self-evaluate but still need an adult to
    continue.
 7. **No estimation tasks.** A four-year-old cannot judge whether something takes "about a minute".

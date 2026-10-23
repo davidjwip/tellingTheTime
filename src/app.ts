@@ -7,8 +7,8 @@
  * (test/artefacts.ts).
  */
 
-import { renderFace } from './clockFace';
-import { correctCount, currentItem, trackProgress } from './engine';
+import { formatDigital, renderFace } from './clockFace';
+import { currentItem, firstPassCorrect, trackProgress } from './engine';
 
 import type { Session, Item } from './engine';
 import type { Level, Task } from './types';
@@ -18,6 +18,8 @@ export interface PlayOptions {
   locale?: 'en' | 'yue';
   /** Where "Change level" goes. Injected so the action can be tested without navigating. */
   onChangeLevel?: (level: Level) => void;
+  /** What the adult just said, so the feedback line can show it. */
+  lastVerdict?: 'correct' | 'wrong';
 }
 
 function el<K extends keyof HTMLElementTagNameMap>(
@@ -99,7 +101,7 @@ function goalTrack(session: Session, mascot: string): HTMLElement {
 
   // The reference shows "Problems Solved: X / Total". Here there is no denominator to read as a
   // score, and no failure count (specs/design-parity.md §4.5).
-  area.append(el('p', undefined, `Times read: ${correctCount(session)} · Best streak: ${session.bestStreak}`));
+  area.append(el('p', undefined, `Times read: ${firstPassCorrect(session)} · Best streak: ${session.bestStreak}`));
   return area;
 }
 
@@ -116,11 +118,21 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const item = currentItem(session);
   panel.append(el('div', 'prompt', item ? promptFor(item, item.task) : 'Done'));
 
+  // A set task must not show the time it is asking the child to make — drawing the answer on the
+  // dial turns the exercise into copying. The target is stated for the adult, and the dial stays
+  // blank until hand-dragging lands.
+  if (item?.task === 'set' && item.time) {
+    const target = el('div', 'target', formatDigital(item.time));
+    target.dataset.target = 'true';
+    panel.append(target);
+  }
+
   const frame = el('div', 'clock-frame');
   if (level.face) {
     // A tap level shows the dial but carries no time of its own: the child is counting round it.
     // The face depends on the level, never on the task, or half the ladder renders an empty box.
-    const face = renderFace(item?.time ?? { hour: 12, minute: 0 }, level.face);
+    const shown = item?.task === 'set' ? { hour: 12, minute: 0 } : item?.time ?? { hour: 12, minute: 0 };
+    const face = renderFace(shown, level.face);
     face.setAttribute('class', 'clock-face');
     frame.append(face);
   }
@@ -129,23 +141,23 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const feedbackArea = el('div', 'feedback-area');
   const feedback = el('div');
   feedback.id = 'feedback';
+  // AC-42: the last verdict stays on screen until the next one, for the adult as much as the child
+  if (options.lastVerdict === 'correct') feedback.textContent = '✓ Got it!';
+  if (options.lastVerdict === 'wrong') feedback.textContent = 'Not yet — have another go';
   feedbackArea.append(feedback);
   panel.append(feedbackArea);
   main.append(panel);
 
   const padContainer = el('div', 'pad-container');
+  // Every task is marked by the adult who watched (B6). A "Done" button that recorded "correct"
+  // was marking the child's effort as success without anyone looking — and on a set task it was
+  // confirming an answer the dial had just displayed.
   const pad = el('div', 'pad');
-  if (item?.task === 'read') {
-    const yes = el('button', 'touchpad-btn pad-btn pad-yes', '✓ Got it');
-    yes.dataset.verdict = 'correct';
-    const no = el('button', 'touchpad-btn pad-btn pad-no', '✗ Not yet');
-    no.dataset.verdict = 'wrong';
-    pad.append(yes, no);
-  } else {
-    const done = el('button', 'touchpad-btn pad-btn', 'Done');
-    done.dataset.verdict = 'done';
-    pad.append(done);
-  }
+  const yes = el('button', 'touchpad-btn pad-btn pad-yes', '✓ Got it');
+  yes.dataset.verdict = 'correct';
+  const no = el('button', 'touchpad-btn pad-btn pad-no', '✗ Not yet');
+  no.dataset.verdict = 'wrong';
+  pad.append(yes, no);
   padContainer.append(pad);
   main.append(padContainer);
   container.append(main);
@@ -174,7 +186,7 @@ export function renderSummary(session: Session, cleared: boolean): HTMLElement {
 
   container.append(el('h1', undefined, cleared ? 'Level cleared!' : 'Good try!'));
   container.append(
-    el('p', 'instructions', `${correctCount(session)} of ${session.total} · best streak ${session.bestStreak}`),
+    el('p', 'instructions', `${firstPassCorrect(session)} of ${session.total} · best streak ${session.bestStreak}`),
   );
 
   const actions = el('div', 'header-actions');

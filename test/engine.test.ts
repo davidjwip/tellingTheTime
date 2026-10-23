@@ -3,8 +3,10 @@ import { describe, expect, it } from 'vitest';
 import {
   buildQueue,
   clearThreshold,
+  correctCount,
   createSession,
   currentItem,
+  firstPassCorrect,
   isCleared,
   isFinished,
   recordVerdict,
@@ -160,6 +162,66 @@ describe('streaks', () => {
     session = answerRight(session, 2);
     expect(session.bestStreak).toBe(4);
     expect(session.streak).toBe(2);
+  });
+});
+
+describe('first attempts are what the round measures', () => {
+  it('does not count a re-queued item as a step on the track', () => {
+    let session = createSession(level('t2.2'), seededRng(8));
+    session = recordVerdict(session, false); // missed, re-queued
+    session = answerRight(session, 3);
+
+    // four answers, three of them first-time correct: the track shows three
+    expect(session.results).toHaveLength(4);
+    expect(correctCount(session)).toBe(3);
+    expect(trackProgress(session)).toBe(3);
+  });
+
+  it('clears on first attempts even when the re-queued item is later answered', () => {
+    let session = createSession(level('t2.2'), seededRng(8));
+    session = recordVerdict(session, false);
+    // answer everything left correctly, including the re-showing
+    session = answerRight(session, 10);
+    expect(isFinished(session)).toBe(true);
+
+    // 10 first-showing items, 9 right first time: cleared, but the track is one step short and the
+    // summary says nine, not ten. Before this, a round with a miss reported a perfect ten.
+    expect(summarise(session)).toEqual({ correct: 9, total: 10, cleared: true, bestStreak: 10 });
+    expect(trackComplete(session)).toBe(false);
+  });
+
+  it('can fail: three first-time misses leave the round uncleared', () => {
+    let session = createSession(level('t2.2'), seededRng(8));
+    for (let i = 0; i < 3; i += 1) session = recordVerdict(session, false);
+    session = answerRight(session, 20); // answer everything, including every re-showing
+    expect(isFinished(session)).toBe(true);
+    expect(summarise(session).correct).toBe(7);
+    expect(isCleared(session)).toBe(false);
+  });
+});
+
+describe('no repeat within two positions (AC-09)', () => {
+  it('never shows the same time within two of itself', () => {
+    const queue = buildQueue(level('t2.2'), seededRng(21)); // twelve o'clocks available
+    for (let i = 2; i < queue.length; i += 1) {
+      expect(queue[i]?.time).not.toEqual(queue[i - 2]?.time);
+    }
+  });
+
+  it('falls back to a repeat when a level has fewer times than the window', () => {
+    const twoTimes: Level = {
+      ...level('t2.1'),
+      id: 'test-two',
+      hours: [3, 6],
+      minutes: [0],
+      round: [{ task: 'read', items: 6 }],
+    };
+    const queue = buildQueue(twoTimes, seededRng(1));
+    expect(queue).toHaveLength(6);
+    // adjacent repeats are still impossible; only the distance-two rule can bend
+    for (let i = 1; i < queue.length; i += 1) {
+      expect(queue[i]?.time).not.toEqual(queue[i - 1]?.time);
+    }
   });
 });
 

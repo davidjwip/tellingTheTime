@@ -83,13 +83,13 @@ describe('what a tap does', () => {
     expect(mounted.session().answered).toBe(before + 1);
   });
 
-  it('records a setting attempt as correct when the adult taps Done', () => {
+  it('records a setting attempt as whatever the adult said, never as correct by default', () => {
     const mounted = mount('t2.2');
-    for (let i = 0; i < 6; i += 1) tap('[data-verdict="correct"]'); // the six reads
-    expect(app.querySelector('[data-verdict="done"]')).not.toBeNull();
+    for (let i = 0; i < 6; i += 1) answerRight(); // the six reads
+    expect(app.querySelector('[data-verdict="done"]')).toBeNull();
 
-    tap('[data-verdict="done"]');
-    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+    tap('[data-verdict="wrong"]');
+    expect(mounted.session().results.at(-1)?.correct).toBe(false);
   });
 
   it('celebrates a full track, and closes back to the round', () => {

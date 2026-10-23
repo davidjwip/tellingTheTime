@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { promptFor, renderCelebration, renderPlay, renderSummary } from '../src/app';
-import { createSession, recordVerdict } from '../src/engine';
+import { createSession, currentItem, recordVerdict } from '../src/engine';
 import { LEVELS } from '../src/levels';
 import { seededRng } from '../src/engine';
 
@@ -77,15 +77,39 @@ describe('the screen a child sees', () => {
     expect(screen.querySelector('[data-hand="minute"]')).toBeNull();
   });
 
-  it('gives a reading question two verdicts and a setting question one', () => {
+  it('marks every task with the adult\'s two verdicts', () => {
     const read = renderPlay(level('t2.2'), session('t2.2'));
     expect(read.querySelectorAll('[data-verdict]')).toHaveLength(2);
     expect(read.querySelector('[data-verdict="correct"]')?.textContent).toContain('Got it');
     expect(read.querySelector('[data-verdict="wrong"]')?.textContent).toContain('Not yet');
 
-    const set = renderPlay(level('t2.2'), answerRight(session('t2.2'), 6)); // t2.2 asks for 6 reads
-    expect(set.querySelectorAll('[data-verdict]')).toHaveLength(1);
-    expect(set.querySelector('[data-verdict="done"]')?.textContent).toBe('Done');
+    // a setting question is marked by the adult too: a "Done" button recorded "correct" without
+    // anyone looking, and did it on a dial that had just displayed the answer
+    const set = renderPlay(level('t2.2'), answerRight(session('t2.2'), 6));
+    expect(set.querySelectorAll('[data-verdict]')).toHaveLength(2);
+    expect(set.querySelector('[data-verdict="done"]')).toBeNull();
+  });
+
+  it('states the target for a setting question and keeps it off the dial', () => {
+    const asked = answerRight(session('t2.2'), 6); // the seventh item is a set
+    const target = currentItem(asked)?.time;
+    expect(target).toBeDefined();
+
+    const screen = renderPlay(level('t2.2'), asked);
+    const shown = screen.querySelector('[data-target]')?.textContent;
+    expect(shown).toBe(`${target!.hour}:${String(target!.minute).padStart(2, '0')}`);
+
+    // the hour hand must sit at 12, not at the answer — otherwise the exercise is copying
+    const hand = screen.querySelector('[data-hand="hour"]')?.getAttribute('transform');
+    expect(hand).toMatch(/rotate\(0 50 50\)/);
+  });
+
+  it('shows the last verdict until the next one', () => {
+    expect(renderPlay(level('t2.2'), session('t2.2'), { lastVerdict: 'correct' }).querySelector('#feedback')?.textContent)
+      .toBe('✓ Got it!');
+    expect(renderPlay(level('t2.2'), session('t2.2'), { lastVerdict: 'wrong' }).querySelector('#feedback')?.textContent)
+      .toContain('Not yet');
+    expect(renderPlay(level('t2.2'), session('t2.2')).querySelector('#feedback')?.textContent).toBe('');
   });
 
   it('hides the streak at zero and shows it once there is one', () => {
