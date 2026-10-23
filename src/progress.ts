@@ -10,6 +10,8 @@ export interface Progress {
   name: string;
   lastLevel: string | null;
   cleared: string[];
+  /** Which language the prompts are spoken in. */
+  locale: 'en' | 'yue';
 }
 
 /** The bit of Storage this needs. Narrow on purpose, so a test can supply one. */
@@ -21,7 +23,7 @@ export interface Store {
 export const PROGRESS_KEY = 'clock.v1.progress';
 export const NAME_MAX = 20;
 
-export const DEFAULT_PROGRESS: Progress = { name: '', lastLevel: null, cleared: [] };
+export const DEFAULT_PROGRESS: Progress = { name: '', lastLevel: null, cleared: [], locale: 'en' };
 
 export function loadProgress(store: Store): Progress {
   let raw: unknown;
@@ -42,6 +44,7 @@ export function loadProgress(store: Store): Progress {
     cleared: Array.isArray(shape.cleared)
       ? shape.cleared.filter((id): id is string => typeof id === 'string')
       : [],
+    locale: shape.locale === 'yue' ? 'yue' : 'en',
   };
 }
 

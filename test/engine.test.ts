@@ -4,7 +4,6 @@ import {
   buildQueue,
   createSession,
   currentItem,
-  endSession,
   firstPassCorrect,
   GOAL_CORRECT,
   isCleared,
@@ -221,28 +220,24 @@ describe('a level with nothing to ask', () => {
   });
 });
 
-describe('the adult can call it', () => {
-  it('ends the round without the goal, and says so without calling it a failure', () => {
-    const session = endSession(answerRight(createSession(level('t2.2'), seededRng(2)), 3));
-    expect(isFinished(session)).toBe(true);
-
-    const summary = summarise(session);
-    expect(summary).toEqual({
-      correct: 3,
-      goal: GOAL_CORRECT,
-      firstPass: 3,
-      reachedGoal: false,
-      endedEarly: true,
-      bestStreak: 3,
-    });
+describe('finishing without a clean end', () => {
+  it('has no early-finish control: closing the page is the adult\'s exit', () => {
+    // Dave: "I can just close the webpage - we don't need to complete cleanly". So there is no
+    // endSession in the engine and no Finish button in the UI; the round ends at the goal.
+    const session = answerRight(createSession(level('t2.2'), seededRng(2)), 3);
+    expect(isFinished(session)).toBe(false);
+    expect(Object.keys(session)).not.toContain('ended');
   });
 
-  it('reports a reached goal as reached, not as an early finish', () => {
+  it('reports a reached goal', () => {
     const session = answerRight(createSession(level('t2.2'), seededRng(2)), GOAL_CORRECT);
-    const summary = summarise(session);
-    expect(summary.reachedGoal).toBe(true);
-    expect(summary.endedEarly).toBe(false);
-    expect(summary.correct).toBe(GOAL_CORRECT);
+    expect(summarise(session)).toEqual({
+      correct: GOAL_CORRECT,
+      goal: GOAL_CORRECT,
+      firstPass: GOAL_CORRECT,
+      reachedGoal: true,
+      bestStreak: GOAL_CORRECT,
+    });
   });
 
   it('counts a streak honestly, resets it on a miss, and keeps the best', () => {
@@ -260,3 +255,4 @@ describe('the adult can call it', () => {
     expect(recordVerdict(done, true)).toBe(done);
   });
 });
+
