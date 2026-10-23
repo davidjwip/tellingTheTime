@@ -25,7 +25,9 @@ and it is written down here so the build can point at it instead of re-deriving 
 | [`research/03-os-taxonomy-extract.md`](research/03-os-taxonomy-extract.md) | The Marble Skill Taxonomy slice for time: age bands, evidence statements, parent assessment prompts, prerequisite edges, misconceptions, and the gaps it does not cover | Choosing assessment wording; checking what "learned" means |
 | [`research/04-game-design-brief.md`](research/04-game-design-brief.md) | The build-shaped consequences: **the difficulty tiering (7 tiers, 28 levels)**, task archetypes, gamification that the evidence supports, architecture, and what we deliberately will not build | Writing the spec |
 | [`research/05-sources.md`](research/05-sources.md) | Every source used, with what it contributed and how much weight it deserves | Checking a claim |
-| [`specs/v1.md`](specs/v1.md) | The buildable spec: level schema, the 20 v1 levels, 24 `Given / When / Then` criteria, test map, build order, risks | Approving or building |
+| [`specs/v1.md`](specs/v1.md) | The buildable spec: level schema, the 20 v1 levels, 46 `Given / When / Then` criteria, test map, build order, risks | Approving or building |
+| [`specs/design-parity.md`](specs/design-parity.md) | The visual contract with the maths app: exact tokens, region map, deliberate divergences, the parity gate | Touching anything visual |
+| [`data/phrases-yue.md`](data/phrases-yue.md) | Cantonese phrase table for review — 48 time phrases + 8 prompts, three forms each | Reviewing the Cantonese |
 
 ## The five findings that shape the build
 
@@ -84,8 +86,12 @@ speculative. Full level-by-level detail, marking rules, data model and draft acc
 - [x] Research: evidence, curricula, taxonomy slice, ladder
 - [x] Game plan and difficulty tiering
 - [x] Seven decisions taken (UK ladder + six build questions) — `04` Part 12
-- [x] [`specs/v1.md`](specs/v1.md) — 24 acceptance criteria, level schema, level set, test map
+- [x] [`specs/v1.md`](specs/v1.md) — v1.2: 46 acceptance criteria, level schema, level set, test map
+- [x] [`specs/design-parity.md`](specs/design-parity.md) — visual contract read from the maths app's source
+- [x] [`data/phrases-yue.md`](data/phrases-yue.md) — Cantonese table drafted, awaiting native review
 - [ ] **Spec approval** in the project thread
+- [ ] The four `design-parity.md` §8 decisions (framework, footer, size control, mascots)
+- [ ] Cantonese sign-off → then its audio can be generated
 - [ ] Test-first build, T0–T4
 
 `specs/v1.md` is a draft. Per `AGENTS.md`, no implementation code is written until it is approved.
