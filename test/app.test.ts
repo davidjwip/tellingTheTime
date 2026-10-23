@@ -168,6 +168,54 @@ describe('the screen a child sees', () => {
   });
 });
 
+describe('the choose screen', () => {
+  it('draws one card button per choice instead of a clock face', () => {
+    const s = session('t0.2');
+    const item = currentItem(s);
+    const screen = renderPlay(level('t0.2'), s);
+
+    expect(screen.querySelector('.clock-frame')).toBeNull();
+    expect(screen.querySelector('svg[data-face]')).toBeNull();
+    expect(screen.querySelectorAll('[data-choice]')).toHaveLength(3);
+
+    for (const card of item?.cards ?? []) {
+      const button = screen.querySelector<HTMLButtonElement>(`[data-choice="${card.id}"]`);
+      expect(button?.textContent).toContain(card.emoji);
+      expect(button?.textContent).toContain(card.word);
+      expect(button?.getAttribute('aria-label')).toBe(card.word);
+    }
+  });
+
+  it('asks the specific day question', () => {
+    const s = session('t0.2');
+    const item = currentItem(s);
+    const word = item?.cards?.find((card) => card.id === item.answer)?.word.toLowerCase();
+    const screen = renderPlay(level('t0.2'), s);
+    expect(screen.querySelector('.prompt')?.textContent).toBe(`Which one is ${word}?`);
+  });
+
+  it('draws a duration pair and asks which took longer', () => {
+    const s = session('t0.3');
+    const screen = renderPlay(level('t0.3'), s);
+    expect(screen.querySelectorAll('[data-choice]')).toHaveLength(2);
+    expect(screen.querySelector('.prompt')?.textContent).toBe('Which took longer?');
+  });
+
+  it('has no adult pad: the tap is the answer and the app marks it', () => {
+    const screen = renderPlay(level('t0.2'), session('t0.2'));
+    expect(screen.querySelector('.pad-container')).toBeNull();
+    expect(screen.querySelectorAll('[data-verdict]')).toHaveLength(0);
+  });
+
+  it('still shows the last verdict, and still asks reading questions with a pad', () => {
+    const choose = renderPlay(level('t0.2'), session('t0.2'), { lastVerdict: 'wrong' });
+    expect(choose.querySelector('#feedback')?.textContent).toContain('Not yet');
+
+    const read = renderPlay(level('t2.2'), session('t2.2'));
+    expect(read.querySelectorAll('[data-verdict]')).toHaveLength(2);
+  });
+});
+
 describe('the end of a round', () => {
   it('says cleared when it is, and good try when it is not', () => {
     const cleared = renderSummary(answerRight(session('t2.2'), 5), true);

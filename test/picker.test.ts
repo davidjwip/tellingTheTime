@@ -40,6 +40,24 @@ describe('which levels can be played today', () => {
     expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/build/i);
   });
 
+  it('offers the two choose levels now that their screen exists', () => {
+    const [yesterday] = shelve([level('t0.2')], DEFAULT_PROGRESS);
+    expect(yesterday?.available).toBe(true);
+    expect(yesterday?.items).toBe(6);
+    expect(yesterday?.reason).toBeUndefined();
+
+    const [duration] = shelve([level('t0.3')], DEFAULT_PROGRESS);
+    expect(duration?.available).toBe(true);
+    expect(duration?.items).toBe(8);
+    expect(duration?.reason).toBeUndefined();
+  });
+
+  it('still says the choosing levels with no cards need choosing, and the ordering ones need dragging', () => {
+    expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
+    expect(shelve([level('t3.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
+    expect(shelve([level('t0.4')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/dragg/i);
+  });
+
   it('knows which levels have already been cleared', () => {
     const [shelved] = shelve([level('t2.4')], { ...DEFAULT_PROGRESS, cleared: ['t2.4'] });
     expect(shelved?.cleared).toBe(true);

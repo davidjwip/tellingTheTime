@@ -11,6 +11,7 @@ import {
   recordVerdict,
   REQUEUE_GAP,
   seededRng,
+  SUPPORTED_TASKS,
   summarise,
   trackComplete,
   trackProgress,
@@ -70,6 +71,48 @@ describe('building questions', () => {
     const queue = buildQueue(twoTimes, seededRng(1));
     for (let i = 1; i < queue.length; i += 1) {
       expect(queue[i]?.time).not.toEqual(queue[i - 1]?.time);
+    }
+  });
+});
+
+describe('choose questions carry their cards and answer', () => {
+  it('presents choose as a task the app can show', () => {
+    expect(SUPPORTED_TASKS.has('choose')).toBe(true);
+  });
+
+  it('builds six day-strip questions with all three cards each', () => {
+    const queue = buildQueue(level('t0.2'), seededRng(3));
+    expect(queue).toHaveLength(6);
+    for (const item of queue) {
+      expect(item.task).toBe('choose');
+      expect(item.cards).toHaveLength(3);
+      expect(item.cards?.some((card) => card.id === item.answer)).toBe(true);
+    }
+  });
+
+  it('builds eight duration questions with two cards each', () => {
+    const queue = buildQueue(level('t0.3'), seededRng(3));
+    expect(queue).toHaveLength(8);
+    for (const item of queue) {
+      expect(item.task).toBe('choose');
+      expect(item.cards).toHaveLength(2);
+      expect(item.cards?.some((card) => card.id === item.answer)).toBe(true);
+    }
+  });
+
+  it('never asks the same choice twice in a row, including the extra questions', () => {
+    for (const id of ['t0.2', 't0.3']) {
+      let session = createSession(level(id), seededRng(11));
+      const answers: Array<string | undefined> = [];
+      while (!isFinished(session)) {
+        const item = currentItem(session);
+        expect(item?.cards).toBeDefined();
+        answers.push(item?.answer);
+        session = recordVerdict(session, true);
+      }
+      for (let i = 1; i < answers.length; i += 1) {
+        expect(answers[i], `${id} position ${i}`).not.toBe(answers[i - 1]);
+      }
     }
   });
 });
