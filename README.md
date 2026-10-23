@@ -86,20 +86,29 @@ speculative. Full level-by-level detail, marking rules, data model and draft acc
 - [x] Research: evidence, curricula, taxonomy slice, ladder
 - [x] Game plan and difficulty tiering
 - [x] Seven decisions taken (UK ladder + six build questions) — `04` Part 12
-- [x] [`specs/v1.md`](specs/v1.md) — v1.2: 46 acceptance criteria, level schema, level set, test map
-- [x] [`specs/design-parity.md`](specs/design-parity.md) — visual contract read from the maths app's source
-- [x] [`data/phrases-yue.md`](data/phrases-yue.md) — Cantonese table drafted, awaiting native review
+- [x] [`specs/v1.md`](specs/v1.md) — v1.3: 47 acceptance criteria, no open questions
+- [x] [`specs/design-parity.md`](specs/design-parity.md) — visual contract + the four parity decisions
+- [x] [`data/phrases-yue.md`](data/phrases-yue.md) — Cantonese settled: colloquial throughout
 - [ ] **Spec approval** in the project thread
-- [ ] The four `design-parity.md` §8 decisions (framework, footer, size control, mascots)
-- [ ] Cantonese sign-off → then its audio can be generated
 - [ ] Test-first build, T0–T4
 
-`specs/v1.md` is a draft. Per `AGENTS.md`, no implementation code is written until it is approved.
+`specs/v1.md` is a draft until Dave approves it. Per `AGENTS.md`, no implementation code before that.
+
+## Decisions settled
+
+| Date | Decision |
+| --- | --- |
+| 2026-10-23 | UK ladder is the spine; a new level opens with reading; both reward layers; all levels open, badge needs a clear |
+| 2026-10-23 | English default with a **Cantonese toggle — colloquial throughout** (`三點三` = 3:15, `三點九` = 3:45) |
+| 2026-10-23 | Name in `localStorage` only; mascots kept; no size control in v1 |
+| 2026-10-23 | **Vanilla TS**, deployed straight to Cloudflare Pages |
+| 2026-10-23 | Look and feel is a binding contract with the maths app, including its footer credit line |
 
 ## House rules this repo inherits
 
-- **Public repo.** No child-identifying data: no names, no school, no class, no photos, no
-  birth date. Say "a four-year-old", not who.
+- **Public repo.** No child-identifying data — no names, school, class, photos or birth date. Say
+  "a four-year-old", not who. **One exception, by Dave's direction:** the footer credit line names
+  the two children, exactly as the maths app does. Nowhere else.
 - **No copyrighted teaching material.** Word lists, worksheets and book pages from any
   phonics or maths scheme do not belong here.
 - **No third-party dataset committed.** The taxonomy is consumed read-only from a pinned

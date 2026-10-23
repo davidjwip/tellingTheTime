@@ -256,8 +256,8 @@ Same as the reference's shape otherwise: `<div id="app">`, one module script, vi
 | D4 | `Problems Solved: X / Total Problems: Y` | `Times read: X · Best streak: Y` | No denominator that can look like a score |
 | D5 | Exactly 10 steps, two rows of 5 | `ceil(N/5)` rows for the round's N | Round lengths vary 3–10 (R5) |
 | D6 | Google Fonts `@import` | Self-hosted Fredoka woff2 | AC-34 offline, no third-party request |
-| D7 | Footer names the children | **Needs your call** — see §8 | The maths repo is public and does; this repo's guardrail says no child data |
-| D8 | Vue 3 SFCs | Vanilla TS *(recommended)* | Consistency with `plm-flashcards`; CSS does the visual work |
+| D7 | Footer names the children | **Same footer, names kept** (your call, 2026-10-23) — the one permitted exception to the no-child-names rule, recorded in `AGENTS.md` | The maths repo is public and does; this repo's guardrail says no child data |
+| D8 | Vue 3 SFCs | Vanilla TS (decided) | Consistency with `plm-flashcards`; the CSS does the visual work |
 
 ## 6. Parity gate — how "the same" gets proved, not asserted
 
@@ -288,11 +288,21 @@ Declared-new elements — the only places the clock app may add classes or colou
 
 Anything else — a new grey, a new radius, a new font weight — is a defect.
 
-## 8. Decisions needed
+## 8. Decisions — settled 2026-10-23
 
-| # | Decision | Recommendation |
-| --- | --- | --- |
-| 1 | Vue (literal structural copy of `App.vue`) or vanilla TS + the same CSS and markup? | **Vanilla TS.** Same look, consistent with `plm-flashcards`; the CSS is what Dave sees |
-| 2 | Footer: copy the maths app's "Created for …" line with names, or keep this repo name-free? | **Name-free** — `© 2026 David Ip. Made for two small people.` The maths repo is public and names them; this repo's own guardrail does not, and I would rather not quietly break it |
-| 3 | `A− / A+` size control from the original brief | **Drop** — no equivalent in the reference; the clock is already sized to the viewport |
-| 4 | Mascots (eight emoji, riding the goal track) | **Include** — it is part of the reference's charm and its track layout depends on it |
+| # | Decision | Answer | Effect |
+| --- | --- | --- | --- |
+| 1 | Vue, or vanilla TS with the same CSS and markup? | **Vanilla TS** | Vite + TS + vanilla DOM. Copy `style.css` verbatim and reproduce the `App.vue` skeleton as functions returning DOM. No `vue` dependency. |
+| 2 | Footer: names or name-free? | **Keep the names** | `© 2026 David Ip. Created for George and Teddy Ip.` — identical to the maths app. This is the **only** place in the repo where a child's name may appear, and `AGENTS.md` was amended to say exactly that. |
+| 3 | `A− / A+` size control | **Parked** | Not rendered in v1; `clock.v1.size` reserved. Adding it later is a UI change with no storage migration. |
+| 4 | Mascots (eight emoji on the goal track) | **Keep** | As the reference: `.mascot-btn` 60×60 grid, `selected` gradient, mascot on the left of the track when the streak is above zero. |
+
+Footer markup, copying the reference's `footer` block:
+
+```html
+<footer>
+    <p>© 2026 David Ip. Created for George and Teddy Ip.</p>
+</footer>
+```
+
+`footer { margin-top: 20px; color: #4ecdc4; font-size: 1.2rem; }` — unchanged.
