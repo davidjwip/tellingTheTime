@@ -274,6 +274,27 @@ describe('what a tap does', () => {
     expect(said).toHaveLength(2);
   });
 
+  it('changes language without throwing away the round', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t0.1'));
+    const firstCard = app.querySelector('[data-card]') as HTMLElement;
+    firstCard.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 100, clientY: 300 }));
+    expect(app.querySelectorAll('.order-slot [data-card]')).toHaveLength(1);
+
+    const before = mounted.session();
+    mounted.setLocale('yue');
+
+    // the same round, the same placed card: changing voice must not restart the exercise
+    expect(app.querySelectorAll('.order-slot [data-card]')).toHaveLength(1);
+    expect(mounted.session()).toBe(before);
+  });
+
+  it('leaves for the shelf from the Level button, which used to be inert', () => {
+    const asked: string[] = [];
+    mountPlay(app, overlayRoot, level('t2.2'), { onChangeLevel: (l) => asked.push(l.id) });
+    tap('[data-action="level"]');
+    expect(asked).toEqual(['t2.2']);
+  });
+
   it('ignores a tap that is not a verdict or an action', () => {
     const mounted = mount('t2.2');
     const heading = app.querySelector('h1') as HTMLElement;

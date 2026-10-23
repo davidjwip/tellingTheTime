@@ -20,12 +20,14 @@ import {
 
 import type { Rng, Session } from './engine';
 import type { PlayOptions } from './app';
-import type { Speaker } from './audio';
+import type { Locale, Speaker } from './audio';
 import type { Level } from './types';
 
 export interface Mounted {
   session(): Session;
   celebrating(): boolean;
+  /** Change language in place. Remounting to do it threw away the round and the placed cards. */
+  setLocale(locale: Locale): void;
 }
 
 /** Play options plus the voice. Optional so a test needs no audio hardware. */
@@ -48,6 +50,7 @@ export function mountPlay(
   let celebrating = false;
   let reported = false;
   let spoken: string | undefined;
+  let locale: Locale = options.locale ?? 'en';
   // A tap on an order card re-renders the pool, so a bounce lands on a DIFFERENT card and can
   // place one the child never chose - or fill the row and record a verdict he did not give.
   let orderLockUntil = 0;
@@ -76,6 +79,7 @@ export function mountPlay(
             ...options,
             ...(lastVerdict ? { lastVerdict } : {}),
             placed,
+            locale,
           }),
     );
 
@@ -133,6 +137,13 @@ export function mountPlay(
       lastChoiceId = undefined;
       placed = [];
       draw();
+      return;
+    }
+
+    // The header's Level button belongs to the play screen, so it has to do something: go back to
+    // the shelf. It was enabled and inert, which this codebase calls a lie.
+    if (action === 'level') {
+      options.onChangeLevel?.(level);
       return;
     }
 
@@ -215,5 +226,13 @@ export function mountPlay(
 
   draw();
 
-  return { session: () => session, celebrating: () => celebrating };
+  return {
+    session: () => session,
+    celebrating: () => celebrating,
+    setLocale: (next: Locale) => {
+      locale = next;
+      options.speaker?.setLocale(next);
+      draw(false);
+    },
+  };
 }
