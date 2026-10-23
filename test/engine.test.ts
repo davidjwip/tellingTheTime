@@ -1,0 +1,185 @@
+import { describe, expect, it } from 'vitest';
+
+import {
+  buildQueue,
+  clearThreshold,
+  createSession,
+  currentItem,
+  isCleared,
+  isFinished,
+  recordVerdict,
+  REQUEUE_GAP,
+  seededRng,
+  summarise,
+  trackComplete,
+  trackProgress,
+} from '../src/engine';
+import { LEVELS } from '../src/levels';
+
+import type { Session } from '../src/engine';
+import type { Level } from '../src/types';
+
+const level = (id: string) => {
+  const found = LEVELS.find((l) => l.id === id);
+  if (!found) throw new Error(`no level ${id}`);
+  return found;
+};
+
+/** Answer `count` items correctly, in order. */
+function answerRight(session: Session, count: number): Session {
+  let next = session;
+  for (let i = 0; i < count; i += 1) next = recordVerdict(next, true);
+  return next;
+}
+
+describe('building a round', () => {
+  it('is deterministic for a seed, so a failing round can be replayed', () => {
+    const a = buildQueue(level('t2.2'), seededRng(7));
+    const b = buildQueue(level('t2.2'), seededRng(7));
+    expect(a).toEqual(b);
+  });
+
+  it('gives a different round for a different seed', () => {
+    const a = buildQueue(level('t2.2'), seededRng(1)).map((i) => i.time);
+    const b = buildQueue(level('t2.2'), seededRng(2)).map((i) => i.time);
+    expect(a).not.toEqual(b);
+  });
+
+  it('follows the level round step by step: six to read, then four to set', () => {
+    const queue = buildQueue(level('t2.2'), seededRng(3));
+    expect(queue.map((i) => i.task)).toEqual([
+      'read', 'read', 'read', 'read', 'read', 'read',
+      'set', 'set', 'set', 'set',
+    ]);
+    expect(queue).toHaveLength(10);
+  });
+
+  it('never shows the same time twice in a row, where the level has enough times', () => {
+    const queue = buildQueue(level('t2.2'), seededRng(11)); // twelve o'clocks available
+    for (let i = 1; i < queue.length; i += 1) {
+      expect(queue[i]?.time).not.toEqual(queue[i - 1]?.time);
+    }
+  });
+
+  it('gives faceless content items no time, and the clock levels a time', () => {
+    const taps = buildQueue(level('t1.3'), seededRng(5));
+    expect(taps.every((i) => i.time === undefined)).toBe(true);
+    const reads = buildQueue(level('t2.2'), seededRng(5));
+    expect(reads.every((i) => i.time !== undefined)).toBe(true);
+  });
+
+  it('repeats the only time a level has, rather than failing to draw', () => {
+    // no shipped level is this narrow, so it is built here: one hour, one minute
+    const oneHour: Level = {
+      ...level('t2.1'),
+      id: 'test-single',
+      hours: [3],
+      minutes: [0],
+      round: [{ task: 'read', items: 4 }],
+    };
+    const queue = buildQueue(oneHour, seededRng(1));
+    expect(queue).toHaveLength(4);
+    expect(queue.every((i) => i.time?.hour === 3 && i.time.minute === 0)).toBe(true);
+  });
+});
+
+describe('clearing a round', () => {
+  it('asks for 80% correct, rounded', () => {
+    expect(clearThreshold(10)).toBe(8);
+    expect(clearThreshold(5)).toBe(4);
+    expect(clearThreshold(3)).toBe(2);
+  });
+
+  it('does not clear on seven of ten, and clears on eight', () => {
+    const session = createSession(level('t2.2'), seededRng(4));
+    expect(isCleared(answerRight(session, 7))).toBe(false);
+    expect(isCleared(answerRight(session, 8))).toBe(true);
+  });
+
+  it('fills the track one step per correct answer, capped at the round length', () => {
+    const session = createSession(level('t2.2'), seededRng(4));
+    expect(trackProgress(session)).toBe(0);
+    expect(trackProgress(answerRight(session, 3))).toBe(3);
+    expect(trackProgress(answerRight(session, 10))).toBe(10);
+  });
+
+  it('celebrates only a full track, not merely a clear', () => {
+    const session = createSession(level('t2.2'), seededRng(4));
+    expect(trackComplete(answerRight(session, 8))).toBe(false); // cleared, but two steps short
+    expect(trackComplete(answerRight(session, 10))).toBe(true);
+  });
+});
+
+describe('the re-queue rule (B2)', () => {
+  it('puts a missed item three positions later, not next', () => {
+    const session = createSession(level('t2.2'), seededRng(9));
+    const missed = currentItem(session);
+    const after = recordVerdict(session, false);
+
+    const keys = after.queue.slice(after.answered, after.answered + REQUEUE_GAP).map((i) => i.key);
+    expect(keys).not.toContain(`${missed?.key}#again`);
+    expect(after.queue[after.answered + REQUEUE_GAP]?.key).toBe(`${missed?.key}#again`);
+  });
+
+  it('still re-queues a miss near the end of a round, as the last item', () => {
+    // appending used to put this straight after the next item; insertion clamps it to the end
+    let session = answerRight(createSession(level('t2.2'), seededRng(9)), 8);
+    const missed = currentItem(session);
+    const after = recordVerdict(session, false);
+
+    expect(after.queue.at(-1)?.key).toBe(`${missed?.key}#again`);
+    expect(after.queue[after.answered]?.key).not.toBe(`${missed?.key}#again`);
+  });
+
+  it('grows the queue but never the round', () => {
+    const session = createSession(level('t2.2'), seededRng(9));
+    const after = recordVerdict(session, false);
+    expect(after.queue).toHaveLength(11);
+    expect(after.total).toBe(10);
+  });
+
+  it('keeps the round going until the re-queued item has been answered', () => {
+    const session = answerRight(createSession(level('t2.2'), seededRng(9)), 9);
+    const after = recordVerdict(session, false);
+    expect(isFinished(after)).toBe(false);
+    expect(isFinished(answerRight(after, 2))).toBe(true);
+  });
+});
+
+describe('streaks', () => {
+  it('counts up with correct answers and resets on a miss', () => {
+    let session = answerRight(createSession(level('t2.2'), seededRng(2)), 3);
+    expect(session.streak).toBe(3);
+    session = recordVerdict(session, false);
+    expect(session.streak).toBe(0);
+  });
+
+  it('remembers the best streak after a reset', () => {
+    let session = answerRight(createSession(level('t2.2'), seededRng(2)), 4);
+    session = recordVerdict(session, false);
+    session = answerRight(session, 2);
+    expect(session.bestStreak).toBe(4);
+    expect(session.streak).toBe(2);
+  });
+});
+
+describe('the summary', () => {
+  it('reports correct, total, clear and best streak — and no score', () => {
+    const session = answerRight(createSession(level('t2.2'), seededRng(6)), 9);
+    expect(summarise(session)).toEqual({ correct: 9, total: 10, cleared: true, bestStreak: 9 });
+    expect(Object.keys(summarise(session))).not.toContain('wrong');
+  });
+
+  it('does not clear a round with four misses', () => {
+    let session = createSession(level('t2.2'), seededRng(6));
+    for (let i = 0; i < 6; i += 1) session = recordVerdict(session, true);
+    for (let i = 0; i < 4; i += 1) session = recordVerdict(session, false);
+    expect(summarise(session).cleared).toBe(false);
+  });
+
+  it('ignores a verdict once the queue is exhausted', () => {
+    const done = answerRight(createSession(level('t2.2'), seededRng(6)), 10);
+    expect(isFinished(done)).toBe(true);
+    expect(recordVerdict(done, true)).toBe(done);
+  });
+});
