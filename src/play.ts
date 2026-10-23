@@ -28,6 +28,8 @@ export interface Mounted {
   celebrating(): boolean;
   /** Change language in place. Remounting to do it threw away the round and the placed cards. */
   setLocale(locale: Locale): void;
+  /** Remove the overlay listener; the overlay does not go with the round. */
+  dispose: () => void;
 }
 
 /** Play options plus the voice. Optional so a test needs no audio hardware. */
@@ -223,18 +225,22 @@ export function mountPlay(
     onVerdict(target?.closest<HTMLElement>('[data-verdict]')?.dataset.verdict);
   });
 
-  overlayRoot.addEventListener('click', (event) => {
+  // Named, because the overlay is shared by every round and outlives each of them: an inline
+  // handler here cannot be removed, so every level opened left another listener behind.
+  const onOverlayClick = (event: Event): void => {
     const target = event.target as HTMLElement | null;
     if (!target?.closest('[data-action="close-celebration"]')) return;
     celebrating = false;
     draw();
-  });
+  };
+  overlayRoot.addEventListener('click', onOverlayClick);
 
   draw();
 
   return {
     session: () => session,
     celebrating: () => celebrating,
+    dispose: () => overlayRoot.removeEventListener('click', onOverlayClick),
     setLocale: (next: Locale) => {
       locale = next;
       options.speaker?.setLocale(next);

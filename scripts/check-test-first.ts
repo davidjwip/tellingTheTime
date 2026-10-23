@@ -62,6 +62,12 @@ function main(): void {
   let seeded: string[] = [];
   try {
     from = mergeBase();
+    if (!from) {
+      // A range it cannot establish is a range it must not pass: silence here is how a gate stops
+      // gating without anyone noticing.
+      console.error('test-first: no merge base with origin/main - refusing to pass');
+      process.exit(1);
+    }
     commits = readCommits(from);
     seeded = git(['ls-tree', '-r', '--name-only', from])
       .split('\n')

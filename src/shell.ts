@@ -42,6 +42,7 @@ export function createShell(deps: ShellDeps): Shell {
 
   const showPicker = (): void => {
     currentLevel = null;
+    mounted?.dispose();
     mounted = null;
     app.replaceChildren(renderPicker(shelve(levels, progress), progress));
     overlayRoot.replaceChildren();
@@ -52,7 +53,10 @@ export function createShell(deps: ShellDeps): Shell {
     progress = rememberLevel(progress, level.id);
     saveProgress(store, progress);
 
-    // mountPlay attaches its listeners to the host, so replacing the host disposes them
+    // Host listeners die with the host, but the overlay listener does not: the overlay is shared
+    // and outlives every round, so it is removed explicitly. Otherwise each level open leaves a
+    // handler behind that answers clicks on the next round's celebration.
+    mounted?.dispose();
     const host = document.createElement('div');
     app.replaceChildren(host);
 
