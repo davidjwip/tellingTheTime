@@ -48,6 +48,10 @@ export function mountPlay(
   let celebrating = false;
   let reported = false;
   let spoken: string | undefined;
+  // A tap on an order card re-renders the pool, so a bounce lands on a DIFFERENT card and can
+  // place one the child never chose - or fill the row and record a verdict he did not give.
+  let orderLockUntil = 0;
+  let orderLockAt = { x: 0, y: 0 };
   let choiceLocked = false;
   let lastChoiceId: string | undefined;
   let placed: string[] = [];
@@ -145,6 +149,14 @@ export function mountPlay(
     // only when it is full, so a half-built answer records nothing.
     const card = target?.closest<HTMLElement>('[data-card]')?.dataset.card;
     if (card !== undefined) {
+      // Block only a BOUNCE: the same spot, moments later. A blanket time lock would swallow an
+      // honest fast tap on a different card, which a four-year-old does constantly.
+      const point = { x: (event as MouseEvent).clientX ?? 0, y: (event as MouseEvent).clientY ?? 0 };
+      const bounced =
+        Date.now() < orderLockUntil &&
+        Math.abs(point.x - orderLockAt.x) < 48 &&
+        Math.abs(point.y - orderLockAt.y) < 48;
+      if (bounced) return;
       const item = currentItem(session);
       const expected = item?.order;
       if (!item || !expected) return;
@@ -156,6 +168,9 @@ export function mountPlay(
       } else {
         return;
       }
+
+      orderLockUntil = Date.now() + CHOICE_TAP_GUARD_MS;
+      orderLockAt = point;
 
       if (placed.length < expected.length) {
         draw(false);
