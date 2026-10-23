@@ -179,7 +179,17 @@ describe('the shelf', () => {
     expect(ids).toEqual(['t0.1', 't2.1', 't3.2', 't4.2']);
   });
 
-  it('keeps the exercises off the shelf and inside the entry tooltip', () => {
+  it('prints the exercises under the tier, because a title never opens on an iPad', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    for (const tier of [0, 2, 3, 4]) {
+      const note = screen.querySelector(`section[data-tier="${tier}"] .tier-note`);
+      const names = LEVELS.filter((l) => l.tier === tier).map((l) => l.title.en);
+      expect(note, `tier ${tier}`).not.toBeNull();
+      for (const name of names) expect(note?.textContent, `tier ${tier}`).toContain(name);
+    }
+  });
+
+  it('keeps the exercises out of the buttons and inside the entry tooltip', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
 
     for (const tier of [0, 2, 3, 4]) {
