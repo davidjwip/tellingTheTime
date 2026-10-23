@@ -139,9 +139,20 @@ export function renderOrder(
   const answer = item.order ?? cards.map((card) => card.id);
   const byId = new Map(cards.map((card) => [card.id, card]));
 
+  // `placed` comes from outside, so treat it like any other untrusted input: an unknown id would
+  // leave a permanent empty slot, and a duplicate would put one card in two slots and in none of
+  // the pool. Neither is reachable through the tap handler today; both are reachable through the
+  // exported function, which is why it validates.
+  const seen = new Set<string>();
+  const placedIds = placed.filter((id) => {
+    if (!byId.has(id) || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+
   const pool = el('div', 'order-pool');
   for (const card of cards) {
-    if (!placed.includes(card.id)) pool.append(renderCard(card));
+    if (!placedIds.includes(card.id)) pool.append(renderCard(card));
   }
   wrapper.append(pool);
 
@@ -149,7 +160,7 @@ export function renderOrder(
   for (let index = 0; index < answer.length; index += 1) {
     const slot = el('div', 'order-slot');
     slot.dataset.slot = '';
-    const card = byId.get(placed[index] ?? '');
+    const card = byId.get(placedIds[index] ?? '');
     if (card) slot.append(renderCard(card));
     row.append(slot);
   }

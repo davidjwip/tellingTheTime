@@ -25,10 +25,20 @@ beforeEach(() => {
   document.body.append(app, overlayRoot);
 });
 
+let tapCount = 0;
+
+/**
+ * Tap something. Each synthetic tap gets its own coordinates, because the order screens ignore a
+ * second tap at the same point within 350ms (a bounce); a real finger on a different card is not a
+ * bounce, and neither is this.
+ */
 function tap(selector: string): void {
   const target = document.querySelector(selector);
   if (!target) throw new Error(`nothing to tap: ${selector}`);
-  (target as HTMLElement).click();
+  tapCount += 1;
+  target.dispatchEvent(
+    new MouseEvent('click', { bubbles: true, clientX: 20 + (tapCount % 7) * 120, clientY: 200 + (tapCount % 5) * 90 }),
+  );
 }
 
 function mount(id: string): Mounted {
