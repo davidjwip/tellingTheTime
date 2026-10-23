@@ -23,16 +23,17 @@ const CENTRE = 50;
 const DIAL_RADIUS = 46;
 const NUMERAL_RADIUS = 36;
 const LABEL_RADIUS = 43;
-const HOUR_HAND_LENGTH = 22;
-const MINUTE_HAND_LENGTH = 33;
+// Hand lengths as a fraction of the dial, per specs/design-parity.md §4.2 (0.46 / 0.70).
+const HOUR_HAND_LENGTH = DIAL_RADIUS * 0.46;
+const MINUTE_HAND_LENGTH = DIAL_RADIUS * 0.7;
 
 /** The parity palette. Both hand colours already exist in the reference stylesheet. */
 export const FACE_COLOURS = {
   hour: '#ff6b6b',
-  minute: '#333333',
-  numeral: '#333333',
+  minute: '#333',
+  numeral: '#333',
   label: '#7f8c8d',
-  dial: '#ffffff',
+  dial: '#fff',
 } as const;
 
 function el<K extends keyof SVGElementTagNameMap>(
@@ -67,7 +68,13 @@ export function formatDigital(time: ClockTime, twentyFourHour = false): string {
  * The order matters only for stacking: dial, marks, labels, numerals, hands, centre dot.
  */
 export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
-  const svg = el('svg', { viewBox: '0 0 100 100', role: 'img', 'data-face': 'true' });
+  const svg = el('svg', {
+    viewBox: '0 0 100 100',
+    role: 'img',
+    // the adult's screen reader is the only reader here; the child cannot read either way
+    'aria-label': `Clock showing ${formatDigital(time)}`,
+    'data-face': 'true',
+  });
 
   svg.append(el('circle', { cx: CENTRE, cy: CENTRE, r: DIAL_RADIUS, fill: FACE_COLOURS.dial }));
 
@@ -99,7 +106,10 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
       svg.append(
         el('path', {
           d: `M ${CENTRE} ${CENTRE} L ${a.x} ${a.y} A ${DIAL_RADIUS - 1} ${DIAL_RADIUS - 1} 0 0 1 ${b.x} ${b.y} Z`,
-          fill: side === 'past' ? '#fff9c4' : '#f8f9fa',
+          // both from the palette and both distinguishable from the cream dial; a tint of the
+          // frame colour would be invisible, which is how the first version shipped
+          fill: side === 'past' ? '#4ecdc4' : '#ff6b6b',
+          'fill-opacity': side === 'past' ? 0.12 : 0.08,
           'data-pastto-shade': side,
         }),
       );
@@ -150,7 +160,11 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
         y1: CENTRE,
         x2: CENTRE,
         y2: CENTRE - HOUR_HAND_LENGTH,
-        stroke: FACE_COLOURS.hour,
+        // currentColor, per the parity contract: the colour arrives as the CSS colour property, so
+        // a stylesheet can override it and the token gate can see it. TODAY it is set inline from
+        // FACE_COLOURS; it moves to a class when the play-screen stylesheet lands.
+        stroke: 'currentColor',
+        style: `color: ${FACE_COLOURS.hour}`,
         'stroke-width': 4.5,
         'stroke-linecap': 'round',
         transform: `rotate(${angle} ${CENTRE} ${CENTRE})`,
@@ -170,7 +184,8 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
         y1: CENTRE,
         x2: CENTRE,
         y2: CENTRE - MINUTE_HAND_LENGTH,
-        stroke: FACE_COLOURS.minute,
+        stroke: 'currentColor',
+        style: `color: ${FACE_COLOURS.minute}`,
         'stroke-width': 2.5,
         'stroke-linecap': 'round',
         transform: `rotate(${angle} ${CENTRE} ${CENTRE})`,
@@ -188,7 +203,7 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
   if (face.showDigital) {
     const digital = el('text', {
       x: CENTRE,
-      y: 82,
+      y: 95,
       'font-size': 7,
       'text-anchor': 'middle',
       fill: FACE_COLOURS.numeral,

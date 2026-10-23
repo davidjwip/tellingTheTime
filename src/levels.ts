@@ -270,6 +270,9 @@ export function validateLevels(levels: readonly Level[] = LEVELS, options: Valid
       for (const field of RESERVED_FACE_FIELDS) {
         if (face[field]) fail(6, level.id, `${field} is reserved for T5+; keep it false in v1`);
       }
+      if (face.minuteHandParked && hands !== 'both') {
+        fail(6, level.id, 'minuteHandParked needs hands:both — there is no minute hand to park');
+      }
       if (face.minuteLabels && hands !== 'none') {
         fail(6, level.id, 'minuteLabels belongs to the numerals-only face (T1), not a two-hand face');
       }

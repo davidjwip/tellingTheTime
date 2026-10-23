@@ -132,6 +132,10 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
     expect(rules(mutated('t2.1', (l) => { l.face!.minuteMarks = true; }))).toContain(6);
   });
 
+  it('rule 6: a parked minute hand on an hour-only face', () => {
+    expect(rules(mutated('t2.1', (l) => { l.face!.minuteHandParked = true; }))).toContain(6);
+  });
+
   it('rule 6: minute labels on a two-hand face', () => {
     expect(rules(mutated('t4.2', (l) => { l.face!.minuteLabels = true; }))).toContain(6);
   });
