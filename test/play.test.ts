@@ -159,18 +159,109 @@ describe('what a tap does', () => {
     expect(window.location.search).toContain('level=t2.2');
   });
 
-  it('lets the adult end the round early, without calling it a failure', () => {
-    const mounted = mount('t2.2');
-    answerRight();
-    answerRight();
+  it('says the question when the face changes, and the verdict after a tap', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+    } as unknown as import('../src/audio').Speaker;
 
-    tap('[data-action="finish"]');
-    expect(isFinished(mounted.session())).toBe(true);
-    expect(app.querySelector('.summary')).not.toBeNull();
+    mountPlay(app, overlayRoot, level('t2.2'), { speaker });
+    expect(said).toEqual(['prompt-read']); // the first question, once
 
-    const heading = app.querySelector('.summary h1');
-    expect(heading?.textContent).toBe('Nice work today!');
-    expect(heading?.textContent).not.toMatch(/try again|good try|fail/i);
+    answerRight();
+    expect(said).toEqual(['prompt-read', 'praise-1', 'prompt-read']);
+    // the prompt is said once per face, not on every re-render
+    expect(said.filter((k) => k === 'prompt-read')).toHaveLength(2);
+  });
+
+  it('says the nudge after a miss, not praise', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+    } as unknown as import('../src/audio').Speaker;
+
+    mountPlay(app, overlayRoot, level('t2.2'), { speaker });
+    tap('[data-verdict="wrong"]');
+    expect(said).toEqual(['prompt-read', 'encourage', 'prompt-read']);
+  });
+
+  it('says nothing when there is no question to ask', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+    } as unknown as import('../src/audio').Speaker;
+
+    // a level whose every task needs a screen that does not exist yet: nothing to show, nothing to say
+    mountPlay(app, overlayRoot, level('t0.1'), { speaker });
+    expect(said).toEqual([]);
+  });
+
+  it('lets the child hear the verdict before asking the next question', () => {
+    // the first version said the praise and then the next prompt in the same tick, and `say`
+    // interrupts whatever is playing - so "well done" was never audible at all
+    const said: string[] = [];
+    const pending: Array<() => void> = [];
+
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+        return new Promise<void>((resolve) => pending.push(resolve));
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+      setLocale: () => undefined,
+      getLocale: () => 'en' as const,
+    } as unknown as import('../src/audio').Speaker;
+
+    mountPlay(app, overlayRoot, level('t2.2'), { speaker });
+    expect(said).toEqual(['prompt-read']); // the question, still being asked
+
+    pending[0]?.(); // that clip ends
+    answerRight();
+    expect(said).toEqual(['prompt-read', 'praise-1']); // the verdict, and no second question yet
+    expect(said).toHaveLength(2);
+
+    pending[1]?.(); // the praise ends
+    return Promise.resolve().then(() => {
+      expect(said.filter((k) => k === 'prompt-read')).toHaveLength(2); // now the next question
+    });
+  });
+
+  it('asks the question again on the first touch, because iOS blocks audio until then', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+        return Promise.resolve();
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+      setLocale: () => undefined,
+      getLocale: () => 'en' as const,
+    } as unknown as import('../src/audio').Speaker;
+
+    mountPlay(app, overlayRoot, level('t2.2'), { speaker });
+    expect(said).toEqual(['prompt-read']);
+
+    // the first attempt was swallowed by the browser; the first touch makes it audible
+    app.dispatchEvent(new Event('pointerdown'));
+    expect(said).toEqual(['prompt-read', 'prompt-read']);
+
+    // and only once: a second touch must not repeat it
+    app.dispatchEvent(new Event('pointerdown'));
+    expect(said).toHaveLength(2);
   });
 
   it('ignores a tap that is not a verdict or an action', () => {
