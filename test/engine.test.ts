@@ -50,7 +50,7 @@ describe('building questions', () => {
   });
 
   it('asks nothing on a level whose every question needs a screen that does not exist', () => {
-    expect(buildQueue(level('t0.1'), seededRng(3))).toEqual([]);
+    expect(buildQueue(level('t1.1'), seededRng(3))).toEqual([]);
   });
 
   it('never shows the same time within two positions (AC-09)', () => {
@@ -254,7 +254,7 @@ describe('misses are not failures', () => {
 
 describe('a level with nothing to ask', () => {
   it('has no questions, and answering one changes nothing', () => {
-    const session = createSession(level('t0.1'), seededRng(1)); // order cards: no screen yet
+    const session = createSession(level('t1.1'), seededRng(1)); // tap the numbers: no screen yet
     expect(session.queue).toEqual([]);
     expect(currentItem(session)).toBeUndefined();
     expect(recordVerdict(session, true)).toBe(session);

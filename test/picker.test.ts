@@ -34,10 +34,19 @@ describe('which levels can be played today', () => {
   });
 
   it('names what the unanswerable questions need, so the shelf is a to-do list', () => {
-    expect(shelve([level('t0.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/dragg/i); // order
     expect(shelve([level('t1.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/tap/i);
     expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
     expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/build/i);
+
+    // an order step with no order table still says what it is waiting for
+    const noOrderTable: Level = {
+      ...level('t0.1'),
+      id: 'test-order-no-table',
+      content: { kind: 'clock' },
+      hours: [1],
+      minutes: [0],
+    };
+    expect(shelve([noOrderTable], DEFAULT_PROGRESS)[0]?.reason).toMatch(/ordering/i);
   });
 
   it('offers the two choose levels now that their screen exists', () => {
@@ -52,10 +61,21 @@ describe('which levels can be played today', () => {
     expect(duration?.reason).toBeUndefined();
   });
 
-  it('still says the choosing levels with no cards need choosing, and the ordering ones need dragging', () => {
+  it('offers the two order levels now that their screen exists', () => {
+    const [day] = shelve([level('t0.1')], DEFAULT_PROGRESS);
+    expect(day?.available).toBe(true);
+    expect(day?.items).toBe(6);
+    expect(day?.reason).toBeUndefined();
+
+    const [week] = shelve([level('t0.4')], DEFAULT_PROGRESS);
+    expect(week?.available).toBe(true);
+    expect(week?.items).toBe(4);
+    expect(week?.reason).toBeUndefined();
+  });
+
+  it('still says the choosing levels with no cards need choosing', () => {
     expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
     expect(shelve([level('t3.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
-    expect(shelve([level('t0.4')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/dragg/i);
   });
 
   it('knows which levels have already been cleared', () => {
@@ -78,7 +98,7 @@ describe('where a visit starts', () => {
   it('refuses a level that cannot be played, however it was asked for', () => {
     // both are untrusted input, and both used to start a round of nothing
     expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't2.3')).toBeNull();
-    expect(resolveStartLevel(LEVELS, { ...DEFAULT_PROGRESS, lastLevel: 't0.1' }, null)).toBeNull();
+    expect(resolveStartLevel(LEVELS, { ...DEFAULT_PROGRESS, lastLevel: 't1.4' }, null)).toBeNull();
   });
 
   it('refuses a level that does not exist', () => {
@@ -115,6 +135,15 @@ describe('the shelf', () => {
   it('leaves the playable ones enabled', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     expect((screen.querySelector('[data-level="t2.4"]') as HTMLButtonElement).disabled).toBe(false);
+  });
+
+  it('leaves the two order levels enabled now their screen exists', () => {
+    const screen = renderPicker(
+      shelve([level('t0.1'), level('t0.4')], DEFAULT_PROGRESS),
+      DEFAULT_PROGRESS,
+    );
+    expect((screen.querySelector('[data-level="t0.1"]') as HTMLButtonElement).disabled).toBe(false);
+    expect((screen.querySelector('[data-level="t0.4"]') as HTMLButtonElement).disabled).toBe(false);
   });
 
   it('marks a cleared level without hiding it', () => {

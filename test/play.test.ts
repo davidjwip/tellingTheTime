@@ -204,7 +204,7 @@ describe('what a tap does', () => {
     } as unknown as import('../src/audio').Speaker;
 
     // a level whose every task needs a screen that does not exist yet: nothing to show, nothing to say
-    mountPlay(app, overlayRoot, level('t0.1'), { speaker });
+    mountPlay(app, overlayRoot, level('t1.1'), { speaker });
     expect(said).toEqual([]);
   });
 
@@ -359,6 +359,156 @@ describe('choosing a card', () => {
     const item = currentItem(mounted.session());
     if (!item?.answer) throw new Error('no choose answer');
     tap(`[data-choice="${item.answer}"]`);
+    expect(said).toEqual(['prompt-tap', 'praise-1', 'prompt-tap']);
+  });
+});
+
+describe('ordering the cards', () => {
+  const DAY_ORDER = ['morning', 'afternoon', 'night'];
+  const WEEK_ORDER = [
+    'monday',
+    'tuesday',
+    'wednesday',
+    'thursday',
+    'friday',
+    'saturday',
+    'sunday',
+  ];
+  const WEEK_WORDS = [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ];
+
+  function tapOrder(cardIds: string[]): void {
+    for (const id of cardIds) tap(`[data-card="${id}"]`);
+  }
+
+  const slotIds = (): Array<string | null> =>
+    [...app.querySelectorAll('[data-slot]')].map((slot) =>
+      slot.querySelector('[data-card]')?.getAttribute('data-card') ?? null,
+    );
+
+  it('draws every card into the pool, an empty slot for each, and no pad', () => {
+    const mounted = mount('t0.1');
+    const item = currentItem(mounted.session());
+
+    expect(item?.task).toBe('order');
+    expect(item?.cards?.map((card) => card.id)).not.toEqual(DAY_ORDER);
+    expect(app.querySelectorAll('[data-card]')).toHaveLength(3);
+    expect(app.querySelectorAll('[data-slot]')).toHaveLength(3);
+    expect(app.querySelectorAll('[data-slot] [data-card]')).toHaveLength(0);
+    expect(app.querySelectorAll('[data-verdict]')).toHaveLength(0);
+  });
+
+  it('fills slots from the pool as cards are tapped, and returns a placed card to the pool', () => {
+    mount('t0.1');
+
+    tap('[data-card="morning"]');
+    expect(slotIds()).toEqual(['morning', null, null]);
+
+    tap('[data-card="afternoon"]');
+    expect(slotIds()).toEqual(['morning', 'afternoon', null]);
+
+    tap('[data-card="afternoon"]'); // undo the last placement
+    expect(slotIds()).toEqual(['morning', null, null]);
+    expect(app.querySelector('[data-card="afternoon"]')).not.toBeNull();
+    expect(app.querySelector('[data-slot] [data-card="afternoon"]')).toBeNull();
+  });
+
+  it('records nothing until the row is full', () => {
+    const mounted = mount('t0.1');
+
+    tap('[data-card="morning"]');
+    tap('[data-card="afternoon"]');
+
+    expect(mounted.session().answered).toBe(0);
+    expect(mounted.session().results).toHaveLength(0);
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(0);
+  });
+
+  it('records a correct verdict and fills a step when the row is completed in order', () => {
+    const mounted = mount('t0.1');
+
+    for (const id of DAY_ORDER) {
+      expect(app.querySelectorAll('[data-verdict]')).toHaveLength(0);
+      tap(`[data-card="${id}"]`);
+    }
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(1);
+    expect(app.querySelectorAll('[data-verdict]')).toHaveLength(0);
+  });
+
+  it('records a miss on a wrong row and brings the same cards back three places later', () => {
+    const mounted = mount('t0.1');
+    const item = currentItem(mounted.session());
+    if (!item?.cards) throw new Error('no order cards');
+
+    tapOrder(['night', 'afternoon', 'morning']);
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(false);
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(0);
+
+    const after = mounted.session();
+    const later = after.queue[after.answered + REQUEUE_GAP];
+    expect(later?.retry).toBe(true);
+    expect(later?.cards?.map((card) => card.id)).toEqual(item.cards.map((card) => card.id));
+  });
+
+  it('never deals the same shuffle twice in a row through a round', () => {
+    const mounted = mount('t0.1');
+    const shuffles: string[] = [];
+
+    for (let i = 0; i < 9; i += 1) {
+      const item = currentItem(mounted.session());
+      if (!item?.cards) throw new Error('no order cards');
+      shuffles.push(item.cards.map((card) => card.id).join(','));
+      tapOrder(DAY_ORDER);
+    }
+
+    for (let i = 1; i < shuffles.length; i += 1) {
+      expect(shuffles[i]).not.toBe(shuffles[i - 1]);
+    }
+  });
+
+  it('plays the week tiles too, with seven numbered words and seven slots', () => {
+    const mounted = mount('t0.4');
+
+    expect(app.querySelectorAll('[data-card]')).toHaveLength(7);
+    expect(app.querySelectorAll('[data-slot]')).toHaveLength(7);
+    for (const [index, word] of WEEK_WORDS.entries()) {
+      const card = app.querySelector(`[data-card="${WEEK_ORDER[index]}"]`);
+      const text = card?.textContent ?? '';
+      expect(text).toContain(String(index + 1));
+      expect(text).toContain(word);
+      expect(text.indexOf(String(index + 1))).toBeLessThan(text.indexOf(word));
+    }
+
+    tapOrder(WEEK_ORDER);
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(1);
+  });
+
+  it('says the tap prompt and the verdict, just as the choose screens do', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+    } as unknown as import('../src/audio').Speaker;
+
+    mountPlay(app, overlayRoot, level('t0.1'), { speaker });
+    expect(said).toEqual(['prompt-tap']);
+
+    tapOrder(DAY_ORDER);
     expect(said).toEqual(['prompt-tap', 'praise-1', 'prompt-tap']);
   });
 });
