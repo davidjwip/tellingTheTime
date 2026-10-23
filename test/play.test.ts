@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { isFinished } from '../src/engine';
+import { currentItem, isFinished, REQUEUE_GAP } from '../src/engine';
 import { LEVELS } from '../src/levels';
 import { mountPlay } from '../src/play';
 
@@ -269,5 +269,71 @@ describe('what a tap does', () => {
     const heading = app.querySelector('h1') as HTMLElement;
     heading.click();
     expect(mounted.session().answered).toBe(0);
+  });
+});
+
+describe('choosing a card', () => {
+  it('records a correct verdict on the answer card, fills a step, and shows no pad', () => {
+    const mounted = mount('t0.2');
+    const item = currentItem(mounted.session());
+    if (!item?.answer) throw new Error('no choose answer');
+
+    expect(app.querySelectorAll('[data-verdict]')).toHaveLength(0);
+    tap(`[data-choice="${item.answer}"]`);
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(1);
+    expect(app.querySelectorAll('[data-verdict]')).toHaveLength(0);
+  });
+
+  it('records a miss on the wrong card and brings the question back three places later', () => {
+    const mounted = mount('t0.3');
+    const item = currentItem(mounted.session());
+    const wrong = item?.cards?.find((card) => card.id !== item.answer);
+    if (!wrong) throw new Error('no wrong card to tap');
+
+    tap(`[data-choice="${wrong.id}"]`);
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(false);
+    expect(app.querySelectorAll('.step.filled')).toHaveLength(0);
+
+    const after = mounted.session();
+    expect(after.queue[after.answered + REQUEUE_GAP]?.answer).toBe(item?.answer);
+    expect(after.queue[after.answered + REQUEUE_GAP]?.retry).toBe(true);
+  });
+
+  it('never shows the same choice twice in a row through a whole round', () => {
+    const mounted = mount('t0.3');
+    const answers: Array<string | undefined> = [];
+
+    for (let i = 0; i < 10; i += 1) {
+      const item = currentItem(mounted.session());
+      answers.push(item?.answer);
+      if (!item?.answer) throw new Error('choose item without an answer');
+      tap(`[data-choice="${item.answer}"]`);
+    }
+
+    for (let i = 1; i < answers.length; i += 1) {
+      expect(answers[i]).not.toBe(answers[i - 1]);
+    }
+  });
+
+  it('says the tap prompt and the verdict, just as a read question says its own', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+    } as unknown as import('../src/audio').Speaker;
+
+    const mounted = mountPlay(app, overlayRoot, level('t0.2'), { speaker });
+    expect(said).toEqual(['prompt-tap']);
+
+    const item = currentItem(mounted.session());
+    if (!item?.answer) throw new Error('no choose answer');
+    tap(`[data-choice="${item.answer}"]`);
+    expect(said).toEqual(['prompt-tap', 'praise-1', 'prompt-tap']);
   });
 });
