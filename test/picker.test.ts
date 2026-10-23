@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS } from '../src/levels';
-import { levelFromClick, renderPicker, resolveStartLevel, shelve } from '../src/picker';
+import { firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from '../src/picker';
 import { DEFAULT_PROGRESS } from '../src/progress';
 
 import type { Level } from '../src/types';
@@ -144,6 +144,13 @@ describe('which click means a level', () => {
   });
 });
 
+describe('where Start goes', () => {
+  it('falls back to the first playable level when the remembered one is shelved', () => {
+    const remembered = { ...DEFAULT_PROGRESS, lastLevel: 't1.1' }; // needs a screen that does not exist
+    expect(firstPlayable(LEVELS, remembered)?.id).toBe('t0.1');
+  });
+});
+
 describe('the shelf', () => {
   const shelved = shelve(LEVELS, DEFAULT_PROGRESS);
 
@@ -230,6 +237,12 @@ describe('the shelf', () => {
     const [shelved] = shelve([thin], DEFAULT_PROGRESS);
     expect(shelved?.available).toBe(false);
     expect(shelved?.reason).toBe('nothing to ask yet');
+  });
+
+  it('offers the language before a level is chosen, marked with the saved choice', () => {
+    const screen = renderPicker(shelved, { ...DEFAULT_PROGRESS, locale: 'yue' });
+    expect(screen.querySelector('[data-locale="en"]')).not.toBeNull();
+    expect(screen.querySelector('[data-locale="yue"]')?.classList.contains('operator-active')).toBe(true);
   });
 
   it('keeps the footer credit', () => {
