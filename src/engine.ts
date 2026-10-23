@@ -48,6 +48,13 @@ export interface Item {
   extra?: boolean;
 }
 
+/** One tier's playable levels, plus the lower-tier levels used as revision. */
+export interface TierBank {
+  tier: number;
+  levels: readonly Level[];
+  review: readonly Level[];
+}
+
 export interface Verdict {
   item: Item;
   correct: boolean;
@@ -91,6 +98,9 @@ export const REQUEUE_GAP = 3;
 
 /** How far back the no-repeat rule reaches. */
 export const NO_REPEAT_WINDOW = 2;
+
+/** One item in four of a tier round comes down from a lower tier as revision. */
+export const REVIEW_SHARE = 0.25;
 
 /** Small deterministic PRNG so a test can ask for "the same round" twice. */
 export function seededRng(seed: number): Rng {
@@ -328,6 +338,181 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
   if (queue.length > 0) {
     // Draw first, then repair: a question appended after the repair would never be checked against
     // the queue it lands in, and could repeat its neighbour.
+    ensureNext(session);
+    repairNeighbours(session.queue, session.makeItem);
+  }
+  return session;
+}
+
+function questionStamp(item: Item): string {
+  if (item.time) return `${item.task}:${item.time.hour}:${item.time.minute}`;
+  if (item.task === 'order') {
+    const key = orderKey(item);
+    return key === undefined ? `${item.task}:${item.key}` : `order:${key}`;
+  }
+  const key = choiceKey(item);
+  return key === undefined ? `${item.task}:${item.key}` : `choose:${key}`;
+}
+
+function shuffle<T>(items: readonly T[], rng: Rng): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1)) % (i + 1);
+    [out[i], out[j]] = [out[j] as T, out[i] as T];
+  }
+  return out;
+}
+
+interface LevelSource {
+  take: () => Item;
+}
+
+/**
+ * One level's contribution to a tier bank.
+ *
+ * Its declared round is used first, then fresh items come from the same drawer so the no-repeat
+ * window survives past the planned questions.
+ */
+function makeLevelSource(level: Level, rng: Rng): LevelSource {
+  const drawer = makeDrawer(level, rng);
+  const planned = buildQueue(level, rng, drawer);
+  let at = 0;
+  let extras = 0;
+  const step = level.round.find((s) => canPresent(level, s.task))?.task ?? 'read';
+
+  const extra = (): Item => {
+    extras += 1;
+    const key = `${level.id}:extra:${extras}`;
+    if (step === 'choose') {
+      return itemFor(step, undefined, key, true, drawer.nextChoice(level.content));
+    }
+    if (step === 'order') {
+      return itemFor(step, undefined, key, true, undefined, drawer.nextOrder(level.content));
+    }
+    const time = step === 'read' || step === 'set' ? drawer.nextTime() : undefined;
+    return itemFor(step, time, key, true);
+  };
+
+  return {
+    take: () => {
+      const item = at < planned.length ? planned[at++]! : extra();
+      return { ...item, levelId: level.id, key: questionStamp(item) };
+    },
+  };
+}
+
+interface TierDrawer {
+  takeMain: () => Item;
+  takeReview: () => Item;
+}
+
+/**
+ * A tier's shared draw state.
+ *
+ * The recent window and the main/review sets belong to the WHOLE tier, not to one level: that is
+ * what stops a revision item repeating a question the child has just been asked from the tier.
+ */
+function makeTierDrawer(
+  mainLevels: readonly Level[],
+  reviewLevels: readonly Level[],
+  rng: Rng,
+): TierDrawer {
+  const main = mainLevels.map((level) => makeLevelSource(level, rng));
+  const review = reviewLevels.map((level) => makeLevelSource(level, rng));
+  const recent: string[] = [];
+  const mainStamps = new Set<string>();
+  const reviewStamps = new Set<string>();
+
+  const take = (
+    sources: readonly LevelSource[],
+    forbidden: ReadonlySet<string>,
+    own: Set<string>,
+  ): Item => {
+    let item = pick(rng, sources).take();
+    for (let attempt = 0; attempt < 100; attempt += 1) {
+      const stamp = questionStamp(item);
+      if (!recent.includes(stamp) && !forbidden.has(stamp)) break;
+      item = pick(rng, sources).take();
+    }
+
+    const stamp = questionStamp(item);
+    const placed = { ...item, key: stamp };
+    recent.push(stamp);
+    if (recent.length > REQUEUE_GAP) recent.shift();
+    own.add(stamp);
+    return placed;
+  };
+
+  return {
+    takeMain: () => take(main, reviewStamps, mainStamps),
+    takeReview: () => take(review, mainStamps, reviewStamps),
+  };
+}
+
+function buildTierItems(
+  drawer: TierDrawer,
+  count: number,
+  reviewAvailable: boolean,
+  rng: Rng,
+): Item[] {
+  if (count <= 0) return [];
+
+  // Slot 0 is never review: the child opens on the tier they chose.
+  const reviewCount = reviewAvailable
+    ? Math.min(Math.round(count * REVIEW_SHARE), count - 1)
+    : 0;
+  const slots = Array.from({ length: Math.max(0, count - 1) }, (_, index) => index + 1);
+  const reviewSlots = new Set(shuffle(slots, rng).slice(0, reviewCount));
+
+  const queue: Item[] = [];
+  for (let index = 0; index < count; index += 1) {
+    queue.push(reviewSlots.has(index) ? drawer.takeReview() : drawer.takeMain());
+  }
+  return queue;
+}
+
+const hasPresentableStep = (level: Level): boolean =>
+  level.round.some((step) => canPresent(level, step.task));
+
+/** Draw `count` items from every playable level in the tier, shuffled by `rng`. */
+export function buildTierQueue(bank: TierBank, count: number, rng: Rng = Math.random): Item[] {
+  const main = bank.levels.filter(hasPresentableStep);
+  const review = bank.review.filter(hasPresentableStep);
+  if (main.length === 0) return [];
+  const drawer = makeTierDrawer(main, review, rng);
+  return buildTierItems(drawer, count, review.length > 0, rng);
+}
+
+/**
+ * A tier round: the same goal and verdict machinery as a level round, drawing from the whole bank.
+ *
+ * Extras after the planned ten keep using the same drawer, so the no-repeat window does not restart
+ * halfway through a child's round.
+ */
+export function createTierSession(bank: TierBank, rng: Rng = Math.random): Session {
+  const main = bank.levels.filter(hasPresentableStep);
+  const review = bank.review.filter(hasPresentableStep);
+  const drawer = main.length > 0 ? makeTierDrawer(main, review, rng) : undefined;
+  const queue = drawer ? buildTierItems(drawer, GOAL_CORRECT, review.length > 0, rng) : [];
+
+  const makeItem = (): Item => {
+    if (!drawer) return { task: 'read', key: 'tier:empty' };
+    return drawer.takeMain();
+  };
+
+  const session: Session = {
+    levelId: `tier-${bank.tier}`,
+    queue,
+    answered: 0,
+    results: [],
+    streak: 0,
+    bestStreak: 0,
+    goal: GOAL_CORRECT,
+    correct: 0,
+    makeItem,
+  };
+
+  if (queue.length > 0) {
     ensureNext(session);
     repairNeighbours(session.queue, session.makeItem);
   }

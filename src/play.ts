@@ -11,6 +11,7 @@ import { renderCelebration, renderPlay, renderSummary } from './app';
 import { promptKeyFor } from './audio';
 import {
   createSession,
+  createTierSession,
   currentItem,
   isCleared,
   isFinished,
@@ -18,7 +19,7 @@ import {
   trackComplete,
 } from './engine';
 
-import type { Rng, Session } from './engine';
+import type { Rng, Session, TierBank } from './engine';
 import type { PlayOptions } from './app';
 import type { Locale, Speaker } from './audio';
 import type { Level } from './types';
@@ -48,7 +49,38 @@ export function mountPlay(
   level: Level,
   options: MountOptions = {},
 ): Mounted {
-  let session = createSession(level, options.rng);
+  return mountRound(app, overlayRoot, level, () => createSession(level, options.rng), options);
+}
+
+/** A tier round: one session drawn across the bank, each item shown with its own level's face. */
+export function mountTierPlay(
+  app: HTMLElement,
+  overlayRoot: HTMLElement,
+  bank: TierBank,
+  options: MountOptions = {},
+): Mounted {
+  const display = bank.levels[0] ?? bank.review[0];
+  if (!display) throw new Error('a tier bank needs a playable level');
+  const levels = [...bank.levels, ...bank.review];
+  return mountRound(
+    app,
+    overlayRoot,
+    display,
+    () => createTierSession(bank, options.rng),
+    options,
+    levels,
+  );
+}
+
+function mountRound(
+  app: HTMLElement,
+  overlayRoot: HTMLElement,
+  level: Level,
+  makeSession: () => Session,
+  options: MountOptions,
+  levels?: readonly Level[],
+): Mounted {
+  let session = makeSession();
   let celebrating = false;
   let reported = false;
   let spoken: string | undefined;
@@ -74,10 +106,13 @@ export function mountPlay(
       reported = true;
       if (isCleared(session)) options.onRoundEnd?.(true);
     }
+    // In a tier round the item's own level decides the face; a single-level round always shows its
+    // own level. `levels` is absent for mountPlay, so `??` keeps that path unchanged.
+    const shown = levels?.find((candidate) => candidate.id === currentItem(session)?.levelId) ?? level;
     app.replaceChildren(
       finished
         ? renderSummary(session, isCleared(session))
-        : renderPlay(level, session, {
+        : renderPlay(shown, session, {
             ...options,
             ...(lastVerdict ? { lastVerdict } : {}),
             placed,
@@ -138,7 +173,7 @@ export function mountPlay(
     const action = target?.closest<HTMLElement>('[data-action]')?.dataset.action;
 
     if (action === 'again') {
-      session = createSession(level, options.rng);
+      session = makeSession();
       celebrating = false;
       reported = false;
       choiceLocked = false;
