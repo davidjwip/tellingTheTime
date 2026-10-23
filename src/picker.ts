@@ -177,6 +177,10 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
     button.append(el('span', 'level-note', note));
     grid.append(button);
 
+    // A title attribute never opens on an iPad - the device this is played on - so the exercises are
+    // printed quietly underneath as well, where an adult can read them without a hover.
+    section.append(el('p', 'tier-note', exercises));
+
     section.append(grid);
     container.append(section);
   }
