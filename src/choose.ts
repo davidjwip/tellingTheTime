@@ -7,6 +7,8 @@
  * apart between the question table and the screen.
  */
 
+import { el, feedbackArea } from './dom';
+
 import type { Item } from './engine';
 import type { Content } from './types';
 
@@ -19,6 +21,7 @@ export interface Card {
 export interface Choice {
   cards: Card[];
   answer: string;
+  question: string;
 }
 
 const DAY_CARDS: Card[] = [
@@ -79,8 +82,6 @@ const DURATION_PAIRS: DurationPair[] = [
   },
 ];
 
-const DURATION_ORDER = DURATION_PAIRS.map((pair) => pair.answer);
-
 /**
  * The next question in a fixed cycle.
  *
@@ -93,44 +94,51 @@ function nextIndex(previous: string | undefined, order: readonly string[]): numb
   return (at + 1) % order.length;
 }
 
-/** The cards for one choose item, or undefined when this content has no card table. */
-export function chooseFor(content: Content, previous?: string): Choice | undefined {
+function randomIndex(rng: () => number, length: number): number {
+  return Math.min(Math.floor(rng() * length), length - 1);
+}
+
+/**
+ * The cards for one choose item, or undefined when this content has no card table.
+ *
+ * Duration pairs are drawn from `rng` and the two cards are swapped by it too, so neither the
+ * position nor the sequence gives the answer away. The pair table and the answer id never change:
+ * only the order on screen does. The day strip keeps its fixed three-card order because the question
+ * names the card it wants.
+ */
+export function chooseFor(
+  content: Content,
+  previous?: string,
+  rng: () => number = Math.random,
+): Choice | undefined {
   if (content.kind === 'dayStrip') {
+    const answer = DAY_ORDER[nextIndex(previous, DAY_ORDER)] as string;
+    const word = DAY_CARDS.find((card) => card.id === answer)!.word;
     return {
       cards: DAY_CARDS.map((card) => ({ ...card })),
-      answer: DAY_ORDER[nextIndex(previous, DAY_ORDER)] as string,
+      answer,
+      question: `Which one is ${word.toLowerCase()}?`,
     };
   }
 
   if (content.kind === 'durationPair') {
-    const pair = DURATION_PAIRS[nextIndex(previous, DURATION_ORDER)]!;
+    const candidates =
+      previous === undefined
+        ? DURATION_PAIRS
+        : DURATION_PAIRS.filter((pair) => pair.answer !== previous);
+    const pool = candidates.length > 0 ? candidates : DURATION_PAIRS;
+    const pair = pool[randomIndex(rng, pool.length)]!;
+    const swapped = rng() > 0.5;
+    const cards = swapped ? [pair.cards[1], pair.cards[0]] : [...pair.cards];
+
     return {
-      cards: pair.cards.map((card) => ({ ...card })) as Card[],
+      cards: cards.map((card) => ({ ...card })),
       answer: pair.answer,
+      question: 'Which took longer?',
     };
   }
 
   return undefined;
-}
-
-function questionFor(item: Item): string {
-  const answer = item.answer;
-  if (answer !== undefined && DAY_ORDER.includes(answer)) {
-    const word = DAY_CARDS.find((card) => card.id === answer)!.word;
-    return `Which one is ${word.toLowerCase()}?`;
-  }
-  return 'Which took longer?';
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  text?: string,
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
 }
 
 /**
@@ -141,7 +149,7 @@ function el<K extends keyof HTMLElementTagNameMap>(
  */
 export function renderChoose(item: Item, lastVerdict?: 'correct' | 'wrong'): HTMLElement {
   const wrapper = el('div', 'choose');
-  wrapper.append(el('div', 'prompt', questionFor(item)));
+  wrapper.append(el('div', 'prompt', item.question ?? ''));
 
   const cards = el('div', 'choice-cards');
   for (const card of item.cards ?? []) {
@@ -157,14 +165,7 @@ export function renderChoose(item: Item, lastVerdict?: 'correct' | 'wrong'): HTM
   }
   wrapper.append(cards);
 
-  const feedbackArea = el('div', 'feedback-area');
-  const feedback = el('div');
-  feedback.id = 'feedback';
-  // The last verdict stays put until the next one, as on every other task.
-  if (lastVerdict === 'correct') feedback.textContent = '✓ Got it!';
-  if (lastVerdict === 'wrong') feedback.textContent = 'Not yet — have another go';
-  feedbackArea.append(feedback);
-  wrapper.append(feedbackArea);
+  wrapper.append(feedbackArea(lastVerdict));
 
   return wrapper;
 }

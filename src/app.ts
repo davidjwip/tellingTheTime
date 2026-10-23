@@ -9,6 +9,7 @@
 
 import { renderChoose } from './choose';
 import { renderFace } from './clockFace';
+import { el, feedbackArea } from './dom';
 import { currentItem, trackProgress } from './engine';
 
 import type { Session, Item } from './engine';
@@ -23,17 +24,6 @@ export interface PlayOptions {
   lastVerdict?: 'correct' | 'wrong';
   /** Told once, when the round ends, so a clear can be remembered. */
   onRoundEnd?: (cleared: boolean) => void;
-}
-
-function el<K extends keyof HTMLElementTagNameMap>(
-  tag: K,
-  className?: string,
-  text?: string,
-): HTMLElementTagNameMap[K] {
-  const node = document.createElement(tag);
-  if (className) node.className = className;
-  if (text !== undefined) node.textContent = text;
-  return node;
 }
 
 /** What the adult says out loud, in the child's language. Audio lands with the phrase files. */
@@ -153,14 +143,8 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
     }
     panel.append(frame);
 
-    const feedbackArea = el('div', 'feedback-area');
-    const feedback = el('div');
-    feedback.id = 'feedback';
     // AC-42: the last verdict stays on screen until the next one, for the adult as much as the child
-    if (options.lastVerdict === 'correct') feedback.textContent = '✓ Got it!';
-    if (options.lastVerdict === 'wrong') feedback.textContent = 'Not yet — have another go';
-    feedbackArea.append(feedback);
-    panel.append(feedbackArea);
+    panel.append(feedbackArea(options.lastVerdict));
   }
   main.append(panel);
 

@@ -32,6 +32,8 @@ export interface Item {
   cards?: Card[];
   /** Id of the card that answers a `choose` item. Its presence is what makes a screen a choose one. */
   answer?: string;
+  /** The question for a `choose` item, decided by the content kind when the item was built. */
+  question?: string;
   /** Position in the original round plan, so a re-queued item is recognisable. */
   key: string;
   /** True on the second and later showing of an item the child missed. */
@@ -120,7 +122,7 @@ export function canPresent(level: Level, task: Task): boolean {
  */
 export interface Drawer {
   nextTime: () => ClockTime | undefined;
-  nextChoice: (content: Content) => Choice | undefined;
+  nextChoice: (content: Content) => Choice;
 }
 
 export function makeDrawer(level: Level, rng: Rng): Drawer {
@@ -143,8 +145,8 @@ export function makeDrawer(level: Level, rng: Rng): Drawer {
       return chosen;
     },
     nextChoice: (content) => {
-      const choice = chooseFor(content, previousChoice);
-      if (choice) previousChoice = choice.answer;
+      const choice = chooseFor(content, previousChoice, rng)!;
+      previousChoice = choice.answer;
       return choice;
     },
   };
@@ -163,6 +165,7 @@ function itemFor(
   if (choice) {
     item.cards = choice.cards;
     item.answer = choice.answer;
+    item.question = choice.question;
   }
   return item;
 }
@@ -182,7 +185,6 @@ export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer
     for (let i = 0; i < step.items; i += 1) {
       if (step.task === 'choose') {
         const choice = draw.nextChoice(level.content);
-        if (!choice) continue;
         const key = `${step.task}:${choice.answer}:${stepIndex}.${i}`;
         queue.push(itemFor(step.task, undefined, key, undefined, choice));
         continue;
@@ -220,15 +222,26 @@ function sameQuestion(a: Item | undefined, b: Item | undefined): boolean {
 }
 
 function repairNeighbours(queue: Item[], makeItem: () => Item): void {
-  for (let i = 1; i < queue.length; i += 1) {
-    let guard = 0;
-    while (
-      guard < 12 &&
-      (sameQuestion(queue[i], queue[i - 1]) ||
-        (i >= 2 && sameQuestion(queue[i], queue[i - 2])))
-    ) {
-      queue[i] = makeItem();
-      guard += 1;
+  let budget = 24;
+  let changed = true;
+
+  // Repair until stable: replacing a neighbour can create a new clash of its own.
+  while (changed && budget > 0) {
+    changed = false;
+    for (let i = 1; i < queue.length && budget > 0; i += 1) {
+      const clashesWithPrevious = sameQuestion(queue[i], queue[i - 1]);
+      const clashesWithBefore = i >= 2 && sameQuestion(queue[i], queue[i - 2]);
+      if (!clashesWithPrevious && !clashesWithBefore) continue;
+
+      if (queue[i]?.retry) {
+        // A re-showing must stay where the child will meet it again. Move the other side instead.
+        const other = clashesWithPrevious ? i - 1 : i - 2;
+        queue[other] = makeItem();
+      } else {
+        queue[i] = makeItem();
+      }
+      changed = true;
+      budget -= 1;
     }
   }
 }
@@ -252,7 +265,7 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
     extras += 1;
     if (step === 'choose') {
       const choice = drawer.nextChoice(level.content);
-      if (choice) return itemFor(step, undefined, `${step}:extra:${extras}`, true, choice);
+      return itemFor(step, undefined, `${step}:extra:${extras}`, true, choice);
     }
     const time = step === 'read' || step === 'set' ? drawer.nextTime() : undefined;
     return itemFor(step, time, `${step}:extra:${extras}`, true);
