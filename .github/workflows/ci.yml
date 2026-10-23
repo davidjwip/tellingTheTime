@@ -24,6 +24,7 @@ jobs:
 
       - run: npm ci
       - run: npm run typecheck
-      - run: npm test
+      # coverage thresholds are enforced by vitest.config.ts: any figure below 90% fails the run
+      - run: npm run test:coverage
       # the content gate: the eight integrity rules over the committed level set
       - run: npm run validate:levels

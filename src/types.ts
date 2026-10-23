@@ -20,9 +20,6 @@ export type Content =
   | { kind: 'buildFace'; numerals: number }
   | { kind: 'clock' };
 
-/** Content kinds drawn without a clock face at all. */
-export const FACELESS_KINDS = ['dayCards', 'dayStrip', 'durationPair', 'weekTiles'] as const;
-
 export interface RoundStep {
   /** What one item *is* depends on the task: one time for read/set, one full ordering for order,
    *  one complete lap for tap, one complete face for build. See specs/v1.md §4.2. */
