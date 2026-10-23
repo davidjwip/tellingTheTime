@@ -97,6 +97,19 @@ function el<K extends keyof HTMLElementTagNameMap>(
   return node;
 }
 
+/**
+ * Which level a click means, if any.
+ *
+ * The play screen's container ALSO carries data-level (it is the level being played), so a bare
+ * `closest('[data-level]')` matched every tap inside a round: tapping a card remounted the level,
+ * wiped the cards already placed and looked to the child like the page had reloaded. The selector is
+ * scoped to the shelf, and this lives here rather than in main.ts so it can be tested.
+ */
+export function levelFromClick(target: Element | null): string | null {
+  const button = target?.closest<HTMLElement>('.picker [data-level]');
+  return button?.dataset.level ?? null;
+}
+
 export function renderPicker(shelved: readonly Shelved[], progress: Progress): HTMLElement {
   const container = el('div', 'container picker');
 

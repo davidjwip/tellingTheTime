@@ -12,7 +12,7 @@ import { isCleared } from './engine';
 import { LEVELS } from './levels';
 import { mountPlay } from './play';
 import { loadProgress, markCleared, rememberLevel, saveProgress, setName } from './progress';
-import { renderPicker, resolveStartLevel, shelve } from './picker';
+import { levelFromClick, renderPicker, resolveStartLevel, shelve } from './picker';
 
 import type { Level } from './types';
 
@@ -79,7 +79,7 @@ app.addEventListener('click', (event) => {
     return;
   }
 
-  const chosen = target?.closest<HTMLElement>('[data-level]')?.dataset.level;
+  const chosen = levelFromClick(target);
   if (chosen) {
     const level = LEVELS.find((l) => l.id === chosen);
     if (level) play(level);
