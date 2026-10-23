@@ -38,7 +38,7 @@ describe('what the app remembers', () => {
   });
 
   it('survives a round trip', () => {
-    const saved = { name: 'Sam', lastLevel: 't2.2', cleared: ['t2.1'] };
+    const saved = { name: 'Sam', lastLevel: 't2.2', cleared: ['t2.1'], locale: 'yue' as const };
     saveProgress(store, saved);
     expect(loadProgress(store)).toEqual(saved);
   });
@@ -58,7 +58,22 @@ describe('what the app remembers', () => {
       'clock.v1.progress',
       JSON.stringify({ name: 'Sam', lastLevel: 't2.2', cleared: ['t2.1', 7, null], extra: true }),
     );
-    expect(loadProgress(store)).toEqual({ name: 'Sam', lastLevel: 't2.2', cleared: ['t2.1'] });
+    expect(loadProgress(store)).toEqual({
+      name: 'Sam',
+      lastLevel: 't2.2',
+      cleared: ['t2.1'],
+      locale: 'en',
+    });
+  });
+
+  it('remembers the language, and defaults to English', () => {
+    expect(loadProgress(store).locale).toBe('en');
+    saveProgress(store, { ...DEFAULT_PROGRESS, locale: 'yue' });
+    expect(loadProgress(store).locale).toBe('yue');
+
+    // anything else falls back rather than silencing the app
+    store.setItem('clock.v1.progress', JSON.stringify({ locale: 'fr' }));
+    expect(loadProgress(store).locale).toBe('en');
   });
 
   it('trims the name and ignores an empty one', () => {
