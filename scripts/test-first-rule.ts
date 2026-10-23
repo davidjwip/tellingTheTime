@@ -35,6 +35,17 @@ const isSrcModule = (path: string): boolean => path.startsWith('src/') && path.e
 const isTest = (path: string): boolean => path.startsWith('test/') && path.endsWith('.test.ts');
 
 /** 'src/clockFace.ts' -> 'clockFace'; 'test/clockFace.test.ts' -> 'clockFace'. */
+/**
+ * A test file may specialise: `engine.test.ts` and `engine.tier.test.ts` both test `engine`. Without
+ * this, a suite split by topic would look like no test at all, and the gate would report a module as
+ * untested while its tests sat next to it.
+ */
+export function covers(tested: ReadonlySet<string>, module: string): boolean {
+  if (tested.has(module)) return true;
+  for (const name of tested) if (name.startsWith(`${module}.`)) return true;
+  return false;
+}
+
 export function moduleOf(path: string): string {
   if (isTest(path)) return path.slice('test/'.length, -'.test.ts'.length);
   return path.slice('src/'.length, -'.ts'.length);
@@ -81,8 +92,8 @@ export function findViolations(
       if (EXEMPT.has(module)) continue;
 
       const added = file.status.startsWith('A');
-      const testHere = touchedTests.has(module);
-      const testEarlier = tested.has(module);
+      const testHere = covers(touchedTests, module);
+      const testEarlier = covers(tested, module);
 
       if (added && !testEarlier) {
         violations.push({

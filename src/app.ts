@@ -55,8 +55,13 @@ function header(level: Level, options: PlayOptions): HTMLElement {
   const yue = el('button', 'action-btn small', '粵');
   en.dataset.locale = 'en';
   yue.dataset.locale = 'yue';
-  en.classList.toggle('operator-active', (options.locale ?? 'en') === 'en');
-  yue.classList.toggle('operator-active', options.locale === 'yue');
+  const english = (options.locale ?? 'en') === 'en';
+  const cantonese = options.locale === 'yue';
+  en.classList.toggle('operator-active', english);
+  yue.classList.toggle('operator-active', cantonese);
+  // A segmented setting has to announce which half is chosen, not just look tinted.
+  en.setAttribute('aria-pressed', String(english));
+  yue.setAttribute('aria-pressed', String(cantonese));
   toggle.append(en, yue);
   actions.append(toggle);
 

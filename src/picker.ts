@@ -150,24 +150,32 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
 
   for (const [tier, title] of TIERS) {
     const levels = shelved.filter((s) => s.level.tier === tier);
-    if (levels.length === 0) continue;
+    const playable = levels.filter((s) => s.available);
+    const first = playable[0];
+    // A tier with no playable level is not a door. Tier 1 is the current example: it has levels,
+    // but none of them can be asked yet.
+    if (!first) continue;
 
     const section = el('section', 'tier');
     section.dataset.tier = String(tier);
     section.append(el('h2', undefined, title));
 
     const grid = el('div', 'level-grid');
-    for (const s of levels) {
-      const button = el('button', 'level-btn');
-      button.dataset.level = s.level.id;
-      if (s.cleared) button.dataset.cleared = 'true';
-      button.disabled = !s.available;
+    const button = el('button', 'level-btn tier-entry');
+    button.dataset.level = first.level.id;
+    button.dataset.tierEntry = 'true';
+    if (first.cleared) button.dataset.cleared = 'true';
 
-      button.append(el('span', 'level-name', s.level.title.en));
-      const note = s.cleared ? '✓' : s.available ? `${s.items} questions` : s.reason ?? '';
-      button.append(el('span', 'level-note', note));
-      grid.append(button);
-    }
+    // The exercises stay the author's unit of work; the adult can still see them without the child
+    // having to read a curriculum.
+    const exercises = levels.map((s) => s.level.title.en).join(', ');
+    button.title = exercises;
+    button.setAttribute('aria-description', exercises);
+
+    button.append(el('span', 'level-name', title));
+    const note = first.cleared ? '✓' : playable.length === 1 ? '1 exercise' : `${playable.length} exercises`;
+    button.append(el('span', 'level-note', note));
+    grid.append(button);
 
     section.append(grid);
     container.append(section);
