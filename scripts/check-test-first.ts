@@ -8,13 +8,10 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
 
-import { assertRuleWorks, auditBaselineMove, findViolations, parseNameStatus } from './test-first-rule';
+import { assertRuleWorks, findViolations, parseNameStatus } from './test-first-rule';
 
 import type { Commit, Violation } from './test-first-rule';
-
-const BASELINE_FILE = 'tests-first.baseline';
 
 function git(args: string[]): string {
   // stderr is piped away: `git show origin/main:file` failing is an expected probe, not noise
@@ -31,43 +28,33 @@ function readCommits(from: string): Commit[] {
   }));
 }
 
-function readBaselineOnMain(): string | null {
-  try {
-    return git(['show', `origin/main:${BASELINE_FILE}`]).trim();
-  } catch {
-    return null; // fresh clone or offline: cannot verify, and the run says so
-  }
+/**
+ * Where the rule starts: the point where this branch left main.
+ *
+ * The first version pinned a commit SHA in a file. That was unsound — a merge rewrites SHAs, so the
+ * pin went stale the first time a PR was merged, and the range it produced silently included
+ * commits that predated the rule. A merge base cannot go stale, cannot be edited, and cannot be
+ * moved without rewriting main, which is exactly the property a start line needs.
+ */
+function mergeBase(): string {
+  const base = git(['merge-base', 'origin/main', 'HEAD']).trim();
+  if (base.length === 0) throw new Error('empty merge base');
+  return base;
 }
 
 function main(): void {
   assertRuleWorks();
 
-  if (!existsSync(BASELINE_FILE)) {
-    console.error(`no ${BASELINE_FILE}: refusing to guess where the rule starts`);
-    process.exit(1);
-  }
-
-  const branchBaseline = readFileSync(BASELINE_FILE, 'utf8').trim();
-  const onMain = readBaselineOnMain();
-  const from = onMain ?? branchBaseline;
-
+  let from: string;
   let commits: Commit[];
   try {
+    from = mergeBase();
     commits = readCommits(from);
   } catch {
-    console.error(`cannot read ${from}..HEAD - is it an ancestor? (CI needs fetch-depth: 0)`);
+    console.error(
+      'cannot find a merge base with origin/main — fetch it first (CI needs fetch-depth: 0)',
+    );
     process.exit(1);
-  }
-
-  if (onMain === null) {
-    console.log('test-first: origin/main unavailable, baseline move not verified');
-  } else if (branchBaseline !== onMain) {
-    const problem = auditBaselineMove(commits, onMain, branchBaseline);
-    if (problem) {
-      console.error(`test-first gate failed:\n\n  ${problem}`);
-      process.exit(1);
-    }
-    console.log(`test-first: baseline advanced ${onMain.slice(0, 7)} -> ${branchBaseline.slice(0, 7)}`);
   }
 
   const violations: Violation[] = findViolations(commits);

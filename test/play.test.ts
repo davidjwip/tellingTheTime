@@ -83,18 +83,19 @@ describe('what a tap does', () => {
     expect(mounted.session().answered).toBe(before + 1);
   });
 
-  it('records a setting attempt as whatever the adult said, never as correct by default', () => {
+  it('never offers a verdict that marks itself correct', () => {
     const mounted = mount('t2.2');
-    for (let i = 0; i < 6; i += 1) answerRight(); // the six reads
-    expect(app.querySelector('[data-verdict="done"]')).toBeNull();
+    for (let i = 0; i < 3; i += 1) answerRight();
 
+    // no "Done" button anywhere: the only two verdicts are the adult's
+    expect(app.querySelector('[data-verdict="done"]')).toBeNull();
     tap('[data-verdict="wrong"]');
     expect(mounted.session().results.at(-1)?.correct).toBe(false);
   });
 
   it('celebrates a full track, and closes back to the round', () => {
     mount('t2.2');
-    for (let i = 0; i < 9; i += 1) answerRight();
+    for (let i = 0; i < 5; i += 1) answerRight();
     expect(overlayRoot.querySelector('[data-celebration]')).toBeNull();
 
     answerRight(); // the tenth fills the track
@@ -110,7 +111,7 @@ describe('what a tap does', () => {
 
   it('does not celebrate a cleared-but-incomplete round', () => {
     const mounted = mount('t2.2');
-    for (let i = 0; i < 8; i += 1) answerRight();
+    for (let i = 0; i < 5; i += 1) answerRight();
     expect(app.querySelector('[data-celebration]')).toBeNull();
     expect(mounted.celebrating()).toBe(false);
   });
@@ -132,7 +133,7 @@ describe('what a tap does', () => {
     answerRight();
     expect(mounted.session().answered).toBe(2);
 
-    for (let i = 0; i < 8; i += 1) answerRight();
+    for (let i = 0; i < 6; i += 1) answerRight();
     tap('[data-action="close-celebration"]');
 
     tap('[data-action="again"]');

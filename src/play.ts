@@ -27,9 +27,14 @@ export function mountPlay(
 ): Mounted {
   let session = createSession(level);
   let celebrating = false;
+  let reported = false;
 
   const draw = (): void => {
     const finished = isFinished(session) && !celebrating;
+    if (finished && !reported) {
+      reported = true;
+      options.onRoundEnd?.(isCleared(session));
+    }
     app.replaceChildren(
       finished
         ? renderSummary(session, isCleared(session))
@@ -61,6 +66,7 @@ export function mountPlay(
     if (action === 'again') {
       session = createSession(level);
       celebrating = false;
+      reported = false;
       draw();
       return;
     }

@@ -47,13 +47,14 @@ describe('building a round', () => {
     expect(a).not.toEqual(b);
   });
 
-  it('follows the level round step by step: six to read, then four to set', () => {
+  it('asks only the questions the app can present: the six reads, not the four sets', () => {
     const queue = buildQueue(level('t2.2'), seededRng(3));
-    expect(queue.map((i) => i.task)).toEqual([
-      'read', 'read', 'read', 'read', 'read', 'read',
-      'set', 'set', 'set', 'set',
-    ]);
-    expect(queue).toHaveLength(10);
+    expect(queue.map((i) => i.task)).toEqual(['read', 'read', 'read', 'read', 'read', 'read']);
+    expect(queue).toHaveLength(6);
+  });
+
+  it('asks nothing on a level whose every question needs a screen that does not exist', () => {
+    expect(buildQueue(level('t0.1'), seededRng(3))).toEqual([]);
   });
 
   it('never shows the same time twice in a row, where the level has enough times', () => {
@@ -92,23 +93,23 @@ describe('clearing a round', () => {
     expect(clearThreshold(3)).toBe(2);
   });
 
-  it('does not clear on seven of ten, and clears on eight', () => {
+  it('does not clear on four of six, and clears on five', () => {
     const session = createSession(level('t2.2'), seededRng(4));
-    expect(isCleared(answerRight(session, 7))).toBe(false);
-    expect(isCleared(answerRight(session, 8))).toBe(true);
+    expect(isCleared(answerRight(session, 4))).toBe(false);
+    expect(isCleared(answerRight(session, 5))).toBe(true);
   });
 
   it('fills the track one step per correct answer, capped at the round length', () => {
     const session = createSession(level('t2.2'), seededRng(4));
     expect(trackProgress(session)).toBe(0);
     expect(trackProgress(answerRight(session, 3))).toBe(3);
-    expect(trackProgress(answerRight(session, 10))).toBe(10);
+    expect(trackProgress(answerRight(session, 6))).toBe(6);
   });
 
   it('celebrates only a full track, not merely a clear', () => {
     const session = createSession(level('t2.2'), seededRng(4));
-    expect(trackComplete(answerRight(session, 8))).toBe(false); // cleared, but two steps short
-    expect(trackComplete(answerRight(session, 10))).toBe(true);
+    expect(trackComplete(answerRight(session, 5))).toBe(false); // cleared, but a step short
+    expect(trackComplete(answerRight(session, 6))).toBe(true);
   });
 });
 
@@ -123,28 +124,50 @@ describe('the re-queue rule (B2)', () => {
     expect(after.queue[after.answered + REQUEUE_GAP]?.key).toBe(`${missed?.key}#again`);
   });
 
-  it('still re-queues a miss near the end of a round, as the last item', () => {
-    // appending used to put this straight after the next item; insertion clamps it to the end
-    let session = answerRight(createSession(level('t2.2'), seededRng(9)), 8);
+  it('keeps the three-position gap even when the miss is the last item of the round', () => {
+    // This used to clamp to the end, which put the missed dial straight back on screen - the
+    // child copies the answer they have just been told was wrong. The round now extends with
+    // practice from the same level so the gap holds.
+    let session = answerRight(createSession(level('t2.2'), seededRng(9)), 5);
     const missed = currentItem(session);
     const after = recordVerdict(session, false);
 
-    expect(after.queue.at(-1)?.key).toBe(`${missed?.key}#again`);
-    expect(after.queue[after.answered]?.key).not.toBe(`${missed?.key}#again`);
+    const next = after.queue.slice(after.answered, after.answered + REQUEUE_GAP).map((i) => i.key);
+    expect(next).not.toContain(`${missed?.key}#again`);
+    expect(after.queue[after.answered + REQUEUE_GAP]?.key).toBe(`${missed?.key}#again`);
+  });
+
+  it('does not let practice it invented fill a step on the track', () => {
+    let session = answerRight(createSession(level('t2.2'), seededRng(9)), 5);
+    session = recordVerdict(session, false); // last item missed, so a filler is inserted
+    expect(session.queue.length).toBeGreaterThan(7);
+
+    const filler = session.queue.find((i) => i.filler === true);
+    expect(filler, 'a filler should have been inserted').toBeDefined();
+
+    // answering it correctly must not advance the track beyond what the child knew first time
+    const at = session.queue.indexOf(filler!);
+    while (session.answered < at) session = recordVerdict(session, true);
+    const before = trackProgress(session);
+    session = recordVerdict(session, true);
+    expect(trackProgress(session)).toBe(before);
   });
 
   it('grows the queue but never the round', () => {
     const session = createSession(level('t2.2'), seededRng(9));
     const after = recordVerdict(session, false);
-    expect(after.queue).toHaveLength(11);
-    expect(after.total).toBe(10);
+    expect(after.queue).toHaveLength(7);
+    expect(after.total).toBe(6);
   });
 
   it('keeps the round going until the re-queued item has been answered', () => {
-    const session = answerRight(createSession(level('t2.2'), seededRng(9)), 9);
+    const session = answerRight(createSession(level('t2.2'), seededRng(9)), 5);
     const after = recordVerdict(session, false);
     expect(isFinished(after)).toBe(false);
-    expect(isFinished(answerRight(after, 2))).toBe(true);
+
+    // the round has grown by practice plus the re-showing, so it ends when the queue is drained
+    const remaining = after.queue.length - after.answered;
+    expect(isFinished(answerRight(after, remaining))).toBe(true);
   });
 });
 
@@ -181,12 +204,12 @@ describe('first attempts are what the round measures', () => {
     let session = createSession(level('t2.2'), seededRng(8));
     session = recordVerdict(session, false);
     // answer everything left correctly, including the re-showing
-    session = answerRight(session, 10);
+    session = answerRight(session, 6);
     expect(isFinished(session)).toBe(true);
 
-    // 10 first-showing items, 9 right first time: cleared, but the track is one step short and the
-    // summary says nine, not ten. Before this, a round with a miss reported a perfect ten.
-    expect(summarise(session)).toEqual({ correct: 9, total: 10, cleared: true, bestStreak: 10 });
+    // 6 first-showing items, 5 right first time: cleared, but the track is one step short and the
+    // summary says five, not six. Before this, a round with a miss reported a perfect total.
+    expect(summarise(session)).toEqual({ correct: 5, total: 6, cleared: true, bestStreak: 6 });
     expect(trackComplete(session)).toBe(false);
   });
 
@@ -195,7 +218,7 @@ describe('first attempts are what the round measures', () => {
     for (let i = 0; i < 3; i += 1) session = recordVerdict(session, false);
     session = answerRight(session, 20); // answer everything, including every re-showing
     expect(isFinished(session)).toBe(true);
-    expect(summarise(session).correct).toBe(7);
+    expect(summarise(session).correct).toBe(3);
     expect(isCleared(session)).toBe(false);
   });
 });
@@ -227,14 +250,14 @@ describe('no repeat within two positions (AC-09)', () => {
 
 describe('the summary', () => {
   it('reports correct, total, clear and best streak — and no score', () => {
-    const session = answerRight(createSession(level('t2.2'), seededRng(6)), 9);
-    expect(summarise(session)).toEqual({ correct: 9, total: 10, cleared: true, bestStreak: 9 });
+    const session = answerRight(createSession(level('t2.2'), seededRng(6)), 5);
+    expect(summarise(session)).toEqual({ correct: 5, total: 6, cleared: true, bestStreak: 5 });
     expect(Object.keys(summarise(session))).not.toContain('wrong');
   });
 
   it('does not clear a round with four misses', () => {
     let session = createSession(level('t2.2'), seededRng(6));
-    for (let i = 0; i < 6; i += 1) session = recordVerdict(session, true);
+    for (let i = 0; i < 2; i += 1) session = recordVerdict(session, true);
     for (let i = 0; i < 4; i += 1) session = recordVerdict(session, false);
     expect(summarise(session).cleared).toBe(false);
   });

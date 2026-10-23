@@ -81,6 +81,16 @@ describe('what the app remembers', () => {
     expect(rememberLevel(DEFAULT_PROGRESS, 't3.2').lastLevel).toBe('t3.2');
   });
 
+  it('shrugs when the store refuses to write', () => {
+    const blocked = {
+      getItem: () => null,
+      setItem: () => {
+        throw new Error('quota exceeded');
+      },
+    };
+    expect(() => saveProgress(blocked, DEFAULT_PROGRESS)).not.toThrow();
+  });
+
   it('does not mutate the progress passed in', () => {
     const before = { ...DEFAULT_PROGRESS, cleared: [] as string[] };
     markCleared(before, 't2.1');
