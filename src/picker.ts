@@ -110,6 +110,14 @@ export function levelFromClick(target: Element | null): string | null {
   return button?.dataset.level ?? null;
 }
 
+/**
+ * The first level the shelf would offer. Start uses it when the remembered level cannot be played —
+ * a level can be remembered from before its screen existed, or from a newer build's level list.
+ */
+export function firstPlayable(levels: readonly Level[], progress: Progress): Level | null {
+  return levels.find((level) => shelve([level], progress)[0]?.available) ?? null;
+}
+
 export function renderPicker(shelved: readonly Shelved[], progress: Progress): HTMLElement {
   const container = el('div', 'container picker');
 
@@ -128,6 +136,17 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
   input.autocomplete = 'off';
   nameRow.append(label, input);
   container.append(nameRow);
+
+  // The language belongs on the shelf, not only inside a round: an adult choosing Cantonese should
+  // not have to start a level first, and the choice is remembered either way.
+  const toggle = el('div', 'operator-toggle');
+  for (const [code, label] of [['en', 'EN'], ['yue', '粵']] as const) {
+    const button = el('button', 'action-btn small', label);
+    button.dataset.locale = code;
+    if (progress.locale === code) button.classList.add('operator-active');
+    toggle.append(button);
+  }
+  container.append(toggle);
 
   for (const [tier, title] of TIERS) {
     const levels = shelved.filter((s) => s.level.tier === tier);

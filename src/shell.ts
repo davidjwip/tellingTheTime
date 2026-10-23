@@ -1,0 +1,115 @@
+/**
+ * The app's wiring, out of main.ts.
+ *
+ * `main.ts` was excluded from coverage as "glue" and produced two production bugs in one day: a tap
+ * inside a round rebuilt the round, and the language toggle did the same. Neither was glue — both
+ * were decisions about what a click means, and nothing tested them.
+ *
+ * This module is that logic, taking its DOM and its storage as arguments so a test can drive the
+ * whole app without a browser. main.ts is now three lines and a side effect.
+ */
+
+import { mountPlay } from './play';
+import { firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from './picker';
+import { loadProgress, markCleared, rememberLevel, saveProgress, setName } from './progress';
+
+import type { Mounted } from './play';
+import type { Progress, Store } from './progress';
+import type { Speaker } from './audio';
+import type { Level } from './types';
+
+export interface ShellDeps {
+  app: HTMLElement;
+  overlayRoot: HTMLElement;
+  store: Store;
+  levels: readonly Level[];
+  speaker?: Speaker;
+}
+
+export interface Shell {
+  /** Render the first screen: the level named in the URL, the remembered one, or the shelf. */
+  start: (requested: string | null) => void;
+  progress: () => Progress;
+  /** The level on screen, for tests and for the badge write-back. */
+  currentLevel: () => Level | null;
+}
+
+export function createShell(deps: ShellDeps): Shell {
+  const { app, overlayRoot, store, levels, speaker } = deps;
+  let progress = loadProgress(store);
+  let currentLevel: Level | null = null;
+  let mounted: Mounted | null = null;
+
+  const showPicker = (): void => {
+    currentLevel = null;
+    mounted = null;
+    app.replaceChildren(renderPicker(shelve(levels, progress), progress));
+    overlayRoot.replaceChildren();
+  };
+
+  const play = (level: Level): void => {
+    currentLevel = level;
+    progress = rememberLevel(progress, level.id);
+    saveProgress(store, progress);
+
+    // mountPlay attaches its listeners to the host, so replacing the host disposes them
+    const host = document.createElement('div');
+    app.replaceChildren(host);
+
+    mounted = mountPlay(host, overlayRoot, level, {
+      ...(speaker ? { speaker } : {}),
+      locale: progress.locale,
+      onChangeLevel: () => showPicker(),
+      onRoundEnd: () => {
+        progress = markCleared(progress, level.id);
+        saveProgress(store, progress);
+      },
+    });
+  };
+
+  app.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+
+    // Scoped to the shelf: the play screen's container also carries data-level, and a bare
+    // closest() there turned every tap inside a round into "open this level again".
+    const chosen = levelFromClick(target);
+    if (chosen) {
+      const level = levels.find((candidate) => candidate.id === chosen);
+      if (level) play(level);
+      return;
+    }
+
+    const locale = target?.closest<HTMLElement>('[data-locale]')?.dataset.locale;
+    if (locale === 'en' || locale === 'yue') {
+      progress = { ...progress, locale };
+      saveProgress(store, progress);
+      if (mounted) mounted.setLocale(locale);
+      else showPicker();
+      return;
+    }
+
+    if (target?.closest('[data-action="start"]')) {
+      // One decision, in one place: this used to repeat resolveStartLevel without its availability
+      // guard, so Start could open a level the shelf refuses to offer.
+      const next = resolveStartLevel(levels, progress, null) ?? firstPlayable(levels, progress);
+      if (next) play(next);
+    }
+  });
+
+  app.addEventListener('input', (event) => {
+    const target = event.target as HTMLInputElement | null;
+    if (target?.name !== 'name') return;
+    progress = setName(progress, target.value);
+    saveProgress(store, progress);
+  });
+
+  return {
+    start: (requested) => {
+      const first = resolveStartLevel(levels, progress, requested);
+      if (first) play(first);
+      else showPicker();
+    },
+    progress: () => progress,
+    currentLevel: () => currentLevel,
+  };
+}
