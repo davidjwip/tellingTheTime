@@ -25,6 +25,7 @@ and it is written down here so the build can point at it instead of re-deriving 
 | [`research/03-os-taxonomy-extract.md`](research/03-os-taxonomy-extract.md) | The Marble Skill Taxonomy slice for time: age bands, evidence statements, parent assessment prompts, prerequisite edges, misconceptions, and the gaps it does not cover | Choosing assessment wording; checking what "learned" means |
 | [`research/04-game-design-brief.md`](research/04-game-design-brief.md) | The build-shaped consequences: **the difficulty tiering (7 tiers, 28 levels)**, task archetypes, gamification that the evidence supports, architecture, and what we deliberately will not build | Writing the spec |
 | [`research/05-sources.md`](research/05-sources.md) | Every source used, with what it contributed and how much weight it deserves | Checking a claim |
+| [`specs/v1.md`](specs/v1.md) | The buildable spec: level schema, the 20 v1 levels, 24 `Given / When / Then` criteria, test map, build order, risks | Approving or building |
 
 ## The five findings that shape the build
 
@@ -82,10 +83,12 @@ speculative. Full level-by-level detail, marking rules, data model and draft acc
 
 - [x] Research: evidence, curricula, taxonomy slice, ladder
 - [x] Game plan and difficulty tiering
-- [ ] Six decisions on the brief's Part 11 (default task, badges, audio language, name on screen,
-      locking, domain)
-- [ ] `specs/v1.md` with the acceptance criteria, reviewed
+- [x] Seven decisions taken (UK ladder + six build questions) — `04` Part 12
+- [x] [`specs/v1.md`](specs/v1.md) — 24 acceptance criteria, level schema, level set, test map
+- [ ] **Spec approval** in the project thread
 - [ ] Test-first build, T0–T4
+
+`specs/v1.md` is a draft. Per `AGENTS.md`, no implementation code is written until it is approved.
 
 ## House rules this repo inherits
 

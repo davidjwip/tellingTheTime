@@ -366,9 +366,11 @@ Given / When / Then, for the spec review:
 
 ## Part 12 — Decisions taken
 
-**2026-10-23 — the UK ladder is the spine.** o'clock → half past → quarter past / quarter to →
-five minutes → nearest minute. This confirms tiers T2–T6 as the sequence and removes the
-alternative ("HK's short, steep spine") from consideration as the teaching order.
+### 2026-10-23 — the UK ladder is the spine
+
+o'clock → half past → quarter past / quarter to → five minutes → nearest minute. This confirms
+tiers T2–T6 as the sequence and removes the alternative ("HK's short, steep spine") from
+consideration as the teaching order.
 
 Consequences for the build:
 
@@ -379,3 +381,16 @@ Consequences for the build:
 - **Drawing hands stays** (T1.4 build-the-face, T2.3/T3.3 set-the-hands) as an assessment device,
   not because Hong Kong requires it.
 - Tier locking stays off, so if school moves faster than the game the adult can jump a tier.
+
+### 2026-10-23 — the other six, answered
+
+| # | Question | Decision | Effect on the build |
+| --- | --- | --- | --- |
+| 1 | Default task at a new level | **Reading first**, setting after | `round[]` is an ordered array; every level that has both opens with `read` steps. Validator enforces the ordering. |
+| 2 | Badges vs. party track | **Both** | Badge per level cleared (persistent, on the setup shelf); path-to-the-party per round of ten (transient, inside the round). Two separate reward surfaces, not one. |
+| 3 | Audio language | **English default, Cantonese toggle** — the kindergarten is Cantonese-medium | Adds an i18n layer and a `defaultLocale` toggle to header. The Cantonese phrase table is **not** a translation of the English forms and needs a native check before audio is generated — see `specs/v1.md` R1. |
+| 4 | Name on screen | **Yes, in `localStorage`** | Setup gets an optional name field; the value never enters a commit, a fixture or a log. |
+| 5 | Tier locking | **All open**, but a badge requires **clearing** the level | Badge award is gated on ≥80% in one round, not on attempting it. Nothing is locked. |
+| 6 | Hosting | **Cloudflare Pages directly** (POC, personal + family/friends) | No GitHub Pages step. `base: './'` still, custom domain `clock.zt489.com`. |
+
+The spec that follows from these is [`specs/v1.md`](../specs/v1.md).
