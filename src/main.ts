@@ -23,6 +23,8 @@ const store = window.localStorage;
 let progress = loadProgress(store);
 /** The level currently on screen, so a language change can redraw it. */
 let currentLevel: Level | null = null;
+/** The mounted round, so the language toggle can change it in place instead of remounting. */
+let mounted: import('./play').Mounted | null = null;
 
 // One speaker for the app's life: the clips are pre-recorded, so this only ever picks a file.
 const speaker = new Speaker(
@@ -39,6 +41,7 @@ const speaker = new Speaker(
 
 function showPicker(): void {
   currentLevel = null;
+  mounted = null;
   app.replaceChildren(renderPicker(shelve(LEVELS, progress), progress));
   overlayRoot.replaceChildren();
 }
@@ -52,7 +55,7 @@ function play(level: Level): void {
   const host = document.createElement('div');
   app.replaceChildren(host);
 
-  mountPlay(host, overlayRoot, level, {
+  mounted = mountPlay(host, overlayRoot, level, {
     speaker,
     locale: progress.locale,
     onChangeLevel: () => showPicker(),
@@ -74,7 +77,8 @@ app.addEventListener('click', (event) => {
     progress = { ...progress, locale };
     saveProgress(store, progress);
     speaker.setLocale(locale);
-    if (currentLevel) play(currentLevel);
+    // In place: remounting here rebuilt the session and wiped the cards already placed.
+    if (mounted) mounted.setLocale(locale);
     else showPicker();
     return;
   }
@@ -87,9 +91,9 @@ app.addEventListener('click', (event) => {
   }
 
   if (target?.closest('[data-action="start"]')) {
-    const remembered = LEVELS.find((l) => l.id === progress.lastLevel);
-    const firstPlayable = LEVELS.find((l) => shelve([l], progress)[0]?.available);
-    const next = remembered ?? firstPlayable;
+    // One decision, in one place: this used to repeat resolveStartLevel without its availability
+    // guard, so Start could open a level the shelf would not offer.
+    const next = resolveStartLevel(LEVELS, progress, null);
     if (next) play(next);
   }
 });
