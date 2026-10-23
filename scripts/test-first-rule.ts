@@ -62,8 +62,14 @@ export function parseNameStatus(raw: string): ChangedFile[] {
     .filter((file) => file.path.length > 0);
 }
 
-export function findViolations(commits: readonly Commit[]): Violation[] {
-  const tested = new Set<string>();
+export function findViolations(
+  commits: readonly Commit[],
+  initiallyTested: Iterable<string> = [],
+): Violation[] {
+  // Modules that already have a test on the base branch are tested, whether or not this branch
+  // touches their test file. Without this seed the rule demanded a test edit in EVERY pull request
+  // that changed a module — busywork that pushes people to add empty assertions.
+  const tested = new Set<string>(initiallyTested);
   const violations: Violation[] = [];
 
   for (const commit of commits) {

@@ -82,6 +82,20 @@ describe('the test-first rule', () => {
   });
 });
 
+describe('modules already tested before the branch', () => {
+  it('allows a change to a module whose test exists on the base branch', () => {
+    const commits = [commit('n1', [['M', 'src/play.ts']])];
+    // without the seed this is a violation; with it, play.ts is already covered by play.test.ts
+    expect(findViolations(commits, ['play'])).toEqual([]);
+    expect(findViolations(commits)).toHaveLength(1);
+  });
+
+  it('still refuses a NEW module with no test anywhere', () => {
+    const commits = [commit('n2', [['A', 'src/shell.ts']])];
+    expect(findViolations(commits, ['play'])).toHaveLength(1);
+  });
+});
+
 describe('reading git output', () => {
   it('takes the new path from a rename, and treats it as an addition', () => {
     // R100<TAB>old<TAB>new - reading column 2 reports the OLD name, so a module could arrive

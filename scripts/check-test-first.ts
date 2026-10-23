@@ -59,9 +59,14 @@ function main(): void {
 
   let from: string;
   let commits: Commit[];
+  let seeded: string[] = [];
   try {
     from = mergeBase();
     commits = readCommits(from);
+    seeded = git(['ls-tree', '-r', '--name-only', from])
+      .split('\n')
+      .filter((path) => path.startsWith('test/') && path.endsWith('.test.ts'))
+      .map((path) => path.slice('test/'.length, -'.test.ts'.length));
   } catch {
     console.error(
       'cannot find a merge base with origin/main — fetch it first (CI needs fetch-depth: 0)',
@@ -69,7 +74,7 @@ function main(): void {
     process.exit(1);
   }
 
-  const violations: Violation[] = findViolations(commits);
+  const violations: Violation[] = findViolations(commits, seeded);
   if (violations.length === 0) {
     console.log(`test-first: ${commits.length} commit(s) since ${from.slice(0, 7)}, no violations`);
     return;
