@@ -1,0 +1,62 @@
+#!/bin/sh
+# The same checks CI runs, on the commit you are about to publish.
+#
+# Dave's rule: nothing reaches a branch until the tests pass locally. CI is the backstop, not the
+# first reader.
+#
+# THE CHECK MUST TEST THE PUSHED COMMIT, NOT THE WORKING TREE. The first version of this hook ran
+# the suite against whatever was on disk - so committing a type error and then reverting the file
+# locally produced "pre-push: all checks passed" and published a branch that did not build. A gate
+# that can be satisfied by having a tidy worktree is worse than none, because it is trusted.
+#
+# Bypass deliberately and rarely:  GIT_HOOKS_OFF=1 git push
+set -eu
+
+if [ "${GIT_HOOKS_OFF:-}" = "1" ]; then
+  echo "pre-push: bypassed because GIT_HOOKS_OFF=1"
+  exit 0
+fi
+
+# git feeds "<local ref> <local sha> <remote ref> <remote sha>" per ref on stdin.
+reads=$(cat)
+deletes_only=1
+pushed_sha=""
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -z "${local_sha:-}" ] && continue
+  case "$local_sha" in
+    0000000000000000000000000000000000000000) continue ;;
+  esac
+  deletes_only=0
+  pushed_sha="$local_sha"
+done <<EOF
+$reads
+EOF
+
+if [ "$deletes_only" = "1" ]; then
+  echo "pre-push: only deleting refs, nothing to check"
+  exit 0
+fi
+
+head_sha=$(git rev-parse HEAD)
+if [ -n "$pushed_sha" ] && [ "$pushed_sha" != "$head_sha" ]; then
+  echo "pre-push: refusing - pushing $(echo "$pushed_sha" | cut -c1-7) but HEAD is $(echo "$head_sha" | cut -c1-7)"
+  echo "pre-push: check out the commit you are publishing, or push from a worktree of it."
+  echo "pre-push: otherwise these checks describe a tree nobody is publishing."
+  exit 1
+fi
+
+if [ -n "$(git status --porcelain)" ]; then
+  echo "pre-push: refusing - the working tree has uncommitted changes"
+  echo "pre-push: commit or stash them. Checking a tree that is not the commit is how a red branch gets out."
+  git status --short | head -10
+  exit 1
+fi
+
+command -v npm >/dev/null 2>&1 || { echo "pre-push: npm not on PATH"; exit 1; }
+if [ ! -d node_modules ]; then
+  echo "pre-push: node_modules missing - run 'npm ci' in $(pwd)"; exit 1
+fi
+
+# One list, shared with CI: if a check is added to `verify`, both get it.
+npm run --silent verify
+echo "pre-push: all checks passed on $(echo "$head_sha" | cut -c1-7)"

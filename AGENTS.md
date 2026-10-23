@@ -114,3 +114,15 @@ the maths and spelling games.
 Visual style is not up for redesign: it is the house style from
 `simpleKindergartenAdditionWebpage` (`maths.zt489.com`), described in `research/04-game-design-brief.md`
 Part 4.
+## Nothing leaves this machine red
+
+`npm run hooks:install` once per clone, then `git push` runs the same checks CI runs: typecheck, the
+level gate, `test:coverage` with its per-file thresholds, and the test-first gate. A failing tree
+cannot be pushed to a branch.
+
+This is not ceremony. Three pushes in this project went out having skipped the one check that would
+have caught them, because the check that was already passing got re-run instead. CI is the backstop,
+not the first reader; a red push costs a review cycle.
+
+The hook lives in `.githooks/pre-push` rather than `.git/hooks` because `.git/` is not committed and
+a gate nobody has is not a gate. Bypass with `GIT_HOOKS_OFF=1 git push`, deliberately and rarely.
