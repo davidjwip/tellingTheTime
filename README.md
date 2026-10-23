@@ -27,7 +27,7 @@ and it is written down here so the build can point at it instead of re-deriving 
 | [`research/05-sources.md`](research/05-sources.md) | Every source used, with what it contributed and how much weight it deserves | Checking a claim |
 | [`specs/v1.md`](specs/v1.md) | The buildable spec: level schema, the 20 v1 levels, 46 `Given / When / Then` criteria, test map, build order, risks | Approving or building |
 | [`specs/design-parity.md`](specs/design-parity.md) | The visual contract with the maths app: exact tokens, region map, deliberate divergences, the parity gate | Touching anything visual |
-| [`data/phrases-yue.md`](data/phrases-yue.md) | Cantonese phrase table for review — 48 time phrases + 8 prompts, three forms each | Reviewing the Cantonese |
+| [`data/phrases-yue.md`](data/phrases-yue.md) | Cantonese phrase table — 48 time phrases + 8 prompts, one final colloquial form each | Checking a phrase |
 
 ## The five findings that shape the build
 
@@ -86,7 +86,7 @@ speculative. Full level-by-level detail, marking rules, data model and draft acc
 - [x] Research: evidence, curricula, taxonomy slice, ladder
 - [x] Game plan and difficulty tiering
 - [x] Seven decisions taken (UK ladder + six build questions) — `04` Part 12
-- [x] [`specs/v1.md`](specs/v1.md) — v1.3: 47 acceptance criteria, no open questions
+- [x] [`specs/v1.md`](specs/v1.md) — v1.4: 48 acceptance criteria, review of PR #1 dispositioned
 - [x] [`specs/design-parity.md`](specs/design-parity.md) — visual contract + the four parity decisions
 - [x] [`data/phrases-yue.md`](data/phrases-yue.md) — Cantonese settled: colloquial throughout
 - [ ] **Spec approval** in the project thread
