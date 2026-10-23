@@ -18,7 +18,7 @@ import {
   trackComplete,
 } from './engine';
 
-import type { Session } from './engine';
+import type { Rng, Session } from './engine';
 import type { PlayOptions } from './app';
 import type { Speaker } from './audio';
 import type { Level } from './types';
@@ -31,7 +31,12 @@ export interface Mounted {
 /** Play options plus the voice. Optional so a test needs no audio hardware. */
 export interface MountOptions extends PlayOptions {
   speaker?: Speaker;
+  /** The session's RNG, so a caller can replay a seeded round. Defaults to a fresh random round. */
+  rng?: Rng;
 }
+
+/** How long a card tap is ignored after one has just been recorded. */
+export const CHOICE_TAP_GUARD_MS = 350;
 
 export function mountPlay(
   app: HTMLElement,
@@ -39,10 +44,12 @@ export function mountPlay(
   level: Level,
   options: MountOptions = {},
 ): Mounted {
-  let session = createSession(level);
+  let session = createSession(level, options.rng);
   let celebrating = false;
   let reported = false;
   let spoken: string | undefined;
+  let choiceLocked = false;
+  let lastChoiceId: string | undefined;
 
   const speakPrompt = (): void => {
     const item = currentItem(session);
@@ -110,9 +117,11 @@ export function mountPlay(
     const action = target?.closest<HTMLElement>('[data-action]')?.dataset.action;
 
     if (action === 'again') {
-      session = createSession(level);
+      session = createSession(level, options.rng);
       celebrating = false;
       reported = false;
+      choiceLocked = false;
+      lastChoiceId = undefined;
       draw();
       return;
     }
@@ -130,8 +139,19 @@ export function mountPlay(
     // recorded by the same path as an adult's tap and a miss still returns three places later.
     const choice = target?.closest<HTMLElement>('[data-choice]')?.dataset.choice;
     if (choice !== undefined) {
+      // A double tap used to answer the next question: the first tap re-renders the screen under
+      // the second one. Ignore a repeat tap on the card just chosen until the child has had time to
+      // see the change. A tap on a different card is a fresh answer, not a bounce.
+      if (choiceLocked && choice === lastChoiceId) return;
       const item = currentItem(session);
-      if (item?.answer !== undefined) onVerdict(choice === item.answer ? 'correct' : 'wrong');
+      if (item?.answer !== undefined) {
+        choiceLocked = true;
+        lastChoiceId = choice;
+        setTimeout(() => {
+          choiceLocked = false;
+        }, CHOICE_TAP_GUARD_MS);
+        onVerdict(choice === item.answer ? 'correct' : 'wrong');
+      }
       return;
     }
 
