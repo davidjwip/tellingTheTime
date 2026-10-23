@@ -8,7 +8,7 @@
  */
 
 import { renderCelebration, renderPlay, renderSummary } from './app';
-import { createSession, isCleared, isFinished, recordVerdict, trackComplete } from './engine';
+import { createSession, endSession, isCleared, isFinished, recordVerdict, trackComplete } from './engine';
 
 import type { Session } from './engine';
 import type { PlayOptions } from './app';
@@ -67,6 +67,13 @@ export function mountPlay(
       session = createSession(level);
       celebrating = false;
       reported = false;
+      draw();
+      return;
+    }
+
+    if (action === 'finish') {
+      session = endSession(session);
+      celebrating = false;
       draw();
       return;
     }

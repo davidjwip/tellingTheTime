@@ -2,17 +2,14 @@
  * Round state machine — the play screen's brain, with no DOM in sight.
  *
  * THE ROUND IS A GOAL, NOT A LENGTH. It ends when the child has ten right answers, or when the
- * adult calls it. Misses are not failures and are not counted against anything: a four-year-old who
- * has never seen a clock will miss most of the first round, and that is the right way to start
- * learning rather than a problem to bound. This replaced a fixed queue of questions, which made a
- * struggling child "fail" a level they were still learning.
+ * adult ends it. Misses are not failures and are not counted against anything. This replaced a
+ * fixed queue of questions, which made a struggling child "fail" a level they were still learning.
  *
  * Consequences, all deliberate:
- *   - the queue keeps producing questions until the goal is met
+ *   - questions keep coming until the goal is met
  *   - there is no maximum number of attempts on an item: needing four goes at a dial is normal
- *   - the track always fills, however long it takes, because it counts right answers
- *   - the adult can end the round whenever they judge it is time, and the summary never says the
- *     child failed
+ *   - the track shows ten steps and fills with right answers, so it always fills
+ *   - the adult can end the round at any point, and the summary never says the child failed
  */
 
 import { clockTimes } from './levels';
@@ -44,9 +41,7 @@ export interface Verdict {
 
 export interface Session {
   levelId: string;
-  /** Questions built so far; grows as the round needs more. */
   queue: Item[];
-  /** How many items have been answered. */
   answered: number;
   results: Verdict[];
   streak: number;
@@ -57,7 +52,7 @@ export interface Session {
   correct: number;
   /** The adult ended the round before the goal. */
   ended: boolean;
-  /** Draws one more question from the same level. */
+  /** Draws one more question from the same level, sharing the no-repeat window. */
   makeItem: () => Item;
 }
 
@@ -78,6 +73,9 @@ export const GOAL_CORRECT = 10;
 /** How many items must sit between a miss and its return. */
 export const REQUEUE_GAP = 3;
 
+/** How far back the no-repeat rule reaches. */
+export const NO_REPEAT_WINDOW = 2;
+
 /** Small deterministic PRNG so a test can ask for "the same round" twice. */
 export function seededRng(seed: number): Rng {
   let a = seed >>> 0;
@@ -95,47 +93,92 @@ function pick<T>(rng: Rng, from: readonly T[]): T {
   return from[index] as T;
 }
 
+const sameTime = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =>
+  a !== undefined && b !== undefined && a.hour === b.hour && a.minute === b.minute;
+
 /**
- * Build the questions for one round.
+ * A time drawer that remembers what it has just produced.
  *
- * Round steps are honoured in order (reading before setting), and clock times are drawn without
- * repeating within two positions — a child who sees 3:00, 3:15, 3:00 learns to echo rather than read.
+ * It has to be ONE drawer per session, not one per queue build. The review found why: extra
+ * questions were drawn by calling buildQueue afresh, which started the no-repeat window from
+ * nothing, so the rule protected the first six planned questions and nothing after them — a probe
+ * of 200 rounds produced the same dial three times running.
  */
-export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
+export interface Drawer {
+  nextTime: () => ClockTime | undefined;
+}
+
+export function makeDrawer(level: Level, rng: Rng): Drawer {
   const times = clockTimes(level);
-  const queue: Item[] = [];
-
   const recent: ClockTime[] = [];
-  const same = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =>
-    a !== undefined && b !== undefined && a.hour === b.hour && a.minute === b.minute;
 
-  const nextTime = (): ClockTime | undefined => {
-    const notRecent = times.filter((t) => !recent.some((r) => same(t, r)));
-    const notPrevious = times.filter((t) => !same(t, recent[recent.length - 1]));
-    // a level with fewer times than the window cannot honour it, so fall back rather than loop
-    const pool = notRecent.length > 0 ? notRecent : notPrevious.length > 0 ? notPrevious : times;
+  return {
+    nextTime: () => {
+      const notRecent = times.filter((t) => !recent.some((r) => sameTime(t, r)));
+      const notPrevious = times.filter((t) => !sameTime(t, recent[recent.length - 1]));
+      // a level with fewer times than the window cannot honour it, so fall back rather than loop
+      const pool = notRecent.length > 0 ? notRecent : notPrevious.length > 0 ? notPrevious : times;
 
-    const chosen = pick(rng, pool);
-    recent.push(chosen);
-    if (recent.length > 2) recent.shift();
-    return chosen;
+      const chosen = pick(rng, pool);
+      recent.push(chosen);
+      if (recent.length > NO_REPEAT_WINDOW) recent.shift();
+      return chosen;
+    },
   };
+}
+
+function itemFor(step: Task, time: ClockTime | undefined, key: string, extra?: boolean): Item {
+  const item: Item = { task: step, key };
+  if (time) item.time = time;
+  if (extra) item.extra = true;
+  return item;
+}
+
+/**
+ * Build the planned questions for one round.
+ *
+ * Round steps are honoured in order (reading before setting). Pass a drawer to share the no-repeat
+ * window with questions drawn later.
+ */
+export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer): Item[] {
+  const draw = drawer ?? makeDrawer(level, rng);
+  const queue: Item[] = [];
 
   level.round.forEach((step, stepIndex) => {
     if (!SUPPORTED_TASKS.has(step.task)) return; // no screen for it yet
     for (let i = 0; i < step.items; i += 1) {
-      const time =
-        step.task === 'read' || step.task === 'set' || step.task === 'choose' ? nextTime() : undefined;
+      const time = step.task === 'read' || step.task === 'set' || step.task === 'choose'
+        ? draw.nextTime()
+        : undefined;
       const key = time
         ? `${step.task}:${time.hour}:${time.minute}:${stepIndex}.${i}`
         : `${step.task}:${stepIndex}.${i}`;
-      const item: Item = { task: step.task, key };
-      if (time) item.time = time;
-      queue.push(item);
+      queue.push(itemFor(step.task, time, key));
     }
   });
 
   return queue;
+}
+
+/**
+ * Enforce the no-repeat rule over the queue as it will actually be shown.
+ *
+ * The drawer protects the order times were DRAWN, which is not the order they appear once a missed
+ * item is re-inserted: the insertion shifts everything after it and can create a clash between two
+ * neighbours that were fine apart. Checking the queue itself is the only way to keep the promise.
+ */
+function repairNeighbours(queue: Item[], makeItem: () => Item): void {
+  for (let i = 1; i < queue.length; i += 1) {
+    let guard = 0;
+    while (
+      guard < 12 &&
+      (sameTime(queue[i]?.time, queue[i - 1]?.time) ||
+        (i >= 2 && sameTime(queue[i]?.time, queue[i - 2]?.time)))
+    ) {
+      queue[i] = makeItem();
+      guard += 1;
+    }
+  }
 }
 
 /** Keep at least one question ahead of the child, until the goal is met. */
@@ -145,18 +188,18 @@ function ensureNext(session: Session): void {
 }
 
 export function createSession(level: Level, rng: Rng = Math.random): Session {
-  const queue = buildQueue(level, rng);
+  const drawer = makeDrawer(level, rng);
+  const queue = buildQueue(level, rng, drawer);
 
+  const step = level.round.find((s) => SUPPORTED_TASKS.has(s.task))?.task ?? 'read';
   let extras = 0;
+
   const makeItem = (): Item => {
-    // The planned questions have run out but the child is still going: ask the same level again.
-    // A level with no answerable questions cannot get here — the shelf will not offer it — but a
-    // placeholder beats a crash if it ever does.
-    // A level with no answerable questions never reaches here: the shelf does not offer it and
-    // createSession leaves its queue empty, so there is no round to extend.
-    const drawn = buildQueue(level, rng)[0]!;
+    // One question, drawn through the SAME drawer, so the no-repeat window spans the whole round
+    // rather than restarting each time the planned questions run out.
     extras += 1;
-    return { ...drawn, key: `${drawn.key}~more${extras}`, extra: true };
+    const time = step === 'read' || step === 'set' || step === 'choose' ? drawer.nextTime() : undefined;
+    return itemFor(step, time, `${step}:extra:${extras}`, true);
   };
 
   const session: Session = {
@@ -173,7 +216,10 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
   };
 
   // nothing to ask: leave the queue empty rather than inventing questions for a level with no screen
-  if (queue.length > 0) ensureNext(session);
+  if (queue.length > 0) {
+    repairNeighbours(session.queue, session.makeItem);
+    ensureNext(session);
+  }
   return session;
 }
 
@@ -199,7 +245,7 @@ export function isFinished(session: Session): boolean {
   return session.ended || trackComplete(session);
 }
 
-/** Right answers given on the first showing of each item — the honest "how did it go" figure. */
+/** Right answers given on the first showing of each item. */
 export function firstPassCorrect(session: Session): number {
   return session.results.filter((r) => r.correct && r.item.retry !== true).length;
 }
@@ -208,8 +254,8 @@ export function firstPassCorrect(session: Session): number {
  * Record a verdict and return the next session.
  *
  * A wrong answer re-enters the queue a few places later, so the child meets the same dial again
- * rather than being moved past it. There is no cap on attempts: needing another go is the normal
- * case at four, and the round ends on ten right answers rather than by running out of questions.
+ * rather than being moved past it. There is no cap on attempts, and the round ends on ten right
+ * answers rather than by running out of questions.
  */
 export function recordVerdict(session: Session, correct: boolean): Session {
   if (isFinished(session)) return session;
@@ -224,11 +270,11 @@ export function recordVerdict(session: Session, correct: boolean): Session {
   let queue = session.queue;
   if (!correct) {
     const again = { ...item, key: `${item.key}#again`, retry: true };
-    const at = answered + REQUEUE_GAP;
-
-    // extend with more of the same level so the missed dial does not come straight back
     const padded = [...queue];
+    let at = answered + REQUEUE_GAP;
     while (padded.length < at) padded.push(session.makeItem());
+
+    while (padded.length <= at) padded.push(session.makeItem());
 
     queue = [...padded.slice(0, at), again, ...padded.slice(at)];
   }
@@ -243,6 +289,7 @@ export function recordVerdict(session: Session, correct: boolean): Session {
     correct: right,
   };
 
+  repairNeighbours(next.queue, next.makeItem);
   ensureNext(next);
   return next;
 }

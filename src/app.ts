@@ -66,13 +66,25 @@ function header(level: Level, options: PlayOptions): HTMLElement {
   toggle.append(en, yue);
   actions.append(toggle);
 
+  // Sound and profile have no screen yet. They are disabled rather than inert: a button that looks
+  // pressable and does nothing teaches a child that the app is unresponsive (and is a lie to the adult).
   const sound = el('button', 'action-btn small mute-btn', '🔊');
   sound.dataset.action = 'sound';
+  sound.disabled = true;
+  sound.title = 'Sound arrives with the recordings';
   actions.append(sound);
 
   const profile = el('button', 'action-btn small', '👤');
   profile.dataset.action = 'profile';
+  profile.disabled = true;
+  profile.title = 'Names and badges arrive with the picker';
   actions.append(profile);
+
+  // The round is a goal, but the adult decides when a session is over — a level beyond the child,
+  // or a tired evening. Without this the app could not honour that at all.
+  const finish = el('button', 'action-btn small', 'Finish');
+  finish.dataset.action = 'finish';
+  actions.append(finish);
 
   head.append(actions);
   return head;
