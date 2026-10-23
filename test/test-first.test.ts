@@ -105,6 +105,14 @@ describe('specialised test files', () => {
     expect(findViolations(commits)).toEqual([]);
   });
 
+  it('does not count a deleted test as covering its module', () => {
+    const commits = [
+      commit('n7', [['D', 'test/engine.test.ts']]),
+      commit('n8', [['M', 'src/engine.ts']]),
+    ];
+    expect(findViolations(commits)).toHaveLength(1);
+  });
+
   it('does not count a merely similar name', () => {
     const commits = [
       commit('n5', [['M', 'test/enginex.test.ts']]),
