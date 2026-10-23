@@ -137,6 +137,51 @@ describe('the re-queue rule (B2)', () => {
     expect(after.queue[after.answered + REQUEUE_GAP]?.key).toBe(`${missed?.key}#again`);
   });
 
+  it('does not re-queue practice, so missing it cannot grow the round', () => {
+    let session = answerRight(createSession(level('t2.2'), seededRng(9)), 5);
+    session = recordVerdict(session, false); // last item missed: practice is inserted
+
+    const fillerAt = session.queue.findIndex((i) => i.filler === true);
+    expect(fillerAt).toBeGreaterThan(-1);
+    while (session.answered < fillerAt) session = recordVerdict(session, true);
+
+    const before = session.queue.length;
+    session = recordVerdict(session, false); // miss the practice
+    expect(session.queue).toHaveLength(before); // no #again, no new fillers
+  });
+
+  it('shows a missed item at most twice, however often it is missed', () => {
+    let session = createSession(level('t2.2'), seededRng(9));
+    const first = currentItem(session);
+    session = recordVerdict(session, false); // miss it: it will come back
+
+    let appeared = 0;
+    let guard = 0;
+    while (!isFinished(session) && guard < 60) {
+      if (currentItem(session)?.key === `${first?.key}#again`) {
+        appeared += 1;
+        session = recordVerdict(session, false); // miss the re-showing too
+      } else {
+        session = recordVerdict(session, true);
+      }
+      guard += 1;
+    }
+    expect(appeared).toBe(1); // re-shown once, never a third time
+    expect(isFinished(session)).toBe(true);
+  });
+
+  it('bounds how much practice one round can invent', () => {
+    // a child who answers nothing must still reach the end of the round
+    let session = createSession(level('t2.2'), seededRng(9));
+    let answered = 0;
+    while (!isFinished(session) && answered < 200) {
+      session = recordVerdict(session, false);
+      answered += 1;
+    }
+    expect(answered).toBeLessThan(40);
+    expect(session.queue.filter((i) => i.filler === true).length).toBeLessThanOrEqual(6);
+  });
+
   it('does not let practice it invented fill a step on the track', () => {
     let session = answerRight(createSession(level('t2.2'), seededRng(9)), 5);
     session = recordVerdict(session, false); // last item missed, so a filler is inserted

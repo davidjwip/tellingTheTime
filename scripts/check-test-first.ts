@@ -21,11 +21,23 @@ function git(args: string[]): string {
 function readCommits(from: string): Commit[] {
   const shas = git(['rev-list', '--reverse', `${from}..HEAD`]).split('\n').filter(Boolean);
 
-  return shas.map((sha) => ({
-    sha: sha.slice(0, 7),
-    subject: git(['show', '-s', '--format=%s', sha]).trim(),
-    files: parseNameStatus(git(['show', '--pretty=format:', '--name-status', sha])),
-  }));
+  return shas.map((sha) => {
+    // --first-parent -m makes a MERGE show the changes it brings onto the branch. A plain
+    // `git show --name-status` on a merge prints nothing, so a module merged in from a side branch
+    // would arrive invisible to the gate.
+    const files = parseNameStatus(
+      git(['show', '--pretty=format:', '--name-status', '--first-parent', '-m', sha]),
+    );
+
+    // a merge can list a path once per parent; the rule only cares that it changed
+    const unique = [...new Map(files.map((file) => [file.path, file])).values()];
+
+    return {
+      sha: sha.slice(0, 7),
+      subject: git(['show', '-s', '--format=%s', sha]).trim(),
+      files: unique,
+    };
+  });
 }
 
 /**

@@ -67,6 +67,25 @@ export function shelve(levels: readonly Level[], progress: Progress): Shelved[] 
   });
 }
 
+/**
+ * Which level a visit starts on.
+ *
+ * `?level=` and the remembered level are both untrusted input: either can name a level that is not
+ * playable, which used to start a round of nothing. Resume only onto something the shelf would
+ * offer, and otherwise show the shelf.
+ */
+export function resolveStartLevel(
+  levels: readonly Level[],
+  progress: Progress,
+  requested: string | null,
+): Level | null {
+  const wanted = requested ?? progress.lastLevel;
+  if (wanted === null) return null;
+  const found = levels.find((level) => level.id === wanted);
+  if (!found) return null;
+  return shelve([found], progress)[0]?.available ? found : null;
+}
+
 function el<K extends keyof HTMLElementTagNameMap>(
   tag: K,
   className?: string,
@@ -134,4 +153,3 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
 
   return container;
 }
-

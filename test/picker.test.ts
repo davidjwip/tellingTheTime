@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS } from '../src/levels';
-import { renderPicker, shelve } from '../src/picker';
+import { renderPicker, resolveStartLevel, shelve } from '../src/picker';
 import { DEFAULT_PROGRESS } from '../src/progress';
 
 import type { Level } from '../src/types';
@@ -43,6 +43,32 @@ describe('which levels can be played today', () => {
   it('knows which levels have already been cleared', () => {
     const [shelved] = shelve([level('t2.4')], { ...DEFAULT_PROGRESS, cleared: ['t2.4'] });
     expect(shelved?.cleared).toBe(true);
+  });
+});
+
+describe('where a visit starts', () => {
+  const progress = { ...DEFAULT_PROGRESS, lastLevel: 't2.4' };
+
+  it('resumes the remembered level when it is playable', () => {
+    expect(resolveStartLevel(LEVELS, progress, null)?.id).toBe('t2.4');
+  });
+
+  it('honours a level in the URL', () => {
+    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't3.4')?.id).toBe('t3.4');
+  });
+
+  it('refuses a level that cannot be played, however it was asked for', () => {
+    // both are untrusted input, and both used to start a round of nothing
+    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't2.3')).toBeNull();
+    expect(resolveStartLevel(LEVELS, { ...DEFAULT_PROGRESS, lastLevel: 't0.1' }, null)).toBeNull();
+  });
+
+  it('refuses a level that does not exist', () => {
+    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 'nope')).toBeNull();
+  });
+
+  it('has nothing to resume on a first visit', () => {
+    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, null)).toBeNull();
   });
 });
 

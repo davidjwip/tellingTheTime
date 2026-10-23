@@ -11,7 +11,7 @@ import { isCleared } from './engine';
 import { LEVELS } from './levels';
 import { mountPlay } from './play';
 import { loadProgress, markCleared, rememberLevel, saveProgress, setName } from './progress';
-import { renderPicker, shelve } from './picker';
+import { renderPicker, resolveStartLevel, shelve } from './picker';
 
 import type { Level } from './types';
 
@@ -69,8 +69,13 @@ app.addEventListener('input', (event) => {
   saveProgress(store, progress);
 });
 
-const requested = new URLSearchParams(window.location.search).get('level');
-const initial = LEVELS.find((l) => l.id === requested) ?? LEVELS.find((l) => l.id === progress.lastLevel);
+// Both `?level=` and the remembered level are untrusted: either can name a level the shelf would
+// not offer, and starting one used to begin a round of nothing. resolveStartLevel is tested.
+const initial = resolveStartLevel(
+  LEVELS,
+  progress,
+  new URLSearchParams(window.location.search).get('level'),
+);
 
 if (initial) play(initial);
 else showPicker();
