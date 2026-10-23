@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { isFinished } from '../src/engine';
 import { LEVELS } from '../src/levels';
 import { mountPlay } from '../src/play';
 
@@ -95,7 +96,7 @@ describe('what a tap does', () => {
 
   it('celebrates a full track, and closes back to the round', () => {
     mount('t2.2');
-    for (let i = 0; i < 5; i += 1) answerRight();
+    for (let i = 0; i < 9; i += 1) answerRight();
     expect(overlayRoot.querySelector('[data-celebration]')).toBeNull();
 
     answerRight(); // the tenth fills the track
@@ -111,14 +112,14 @@ describe('what a tap does', () => {
 
   it('does not celebrate a cleared-but-incomplete round', () => {
     const mounted = mount('t2.2');
-    for (let i = 0; i < 5; i += 1) answerRight();
+    for (let i = 0; i < 9; i += 1) answerRight();
     expect(app.querySelector('[data-celebration]')).toBeNull();
     expect(mounted.celebrating()).toBe(false);
   });
 
   it('ends on the summary once the queue is exhausted', () => {
     const mounted = mount('t2.2');
-    while (mounted.session().answered < mounted.session().queue.length) {
+    while (!isFinished(mounted.session())) {
       answerRight();
     }
     tap('[data-action="close-celebration"]');
@@ -133,7 +134,7 @@ describe('what a tap does', () => {
     answerRight();
     expect(mounted.session().answered).toBe(2);
 
-    for (let i = 0; i < 6; i += 1) answerRight();
+    for (let i = 0; i < 8; i += 1) answerRight();
     tap('[data-action="close-celebration"]');
 
     tap('[data-action="again"]');

@@ -8,7 +8,7 @@
  */
 
 import { renderFace } from './clockFace';
-import { currentItem, firstPassCorrect, trackProgress } from './engine';
+import { currentItem, trackProgress } from './engine';
 
 import type { Session, Item } from './engine';
 import type { Level, Task } from './types';
@@ -87,10 +87,11 @@ function goalTrack(session: Session, mascot: string): HTMLElement {
 
   const wrapper = el('div', 'goal-steps-wrapper');
   const filled = trackProgress(session);
-  // N steps in rows of five: a 10-item round reproduces the reference exactly (two rows of 5).
-  for (let rowStart = 1; rowStart <= session.total; rowStart += 5) {
+  // The track is the goal, not the number of questions: ten steps, two rows of five, filling as he
+  // gets them right however many tries it takes.
+  for (let rowStart = 1; rowStart <= session.goal; rowStart += 5) {
     const row = el('div', 'goal-steps');
-    for (let step = rowStart; step < rowStart + 5 && step <= session.total; step += 1) {
+    for (let step = rowStart; step < rowStart + 5 && step <= session.goal; step += 1) {
       const cell = el('div', 'step', String(step));
       if (step <= filled) cell.classList.add('filled');
       row.append(cell);
@@ -101,9 +102,12 @@ function goalTrack(session: Session, mascot: string): HTMLElement {
   track.append(el('div', 'goal-end', '🎉'));
   area.append(track);
 
-  // The reference shows "Problems Solved: X / Total". Here there is no denominator to read as a
-  // score, and no failure count (specs/design-parity.md §4.5).
-  area.append(el('p', undefined, `Times read: ${firstPassCorrect(session)} · Best streak: ${session.bestStreak}`));
+  // The reference shows "Problems Solved: X / Total". Here there is no failure count anywhere
+  // (specs/design-parity.md §4.5): the track shows what he has got right, and nothing counts what
+  // he has not.
+  area.append(
+    el('p', undefined, `Right: ${session.correct} of ${session.goal} · Best streak: ${session.bestStreak}`),
+  );
   return area;
 }
 
@@ -180,9 +184,15 @@ export function renderSummary(session: Session, cleared: boolean): HTMLElement {
   const container = el('div', 'container summary');
   container.dataset.level = session.levelId;
 
-  container.append(el('h1', undefined, cleared ? 'Level cleared!' : 'Good try!'));
+  // An early finish is not a failure, so it does not get a consolation heading
+  container.append(el('h1', undefined, cleared ? 'Level cleared!' : 'Nice work today!'));
+  // No score, no percentage, and no word for "failed" (specs/design-parity.md §4.5).
   container.append(
-    el('p', 'instructions', `${firstPassCorrect(session)} of ${session.total} · best streak ${session.bestStreak}`),
+    el(
+      'p',
+      'instructions',
+      `${session.correct} of ${session.goal} right · best streak ${session.bestStreak}`,
+    ),
   );
 
   const actions = el('div', 'header-actions');
@@ -203,7 +213,7 @@ export function renderCelebration(session: Session): HTMLElement {
 
   const content = el('div', 'celebration-content');
   content.append(el('div', 'celebration-title', '🎉 Amazing Job! 🎉'));
-  content.append(el('p', undefined, `You read all ${session.total} times!`));
+  content.append(el('p', undefined, `You got ${session.goal} right!`));
   content.append(el('div', undefined, '🎊🎈⏰'));
 
   const close = el('button', 'celebration-close-btn', 'Keep Playing!');

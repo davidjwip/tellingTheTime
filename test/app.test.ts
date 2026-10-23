@@ -97,7 +97,7 @@ describe('the screen a child sees', () => {
 
     // every item in a shuffled round is a read, and a read always shows a dial with a time on it
     let walk = session('t2.2');
-    for (let i = 0; i < walk.total; i += 1) {
+    for (let i = 0; i < 6; i += 1) {
       expect(currentItem(walk)?.task).toBe('read');
       expect(currentItem(walk)?.time).toBeDefined();
       walk = recordVerdict(walk, true);
@@ -122,10 +122,10 @@ describe('the screen a child sees', () => {
     expect(streak?.textContent).toContain('Best: 2');
   });
 
-  it('fills one goal step per correct answer: six steps, five and then one', () => {
+  it('shows a ten-step track, two rows of five, filling with right answers', () => {
     const screen = renderPlay(level('t2.2'), answerRight(session('t2.2'), 3));
-    expect(screen.querySelectorAll('.step')).toHaveLength(6);
-    expect(screen.querySelectorAll('.goal-steps')).toHaveLength(2); // rows of five, then the remainder
+    expect(screen.querySelectorAll('.step')).toHaveLength(10);
+    expect(screen.querySelectorAll('.goal-steps')).toHaveLength(2);
     expect(screen.querySelectorAll('.step.filled')).toHaveLength(3);
   });
 
@@ -141,7 +141,7 @@ describe('the screen a child sees', () => {
     expect(text).not.toContain('%');
     expect(text).not.toMatch(/score/i);
     expect(text).not.toMatch(/wrong/i);
-    expect(text).toContain('Times read: 4');
+    expect(text).toContain('Right: 4 of 10');
   });
 
   it('carries the footer credit', () => {
@@ -172,10 +172,10 @@ describe('the end of a round', () => {
   it('says cleared when it is, and good try when it is not', () => {
     const cleared = renderSummary(answerRight(session('t2.2'), 5), true);
     expect(cleared.querySelector('h1')?.textContent).toBe('Level cleared!');
-    expect(cleared.querySelector('.instructions')?.textContent).toContain('5 of 6');
+    expect(cleared.querySelector('.instructions')?.textContent).toContain('5 of 10 right');
 
     const notCleared = renderSummary(answerRight(session('t2.2'), 5), false);
-    expect(notCleared.querySelector('h1')?.textContent).toBe('Good try!');
+    expect(notCleared.querySelector('h1')?.textContent).toBe('Nice work today!');
   });
 
   it('offers another round or another level, and nothing else', () => {
@@ -187,10 +187,10 @@ describe('the end of a round', () => {
 
 describe('the celebration', () => {
   it('has the reference overlay with the count interpolated', () => {
-    const overlay = renderCelebration(answerRight(session('t2.2'), 6));
+    const overlay = renderCelebration(answerRight(session('t2.2'), 10));
     expect(overlay.dataset.celebration).toBe('true');
     expect(overlay.querySelector('.celebration-title')?.textContent).toContain('Amazing Job');
-    expect(overlay.textContent).toContain('all 6 times');
+    expect(overlay.textContent).toContain('You got 10 right!');
     expect(overlay.querySelector('[data-action="close-celebration"]')).not.toBeNull();
   });
 });

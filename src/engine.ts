@@ -1,18 +1,21 @@
 /**
  * Round state machine — the play screen's brain, with no DOM in sight.
  *
- * Everything here is pure: a session goes in, a new session comes out. That is what makes the
- * re-queue rule, the clearing threshold and the celebration testable without a browser, and it is
- * how the app can be driven by a seeded RNG in tests and by Math.random in the real thing.
+ * THE ROUND IS A GOAL, NOT A LENGTH. It ends when the child has ten right answers, or when the
+ * adult calls it. Misses are not failures and are not counted against anything: a four-year-old who
+ * has never seen a clock will miss most of the first round, and that is the right way to start
+ * learning rather than a problem to bound. This replaced a fixed queue of questions, which made a
+ * struggling child "fail" a level they were still learning.
  *
- * Rules implemented (specs/v1.md §6):
- *   B2  a missed item re-enters the queue at least 3 positions later, never immediately
- *   B7  clearing = correct >= round(0.8 × N) in one round; the badge follows the clear
- *   B10 the celebration fires on a completed track, so a second perfect round celebrates again
- *   B14 the current streak resets per round; the best streak persists
+ * Consequences, all deliberate:
+ *   - the queue keeps producing questions until the goal is met
+ *   - there is no maximum number of attempts on an item: needing four goes at a dial is normal
+ *   - the track always fills, however long it takes, because it counts right answers
+ *   - the adult can end the round whenever they judge it is time, and the summary never says the
+ *     child failed
  */
 
-import { clockTimes, itemsPerRound } from './levels';
+import { clockTimes } from './levels';
 
 import type { Level, Task } from './types';
 
@@ -30,8 +33,8 @@ export interface Item {
   key: string;
   /** True on the second and later showing of an item the child missed. */
   retry?: boolean;
-  /** Extra practice inserted to keep a missed item from returning immediately. */
-  filler?: boolean;
+  /** Drawn once the planned questions have run out and the child is still going. */
+  extra?: boolean;
 }
 
 export interface Verdict {
@@ -41,17 +44,21 @@ export interface Verdict {
 
 export interface Session {
   levelId: string;
-  /** The full plan for this round, including re-queued items appended as they are missed. */
+  /** Questions built so far; grows as the round needs more. */
   queue: Item[];
   /** How many items have been answered. */
   answered: number;
   results: Verdict[];
   streak: number;
   bestStreak: number;
-  /** Track length: the round's item count, fixed at creation. */
-  total: number;
-  /** Draws one more question from the same level, used to keep the re-queue gap honest. */
-  makeFiller: () => Item;
+  /** How many right answers end the round. */
+  goal: number;
+  /** Right answers so far, however many attempts each took. */
+  correct: number;
+  /** The adult ended the round before the goal. */
+  ended: boolean;
+  /** Draws one more question from the same level. */
+  makeItem: () => Item;
 }
 
 export type Rng = () => number;
@@ -60,11 +67,16 @@ export type Rng = () => number;
  * The task kinds the app can actually present today.
  *
  * `set`, `tap`, `choose`, `order` and `build` all need a screen that does not exist yet. Asking a
- * four-year-old a question he cannot answer is worse than asking fewer questions, so those steps are
- * dropped until their screens land — and the level data keeps them, so nothing has to be retyped
- * when they do.
+ * four-year-old a question he cannot answer is worse than asking fewer, so those steps are dropped
+ * until their screens land — and the level data keeps them, so nothing is retyped when they do.
  */
 export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read']);
+
+/** Right answers needed to finish a round. */
+export const GOAL_CORRECT = 10;
+
+/** How many items must sit between a miss and its return. */
+export const REQUEUE_GAP = 3;
 
 /** Small deterministic PRNG so a test can ask for "the same round" twice. */
 export function seededRng(seed: number): Rng {
@@ -84,26 +96,16 @@ function pick<T>(rng: Rng, from: readonly T[]): T {
 }
 
 /**
- * Build the queue for one round.
+ * Build the questions for one round.
  *
- * The round steps are honoured in order (reading before setting), and clock times are drawn without
- * repeating within two positions — a four-year-old who sees 3:00 twice in a row learns nothing about
- * 3:00.
+ * Round steps are honoured in order (reading before setting), and clock times are drawn without
+ * repeating within two positions — a child who sees 3:00, 3:15, 3:00 learns to echo rather than read.
  */
 export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
   const times = clockTimes(level);
   const queue: Item[] = [];
-  // AC-09 asks for no repeat within two positions, not merely no immediate repeat: seeing 3:00,
-  // 3:15, 3:00 lets a child answer from echo rather than from reading.
-  const recent: ClockTime[] = [];
 
-  /**
-   * Draw the next time.
-   *
-   * The previous time is excluded from the pool rather than re-rolled, so "never the same dial
-   * twice running" is structural instead of a 40-attempt hope. A level with a single time falls back
-   * to allowing the repeat, which is the only thing it can do.
-   */
+  const recent: ClockTime[] = [];
   const same = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =>
     a !== undefined && b !== undefined && a.hour === b.hour && a.minute === b.minute;
 
@@ -122,7 +124,8 @@ export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
   level.round.forEach((step, stepIndex) => {
     if (!SUPPORTED_TASKS.has(step.task)) return; // no screen for it yet
     for (let i = 0; i < step.items; i += 1) {
-      const time = step.task === 'read' || step.task === 'set' || step.task === 'choose' ? nextTime() : undefined;
+      const time =
+        step.task === 'read' || step.task === 'set' || step.task === 'choose' ? nextTime() : undefined;
       const key = time
         ? `${step.task}:${time.hour}:${time.minute}:${stepIndex}.${i}`
         : `${step.task}:${stepIndex}.${i}`;
@@ -135,161 +138,136 @@ export function buildQueue(level: Level, rng: Rng = Math.random): Item[] {
   return queue;
 }
 
+/** Keep at least one question ahead of the child, until the goal is met. */
+function ensureNext(session: Session): void {
+  if (session.correct >= session.goal) return;
+  while (session.queue.length <= session.answered) session.queue.push(session.makeItem());
+}
+
 export function createSession(level: Level, rng: Rng = Math.random): Session {
   const queue = buildQueue(level, rng);
 
-  // A filler is only ever needed when a miss lands so near the end of a round that three items
-  // cannot sit between the miss and its return. Rather than let the same dial come back
-  // immediately — which teaches copying — one more question comes from the same level.
-  let fillers = 0;
-  const makeFiller = (): Item => {
-    // A round only exists for a level with enough answerable items, so this draw cannot come back
-    // empty; the non-null assertion is the honest form of that guarantee.
+  let extras = 0;
+  const makeItem = (): Item => {
+    // The planned questions have run out but the child is still going: ask the same level again.
+    // A level with no answerable questions cannot get here — the shelf will not offer it — but a
+    // placeholder beats a crash if it ever does.
+    // A level with no answerable questions never reaches here: the shelf does not offer it and
+    // createSession leaves its queue empty, so there is no round to extend.
     const drawn = buildQueue(level, rng)[0]!;
-    fillers += 1;
-    return { ...drawn, key: `${drawn.key}~filler${fillers}`, filler: true };
+    extras += 1;
+    return { ...drawn, key: `${drawn.key}~more${extras}`, extra: true };
   };
 
-  return {
+  const session: Session = {
     levelId: level.id,
     queue,
     answered: 0,
     results: [],
     streak: 0,
     bestStreak: 0,
-    // the round is what the app can ask, not what the data requested
-    total: queue.length,
-    makeFiller,
+    goal: GOAL_CORRECT,
+    correct: 0,
+    ended: false,
+    makeItem,
   };
-}
 
-/** How many correct answers are needed to clear this round. */
-export function clearThreshold(total: number): number {
-  return Math.round(total * 0.8);
-}
-
-export function correctCount(session: Session): number {
-  return session.results.filter((r) => r.correct).length;
-}
-
-/**
- * Correct answers on the FIRST showing of an item.
- *
- * This is the number that decides whether a round was cleared, and the review is why: a round with
- * a miss appends the missed item, the child answers it again, and a plain count of correct verdicts
- * therefore ends at the full total every time. Every round looked perfect, "Good try!" was
- * unreachable through the app, and the 80% threshold could never fail. Counting first attempts is
- * what the threshold was always meant to measure.
- */
-export function firstPassCorrect(session: Session): number {
-  return session.results.filter((r) => r.correct && r.item.retry !== true && r.item.filler !== true).length;
-}
-
-export function isCleared(session: Session): boolean {
-  // an empty round is not a pass: the shelf should have stopped it, and this stops it too
-  if (session.total === 0) return false;
-  return firstPassCorrect(session) >= clearThreshold(session.total);
-}
-
-/** The track fills one step per correct answer; a full track is the celebration. */
-export function trackProgress(session: Session): number {
-  // a re-queued item does not fill a step: the track shows what the child knew first time
-  return Math.min(firstPassCorrect(session), session.total);
-}
-
-export function trackComplete(session: Session): boolean {
-  return trackProgress(session) >= session.total;
+  // nothing to ask: leave the queue empty rather than inventing questions for a level with no screen
+  if (queue.length > 0) ensureNext(session);
+  return session;
 }
 
 export function currentItem(session: Session): Item | undefined {
   return session.queue[session.answered];
 }
 
-export function isFinished(session: Session): boolean {
-  return session.answered >= session.queue.length;
+export function trackProgress(session: Session): number {
+  return Math.min(session.correct, session.goal);
 }
 
-/** How many items must sit between a miss and its return (B2). */
-export const REQUEUE_GAP = 3;
+export function trackComplete(session: Session): boolean {
+  return session.correct >= session.goal;
+}
 
-/**
- * How much practice a single round may invent.
- *
- * Without a ceiling the filler rule amplifies: a miss near the end adds practice, missing the
- * practice adds more, and a child who answers nothing never reaches the end of the round — the
- * review measured 306 questions and still growing. Six is enough to honour the gap twice over.
- */
-export const MAX_FILLERS = 6;
+/** Clearing a level is reaching the goal — the same thing the child sees on the track. */
+export function isCleared(session: Session): boolean {
+  return trackComplete(session);
+}
+
+/** The round is over: the goal was reached, or the adult called it. */
+export function isFinished(session: Session): boolean {
+  return session.ended || trackComplete(session);
+}
+
+/** Right answers given on the first showing of each item — the honest "how did it go" figure. */
+export function firstPassCorrect(session: Session): number {
+  return session.results.filter((r) => r.correct && r.item.retry !== true).length;
+}
 
 /**
  * Record a verdict and return the next session.
  *
- * A wrong answer re-enters the queue at least three positions later (B2), so the child cannot
- * simply be shown the same dial twice and copy the last answer. Appending would satisfy that for a
- * miss early in the round and break it near the end, where the append lands immediately after the
- * next item — so this inserts at `answered + gap`, clamped to the end.
- *
- * `total` is the round's planned length and never changes: the track shows the round, not the
- * queue.
+ * A wrong answer re-enters the queue a few places later, so the child meets the same dial again
+ * rather than being moved past it. There is no cap on attempts: needing another go is the normal
+ * case at four, and the round ends on ten right answers rather than by running out of questions.
  */
 export function recordVerdict(session: Session, correct: boolean): Session {
+  if (isFinished(session)) return session;
   const item = currentItem(session);
   if (!item) return session;
 
   const results = [...session.results, { item, correct }];
   const streak = correct ? session.streak + 1 : 0;
   const answered = session.answered + 1;
+  const right = session.correct + (correct ? 1 : 0);
 
   let queue = session.queue;
-
-  // A missed item is shown at most twice, and practice is not assessed at all.
-  //
-  // Both guards are load-bearing. Re-queueing a filler made a round grow without end; so did
-  // re-queueing a retry, because a child who misses everything simply moved the same item down the
-  // queue for ever (the review measured 306 questions and still counting). A round must end even
-  // for a child who answers nothing, which is what the ceiling in the next line buys.
-  if (!correct && item.retry !== true && item.filler !== true) {
+  if (!correct) {
     const again = { ...item, key: `${item.key}#again`, retry: true };
     const at = answered + REQUEUE_GAP;
 
-    // If the round has fewer than three items left, extend it with practice from the same level.
-    // Without this, a miss on the final item is re-shown immediately - the child copies the answer
-    // they were just told was wrong, which is exactly what B2 exists to prevent.
+    // extend with more of the same level so the missed dial does not come straight back
     const padded = [...queue];
-    const already = padded.filter((queued) => queued.filler === true).length;
-    let invented = 0;
-    while (padded.length < at && already + invented < MAX_FILLERS) {
-      padded.push(session.makeFiller());
-      invented += 1;
-    }
+    while (padded.length < at) padded.push(session.makeItem());
 
-    // if the ceiling bites, the gap is shorter than three rather than the round never ending
-    const insertAt = Math.min(at, padded.length);
-    queue = [...padded.slice(0, insertAt), again, ...padded.slice(insertAt)];
+    queue = [...padded.slice(0, at), again, ...padded.slice(at)];
   }
 
-  return {
+  const next: Session = {
     ...session,
     queue,
     answered,
     results,
     streak,
     bestStreak: Math.max(session.bestStreak, streak),
+    correct: right,
   };
+
+  ensureNext(next);
+  return next;
+}
+
+/** The adult decides the round is over — a level beyond the child, or a tired evening. */
+export function endSession(session: Session): Session {
+  return { ...session, ended: true };
 }
 
 export interface Summary {
   correct: number;
-  total: number;
-  cleared: boolean;
+  goal: number;
+  firstPass: number;
+  reachedGoal: boolean;
+  endedEarly: boolean;
   bestStreak: number;
 }
 
 export function summarise(session: Session): Summary {
   return {
-    correct: firstPassCorrect(session),
-    total: session.total,
-    cleared: isCleared(session),
+    correct: session.correct,
+    goal: session.goal,
+    firstPass: firstPassCorrect(session),
+    reachedGoal: trackComplete(session),
+    endedEarly: session.ended && !trackComplete(session),
     bestStreak: session.bestStreak,
   };
 }
