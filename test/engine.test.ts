@@ -10,6 +10,7 @@ import {
   isFinished,
   recordVerdict,
   REQUEUE_GAP,
+  sameQuestion,
   seededRng,
   SUPPORTED_TASKS,
   summarise,
@@ -249,6 +250,55 @@ describe('misses are not failures', () => {
     // ten right answers, one of them on a second showing
     expect(firstPassCorrect(session)).toBe(REQUEUE_GAP);
     expect(session.correct).toBe(REQUEUE_GAP + 1);
+  });
+});
+
+describe('never the same question twice in a row', () => {
+  it('holds for every level the app can play, over 200 seeds of the planned queue', () => {
+    const offenders: string[] = [];
+    for (const level of LEVELS) {
+      for (let seed = 1; seed <= 200; seed += 1) {
+        const queue = buildQueue(level, seededRng(seed));
+        for (let i = 1; i < queue.length; i += 1) {
+          if (sameQuestion(queue[i], queue[i - 1])) offenders.push(`${level.id} seed ${seed} at ${i}`);
+        }
+      }
+    }
+    expect(offenders.slice(0, 5)).toEqual([]);
+  });
+
+  it('holds while a round is played, where misses are requeued and extras are drawn', () => {
+    const offenders: string[] = [];
+    for (const level of LEVELS) {
+      for (let seed = 1; seed <= 60; seed += 1) {
+        let session = createSession(level, seededRng(seed));
+        for (let step = 0; step < 30; step += 1) {
+          const queue = session.queue;
+          for (let i = session.answered + 1; i < queue.length; i += 1) {
+            if (sameQuestion(queue[i], queue[i - 1])) {
+              offenders.push(`${level.id} seed ${seed} at ${i}`);
+            }
+          }
+          session = recordVerdict(session, step % 5 !== 4); // mostly right, an occasional miss
+        }
+      }
+    }
+    expect(offenders.slice(0, 5)).toEqual([]);
+  });
+
+  it('detects a match at all, or the property tests above prove nothing', () => {
+    const queue = buildQueue(level('t2.2'), seededRng(9));
+    const first = queue[0];
+    if (!first) throw new Error('no items');
+    expect(sameQuestion(first, { ...first })).toBe(true);
+    expect(sameQuestion(first, queue[1])).toBe(false);
+  });
+
+  it('alternates a lap of the dial, so two laps in a row are different questions', () => {
+    const queue = buildQueue(level('t1.1'), seededRng(2));
+    expect(queue[0]?.tap?.sequence).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
+    expect(queue[1]?.tap?.sequence).toEqual([12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    expect(sameQuestion(queue[0], queue[1])).toBe(false);
   });
 });
 

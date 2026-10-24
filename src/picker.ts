@@ -207,9 +207,9 @@ export function renderInstructions(locale: Locale = 'en'): HTMLElement {
     el(
       'p',
       undefined,
-      '粵 is how a clock is spoken in Cantonese — 三點三 for a quarter past three. 中 is how the time is ' +
-        'written, in the style Putonghua reading uses — 三時十五分. They say the same time; one is for ' +
-        'talking and one is for reading.',
+      '粵 is how a clock is spoken — 三點三 for a quarter past three. 中 is how the time is written — ' +
+        '三時十五分 — read aloud in Cantonese. They say the same time; one is how people talk and one is ' +
+        'how a book writes it.',
     ),
   );
 

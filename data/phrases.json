@@ -4,7 +4,7 @@
   "voices": {
     "en": "en-GB-SoniaNeural",
     "yue": "zh-HK-HiuMaanNeural",
-    "zh": "zh-CN-XiaoxiaoNeural"
+    "zh": "zh-HK-HiuMaanNeural"
   },
   "rate": "-12%",
   "ui": [
@@ -775,219 +775,219 @@
     "zh": {
       "prompt-read": {
         "text": "現在是幾時？",
-        "sha256": "5a7269ac5b1c43e15693e8fb592603cb9a5fe6bb67ccc400fb9deb32aefe6573"
+        "sha256": "0e47f2af30249ddb373126d792fd19c1b4fadc84ecb0b7733bc3deae636b6f37"
       },
       "prompt-set": {
         "text": "請做出這個時間。",
-        "sha256": "9cf9d657af1f7deefe54e9b4e8b305d7df45a9c8e6d9162aff20c3af30b69bf7"
+        "sha256": "0d6f375e6a2b73f7e89ad5b5e4340cc4ddcbc295962d2da1a44f2c6e3ca38f67"
       },
       "praise-1": {
         "text": "做得好！",
-        "sha256": "2865be6a3ca37447f3ac6c97482b8674ce1c4e424772ec3155e96904928362f9"
+        "sha256": "a7fca3f1ddd25d8da6dd16e2b51831d212b6030df2ea2b0e122cba83caa08c19"
       },
       "praise-2": {
         "text": "對了！",
-        "sha256": "85cfbc860df5b239343ab8067d5b17a01ef5521b641e01d79e5064dca8693f29"
+        "sha256": "a3820070d6ab804de600e27e936d94685944ecd4ea72fb2cd6d81b6594c992ff"
       },
       "encourage": {
         "text": "再試一次。",
-        "sha256": "b57d8d0f502d8029eebd85310d3fd1a2aaaccceb13ec7cdd4935c150e198b4d9"
+        "sha256": "e33b8b7acbbd3ad44f63693c1bf211ac8156eeb367b9f2bc9a61779c5deb1863"
       },
       "celebrate": {
         "text": "太棒了！",
-        "sha256": "0123f9422a9f08934a062b51caa3163dd182352d9713f8321b054895ba03b3b3"
+        "sha256": "1b994c883641680354c1ca1b1097cf9a6a25031e60c2a964f612d8247446c0a8"
       },
       "oclock-1": {
         "text": "一時正",
-        "sha256": "76476318f50118db0f669d267ca75b699022921dad1a89ee7eeb948b404e0007"
+        "sha256": "bc9202da94deb6814132a1c98835c587e75b866a1b6b7dc9c3d9fc79d4ce469a"
       },
       "half-1": {
         "text": "一時三十分",
-        "sha256": "30e43e91a7ff587a8f40e9b5e63a280d38361df7cac515894b401120801edbb0"
+        "sha256": "f916b01769148325e6db6fad3881433e66f2ee6c905688324f8f0e62e8a8e7c4"
       },
       "qpast-1": {
         "text": "一時十五分",
-        "sha256": "47e59190ff0ce7288e91e1728231d4d7293fd56da4de0866cca82a3e4fa7d7e2"
+        "sha256": "9b9ff911cd6981db91b786d264e8158aa2fd57dcdde8199ae27e6721d4d24c2b"
       },
       "qto-1": {
         "text": "一時四十五分",
-        "sha256": "0ccd43d2201910dc5786fc1caf2a551fb429ebc75c8cb47a37b318cae16955ad"
+        "sha256": "6aa6b80d57dca2f71a182bb2786d7b20a7eb65847d2a9d2122125a4a1256ff9e"
       },
       "oclock-2": {
         "text": "二時正",
-        "sha256": "fc69353be1be6fb878f3aeddb524275a3ab4c7716d82c90178a295744b310450"
+        "sha256": "ea6886434a589582ad44a1585933ca302e4849cc4bc6b87871eaca4bbe10e074"
       },
       "half-2": {
         "text": "二時三十分",
-        "sha256": "f84dc7d63343fd6de299384f166ca58336e0a930f62e06c2e5f4545fcdc18acf"
+        "sha256": "4d9e4c83eca73caf1fb624df290d577ed2f9526cd5a5ed49c993f54011f3a115"
       },
       "qpast-2": {
         "text": "二時十五分",
-        "sha256": "70cc32c10f016869b315269104d45967757051bcb4d82c4ce21e9ab139a8884e"
+        "sha256": "5a6db93099d26dd50d46ded1c9e9747764c49822887b0c9652e421e299d0d083"
       },
       "qto-2": {
         "text": "二時四十五分",
-        "sha256": "9d68106c4d0a001aab7d9b2b226f68db633fef6213f4c126c08e0e91174c0c72"
+        "sha256": "4edcde4acccac3a2d1dd790d4cb0f5260e272f51eee44acbb0b2fc6d80e8be71"
       },
       "oclock-3": {
         "text": "三時正",
-        "sha256": "ceccfbeb608eb8888223179182a7c8d01bde1bfdc282e81a5e1140f514811a1c"
+        "sha256": "174a702774968332b26e552435007ff89007acb29cde6b29c47ba84f100ac17e"
       },
       "half-3": {
         "text": "三時三十分",
-        "sha256": "620a20df4117ee07ebdc19a3f26967066273699001cd0bd8d11da013ca23ee8d"
+        "sha256": "4c5f22f64334fd530681808ec8db4ee3d4ba5fe8af8607c563052f5f6e35cd88"
       },
       "qpast-3": {
         "text": "三時十五分",
-        "sha256": "adeabd8244e17b6b33001f8af3f40741b8763f4be32b0703288547e9625d4072"
+        "sha256": "35e07f97101bfa971cbd02a1cb87d413d29ceb50c4ac9028660d76a166db5116"
       },
       "qto-3": {
         "text": "三時四十五分",
-        "sha256": "b34ece10def19c40742a935ebb9d9ff8c11a4668af60f92677faf9f260039e6e"
+        "sha256": "cbb88dbba1f51d31bfb6c9a525eac7d9279261368ec7be19d63624596ae2d458"
       },
       "oclock-4": {
         "text": "四時正",
-        "sha256": "8ad014fdff94071cb3a4ea6d036c16d9a92b750b623da1dbf9dd78ee216862d9"
+        "sha256": "e669e9da7df8ac5b6408bf3bc04e0e3e1565ed757affa7e516fc24f07b94e10a"
       },
       "half-4": {
         "text": "四時三十分",
-        "sha256": "ee189d4c754974e9b6e2e10905ebe4087f0fab29fc3e28f5c361aeaa6b0c5793"
+        "sha256": "645e4b7183a6774b0ccf6f3f513d3e03df32d0c4ce3a519f79d7576b0bf13634"
       },
       "qpast-4": {
         "text": "四時十五分",
-        "sha256": "a2337730bd2ca805999db9629375035a9e10c17e666b3a15d5b23ae1fde7a132"
+        "sha256": "09f08bb18bd4383c392d036c7ded3984ed102bb6701bb229e6e189ff029af923"
       },
       "qto-4": {
         "text": "四時四十五分",
-        "sha256": "68738957755d10d7e4ac74668bf470245de85a3f0dd6e4e0182e576ad0e4a23d"
+        "sha256": "3be0b7bc1d82e9b3cce86c3d8a707b97a4a9b388c4aeffee462641a4b6849f92"
       },
       "oclock-5": {
         "text": "五時正",
-        "sha256": "eb1aa014d7078b09ea0afc521aef7f03013b5e6a1493348918066f81b94576e3"
+        "sha256": "be569b8ceee37ca180608a39aeb6e6dfb6dbe76d2a096052b56faee21ab5a210"
       },
       "half-5": {
         "text": "五時三十分",
-        "sha256": "7255c22db4fe4cd19af45f62ec923cb7f14ca2111f7a6f2b9856d71836bceba0"
+        "sha256": "8323b28a6053d1495f20a4a34bed75b6d93ba418200eb127f7c414cb6340bbb2"
       },
       "qpast-5": {
         "text": "五時十五分",
-        "sha256": "f7e297547c2c75856b3fe128839ed50607c31be70273487fe941a68912a4b8a1"
+        "sha256": "fcd920c0a293fff21dd19f2a0b25f837a98fc642885f0d5c4097a3b061981ab3"
       },
       "qto-5": {
         "text": "五時四十五分",
-        "sha256": "cf3a2015aedc54bade107f38bd44ffc7da5ece6b5cd8e16c2a97b6773447a1fa"
+        "sha256": "edf92b962416392b2207ff34e84becd9e7de285e2041e51c12b51da3464ab62c"
       },
       "oclock-6": {
         "text": "六時正",
-        "sha256": "92b63bcd00dbb7c76d254f95943f58d73993a8318b1e215ccf8f61a2f68bccae"
+        "sha256": "60e3b484d95f4dfe06c651ca71a246d5efc1fb824f9ff4211dc256694c331100"
       },
       "half-6": {
         "text": "六時三十分",
-        "sha256": "db556eb315d4b0c3cfd0adfc7dceaf96783ad8d94c5fef8b152014077bc66999"
+        "sha256": "4b77f0669f29109062353d70a4922dc304b839faa18be978962feeb90633af70"
       },
       "qpast-6": {
         "text": "六時十五分",
-        "sha256": "7e8d4168af590c435a3c170d114483b43fc4217217e0d5458b19bd8bfa3e4a3e"
+        "sha256": "91d60ebcdce853e7a9f512f831886a8a399d72a883049e2341b2fd655496628d"
       },
       "qto-6": {
         "text": "六時四十五分",
-        "sha256": "06c6eff91efe77cd9f2a75a9363f4ce2058bfd95a8de8daa644e1acabc4545db"
+        "sha256": "1addbd37b8e6fe768e25cbd16e2b8568c8785f49873ca403cb87978a5af2d31a"
       },
       "oclock-7": {
         "text": "七時正",
-        "sha256": "5919117d31f6027311176e109b2982f30c085ce0a47859594e16b2207e6172ce"
+        "sha256": "dd467a72b2674b85c738495ec77552558cf1c486b56b145e553c8aed5fa94836"
       },
       "half-7": {
         "text": "七時三十分",
-        "sha256": "f106feaaa9ada2f07e9ee89d06ffdd73db6e0d76c30cd9a9b327594ce3b8f126"
+        "sha256": "7cdd3f58cc7c7522f32f83df8f6acb85779fe1abe7b63dcfff68359afd5fb365"
       },
       "qpast-7": {
         "text": "七時十五分",
-        "sha256": "24bbe1077839883d3da30feddcf4754e9ce553e3a2bd5df32890eac8188f24fc"
+        "sha256": "9d8831acd3d32e7e070d42c83d2ef4ce49b47e891a34c499bbd6d5e8b4319a71"
       },
       "qto-7": {
         "text": "七時四十五分",
-        "sha256": "5094ef2f151e45540c608e4896069d94279a6beca570a136f3fdf9abc5d9124e"
+        "sha256": "75c3d2098f1eeaa1ce8533c548941b7641271e8a8270bff6444015b9fc3a7fb0"
       },
       "oclock-8": {
         "text": "八時正",
-        "sha256": "d33bdf82e729de27c4c209cbc100de821343048c7a8db8796abfbf4b4ff1874c"
+        "sha256": "d76d67bfac13fb6a4f8ca9a694e485720f7d9df28cc0b94082d457ce1c870eb5"
       },
       "half-8": {
         "text": "八時三十分",
-        "sha256": "5b14092ab2c1a9a3e5d2e0b4ee1f55164c0e27eccd29db3845e4f6ffaa4c06b3"
+        "sha256": "2929d330c3538e3bdf590891c522c681b905f29c5d50fe74f4e27f4eb76a65af"
       },
       "qpast-8": {
         "text": "八時十五分",
-        "sha256": "f732e55974186e2b680825159391e42f14ddfbdc7fe235500fdb25b8fff73af8"
+        "sha256": "3bab75fb17fb3307f02d27dbeeb25766b00851bc32bb83d3702f11492fecfcf0"
       },
       "qto-8": {
         "text": "八時四十五分",
-        "sha256": "84fb6541ae6da113e63e41c950e3de54e7fe7e9b86dda1a164dccd3cba091eac"
+        "sha256": "eb65984cfc737bf8c5588163839159af4d57769ccc601febe76d74a5efd9af1a"
       },
       "oclock-9": {
         "text": "九時正",
-        "sha256": "4cb39dbb0741332e322dc0336a0716ea90083a8481b4d574426a01bd76d61bd9"
+        "sha256": "ae066c34f7c90c9029fcb368905284de8d7d068f6bd4b29272c12a8802cc990d"
       },
       "half-9": {
         "text": "九時三十分",
-        "sha256": "17b16cb10eb6895bec8415dfcc1fa0fdd6055d0908e1aebd89a73e154663be8d"
+        "sha256": "3422cfd0a6909ceb7951c9afba27e604d9b9aaf768ee74fc40810bf2fddaf7ff"
       },
       "qpast-9": {
         "text": "九時十五分",
-        "sha256": "dd89c77c54343e7384483cc5e07cc67bcad939f7ef41a70c88df1d0d88b7012d"
+        "sha256": "f2007bd86035a2eca5f620aced1866881ea46aad2730eb106b4e3cf5caf25c5b"
       },
       "qto-9": {
         "text": "九時四十五分",
-        "sha256": "391dff915e6e978536478a3965b3a72caf59452ae38e7f2c140547f28283971a"
+        "sha256": "789d2856df17e9b1134d62dc758179e486a86118f617c049ff08d6d0f05ecd88"
       },
       "oclock-10": {
         "text": "十時正",
-        "sha256": "8436f05267eb9fbdb6a1f279c0916146edb5357357d8f7a47129dcbb6ad2d4c8"
+        "sha256": "4e3b25b1b676356e6466e9cf47bf2e49473d628034d262d127ecfa2bd33e962c"
       },
       "half-10": {
         "text": "十時三十分",
-        "sha256": "0bfaa652cfaf787758cae013392b00d74297c8967f6b50d8cda0c27d5e77949d"
+        "sha256": "e1d6d4af51683d78265541c733dc72832aa016439a1ca78db4d55e3d5ec9aca2"
       },
       "qpast-10": {
         "text": "十時十五分",
-        "sha256": "e6c36253b0f924ceea1f61212f5888b779deb46fe1d1f385a50f0eb9424535fa"
+        "sha256": "cdfd5481c99f78466342f5ce39aaa0dd87ef87fe532d18a0330e43e0c77f700c"
       },
       "qto-10": {
         "text": "十時四十五分",
-        "sha256": "1ed60bb1a420edfb0775161c5e5ea712172495661b8abcaa854d19001e8fc289"
+        "sha256": "1c8b352d4efbd372834584aa6ddb508c691040dc7cb58261f234b6aa394597dc"
       },
       "oclock-11": {
         "text": "十一時正",
-        "sha256": "d8a5810c4e92e87565e5d4b3cc95e08ded2f9c432db52460e923c7266d9690fc"
+        "sha256": "1cb1b4fa9fb8915db7db0b4451f1f606c181b536b1d978a5d0771f3e16dd6fc3"
       },
       "half-11": {
         "text": "十一時三十分",
-        "sha256": "b20ccf69765ebf417e0b15c0590c5ba0e07159bec1ee1bbe338716ce7867733f"
+        "sha256": "a03c10ea73198a0dad45189e6680e2114022e30b4c8cb318f81bee1b382faffb"
       },
       "qpast-11": {
         "text": "十一時十五分",
-        "sha256": "a5c9c28e8b09486add2666b69ed5907f3962a8728300fde9ad6a46557de931c0"
+        "sha256": "9b6a3bf853d0195e0f8fdf71ddd9616aa7c8c630abbf2b547214a648a7b7352e"
       },
       "qto-11": {
         "text": "十一時四十五分",
-        "sha256": "659a8386bd530c5efda986406b333ade833586cb8dbadd1c3a25effdf79e1620"
+        "sha256": "902bc2725bf7d2ea44649bdf218e028b8f16e3afe213ad981d5c7e1ec557b103"
       },
       "oclock-12": {
         "text": "十二時正",
-        "sha256": "39c546e03407901b0aa2aac7636b25b77a035064b797d32f36a0a42177280aeb"
+        "sha256": "a93a24615b72ff293687d1b37badec86b0bcf949a85853a584e3f74d41efd717"
       },
       "half-12": {
         "text": "十二時三十分",
-        "sha256": "fa1c42478ac01dba488adeb93aa34be1789650424a6eb76901ecb1fa8b1d90cd"
+        "sha256": "69b70de93a19a41a949c39c8c2f4bde498432768302e391f2d8acd8128a4b14e"
       },
       "qpast-12": {
         "text": "十二時十五分",
-        "sha256": "ae77ff3507d63046cc2f597349fb1b8f457bb1113c2aa77a7aa04b04605afff8"
+        "sha256": "3a5744fda6dab5e032297a856b0a4b608ca0aa5cf93df94e5ee4cb15f3da4fdc"
       },
       "qto-12": {
         "text": "十二時四十五分",
-        "sha256": "a99f67f76fb879a525519809b3ed765313f4c7a1f8e5d1f92ea20de3a2236a87"
+        "sha256": "c1225d96dd0bea9127bdb7a9375e66e9de50ec29c7a0e76838efb6a96b1c5b76"
       }
     }
   }

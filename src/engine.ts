@@ -228,8 +228,10 @@ export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer
       if (step.task === 'tap') {
         const spec = tapSpec(level.content);
         if (!spec) continue;
-        // one lap is one item: the child takes a whole turn of the dial, not one number
-        queue.push({ task: 'tap', tap: spec, key: `tap:${stepIndex}.${i}` });
+        // One lap is one item. Alternating the direction means two laps in a row are never the same
+        // question, and going round the other way is itself worth learning on a clock.
+        const sequence = i % 2 === 1 ? [...spec.sequence].reverse() : spec.sequence;
+        queue.push({ task: 'tap', tap: { ...spec, sequence }, key: `tap:${stepIndex}.${i}` });
         continue;
       }
 
@@ -270,9 +272,12 @@ function orderKey(item: Item): string | undefined {
   return item.cards?.map((card) => card.id).join(',');
 }
 
-function sameQuestion(a: Item | undefined, b: Item | undefined): boolean {
+export function sameQuestion(a: Item | undefined, b: Item | undefined): boolean {
   if (!a || !b) return false;
   if (sameTime(a.time, b.time)) return true;
+  if (a.tap && b.tap) {
+    return a.tap.target === b.tap.target && a.tap.sequence.join(',') === b.tap.sequence.join(',');
+  }
   if (a.task === 'order' && b.task === 'order') {
     const key = orderKey(a);
     return key !== undefined && key === orderKey(b);
