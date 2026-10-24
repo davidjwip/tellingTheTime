@@ -1,7 +1,16 @@
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS } from '../src/levels';
-import { bankForTier, firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from '../src/picker';
+import {
+  bankForTier,
+  firstPlayable,
+  levelFromClick,
+  renderInstructions,
+  renderPicker,
+  resolveStartLevel,
+  shelve,
+  TIER_TITLES,
+} from '../src/picker';
 import { DEFAULT_PROGRESS } from '../src/progress';
 
 import type { Level } from '../src/types';
@@ -193,14 +202,46 @@ describe('the shelf', () => {
     expect(bankForTier(LEVELS, DEFAULT_PROGRESS, 1)).toBeNull();
   });
 
-  it('prints the exercises under the tier, because a title never opens on an iPad', () => {
+  it('makes the tier name itself the button, with no heading above it', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     for (const tier of [0, 2, 3, 4]) {
-      const note = screen.querySelector(`section[data-tier="${tier}"] .tier-note`);
-      const names = LEVELS.filter((l) => l.tier === tier).map((l) => l.title.en);
-      expect(note, `tier ${tier}`).not.toBeNull();
-      for (const name of names) expect(note?.textContent, `tier ${tier}`).toContain(name);
+      const section = screen.querySelector(`section[data-tier="${tier}"]`);
+      expect(section?.querySelector('h2'), `tier ${tier} heading`).toBeNull();
+      expect(section?.querySelector('p'), `tier ${tier} description`).toBeNull();
+      // the one control in the section is a button wearing the tier's name
+      const controls = [...(section?.querySelectorAll('button') ?? [])];
+      expect(controls, `tier ${tier} controls`).toHaveLength(1);
+      expect(controls[0]?.textContent).toContain(TIER_TITLES[tier]);
     }
+  });
+
+  it('colours Start as the primary action, not a level', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    const start = screen.querySelector('[data-action="start"]');
+    expect(start?.classList.contains('primary')).toBe(true);
+  });
+
+  it('marks only the chosen language, and never with an answer colour', () => {
+    const yue = renderPicker(shelved, { ...DEFAULT_PROGRESS, locale: 'yue' });
+    const chosen = yue.querySelector('[data-locale="yue"]');
+    const other = yue.querySelector('[data-locale="en"]');
+    expect(chosen?.classList.contains('operator-active')).toBe(true);
+    expect(chosen?.getAttribute('aria-pressed')).toBe('true');
+    expect(other?.classList.contains('operator-active')).toBe(false);
+    expect(other?.getAttribute('aria-pressed')).toBe('false');
+    // red means "wrong answer" in this app, so no language control may carry it
+    for (const button of [chosen, other]) {
+      expect(button?.className).not.toMatch(/wrong|red/);
+    }
+  });
+
+  it('tells a parent what the app is, and what each tier teaches', () => {
+    const panel = renderInstructions();
+    const text = panel.textContent ?? '';
+    for (const tier of [0, 2, 3, 4]) expect(text).toContain(TIER_TITLES[tier]);
+    expect(text).toContain('ten right answers');
+    expect(text.toLowerCase()).toContain('on this device');
+    expect(panel.querySelector('[data-action="close-instructions"]')).not.toBeNull();
   });
 
   it('keeps the exercises out of the buttons and inside the entry tooltip', () => {

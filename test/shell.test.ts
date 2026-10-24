@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { LEVELS } from '../src/levels';
 import { createShell } from '../src/shell';
@@ -81,6 +81,46 @@ describe('the shell decides what a click means', () => {
     const fresh = createShell({ app, overlayRoot, store, levels: LEVELS, speaker });
     fresh.start('t0.1');
     expect(app.querySelector('.problem-area')).not.toBeNull();
+  });
+
+  it('opens the parent instructions, and closes them on Close and on Escape', () => {
+    shell().start(null);
+    click('[data-action="instructions"]');
+    expect(overlayRoot.querySelector('[data-action="close-instructions"]')).not.toBeNull();
+
+    click('[data-action="close-instructions"]');
+    expect(overlayRoot.textContent).toBe('');
+
+    click('[data-action="instructions"]');
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    expect(document.body.textContent).not.toContain('ten right answers');
+  });
+
+  it('ignores clicks and keys that belong to nothing', () => {
+    shell().start(null);
+    const stray = document.createElement('span');
+    overlayRoot.append(stray);
+    stray.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
+    expect(app.querySelector('.picker')).not.toBeNull();
+  });
+
+  it('reveals a tier\'s exercises on a long press, and does not start the round', () => {
+    vi.useFakeTimers();
+    try {
+      shell().start(null);
+      const door = app.querySelector<HTMLElement>('[data-tier-entry]')!;
+
+      door.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      vi.advanceTimersByTime(450);
+      expect(door.dataset.tip).toBe('true');
+
+      // the press that revealed the tooltip must not also open the tier
+      door.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 40, clientY: 300 }));
+      expect(app.querySelector('.picker')).not.toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('returns to the shelf from a tier round', () => {
