@@ -272,6 +272,12 @@ describe('the shelf', () => {
     expect(screen.querySelector('[data-action="instructions"]')?.textContent).toBe('How to use');
   });
 
+  it('shows the sample words in the chosen register, not just a speaker icon', () => {
+    expect(renderInstructions('zh').textContent).toContain('三時十五分');
+    expect(renderInstructions('yue').textContent).toContain('三點三');
+    expect(renderInstructions('en').textContent).toContain('quarter past three');
+  });
+
   it('explains the spoken and written registers, and lets a parent hear both', () => {
     const panel = renderInstructions();
     const text = panel.textContent ?? '';

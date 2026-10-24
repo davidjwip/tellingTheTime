@@ -25,6 +25,8 @@ export interface PlayOptions {
   done?: readonly number[];
   /** The value the child should touch next, so the dial can hint at it. */
   next?: number;
+  /** True when the item has a spoken question, so the repeat button is honest. */
+  canSay?: boolean;
   /** Where "Change level" goes. Injected so the action can be tested without navigating. */
   onChangeLevel?: (level: Level) => void;
   /** What the adult just said, so the feedback line can show it. */
@@ -68,11 +70,17 @@ function header(level: Level, options: PlayOptions): HTMLElement {
     toggle.append(button);
   }
 
-  // Reading the time out loud again, for the adult. It repeats the question, never the answer.
-  const sayButton = el('button', 'action-btn small', '🔊');
-  sayButton.dataset.action = 'say';
-  sayButton.setAttribute('aria-label', 'Say the question again');
-  actions.append(toggle, sayButton);
+  // Repeating the question is only possible where there is a question. On a tap, choose or order
+  // screen there is nothing to say, and a button that is present but inert is a lie - the same rule
+  // this file states two lines below about the placeholder controls.
+  if (options.canSay) {
+    const sayButton = el('button', 'action-btn small', '🔊 Say it');
+    sayButton.dataset.action = 'say';
+    sayButton.setAttribute('aria-label', 'Say the question again');
+    actions.append(toggle, sayButton);
+  } else {
+    actions.append(toggle);
+  }
 
   // Sound and profile have no screen yet. They are disabled rather than inert: a button that looks
   // pressable and does nothing teaches a child that the app is unresponsive (and is a lie to the adult).
@@ -131,12 +139,12 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const container = el('div', 'container');
   container.dataset.level = level.id;
 
-  container.append(header(level, options));
 
   const main = el('main');
   const panel = el('div', 'problem-area');
 
   const item = currentItem(session);
+  container.append(header(level, { ...options, canSay: item?.task === 'read' }));
   // A choice and an order are both checkable, so the app marks them. There is no pad on either
   // screen on purpose: a ✓/✗ pair would ask the adult to re-mark something the app already knows.
   const choosing = item?.answer !== undefined;
@@ -147,8 +155,10 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
     panel.append(el('div', 'prompt', promptFor(item, item.task)));
     const frame = el('div', 'clock-frame tap-frame');
     if (level.face) frame.append(renderFace(item.time ?? { hour: 12, minute: 0 }, level.face));
-    // One pass over both rings: whatever the child has already touched stays marked after a redraw.
-    for (const node of frame.querySelectorAll<HTMLElement>('[data-numeral], [data-minute-label="true"]')) {
+    // Only the ring the lap is asking about. Marking both turned the hour numerals 5 and 10 green
+    // during a fives lap, which is a mark the child never earned on a ring he is not being asked about.
+    const lapRing = item.tap?.target === 'numerals' ? '[data-numeral]' : '[data-minute-label="true"]';
+    for (const node of frame.querySelectorAll<HTMLElement>(lapRing)) {
       const value = Number(node.dataset.value ?? node.dataset.numeral ?? node.textContent?.trim());
       if ((options.done ?? []).includes(value)) node.dataset.done = 'true';
     }

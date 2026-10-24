@@ -319,7 +319,7 @@ describe('what a tap does', () => {
     expect(app.querySelector('[data-numeral="3"]')?.getAttribute('data-done')).toBeNull();
   });
 
-  it('does nothing when the speaker button is pressed on a screen with no question', () => {
+  it('has no speaker button where there is no question to repeat', () => {
     const said: string[] = [];
     const speaker = {
       say: (key: string | undefined) => {
@@ -331,8 +331,9 @@ describe('what a tap does', () => {
     } as unknown as import('../src/audio').Speaker;
 
     mountPlay(app, overlayRoot, level('t0.2'), { speaker }); // a choose screen: nothing to read out
+    // the button is absent rather than present and inert, which this codebase calls a lie
+    expect(app.querySelector('[data-action="say"]')).toBeNull();
     said.length = 0;
-    tap('[data-action="say"]');
     expect(said).toEqual([]);
   });
 

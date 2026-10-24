@@ -123,7 +123,7 @@ export function createShell(deps: ShellDeps): Shell {
 
   const openInstructions = (opener: HTMLElement | null): void => {
     instructionsOpener = opener;
-    overlayRoot.replaceChildren(renderInstructions());
+    overlayRoot.replaceChildren(renderInstructions(progress.locale));
     // the panel must take focus, or a keyboard user stays behind a modal dialog
     overlayRoot.querySelector<HTMLElement>('[data-action="close-instructions"]')?.focus();
   };

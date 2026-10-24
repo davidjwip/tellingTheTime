@@ -8,8 +8,10 @@
  * makes the shelf a to-do list rather than a lie.
  */
 
+import { phraseFor } from './audio';
 import { canPresent } from './engine';
 
+import type { Locale } from './audio';
 import type { TierBank } from './engine';
 
 import { NAME_MAX } from './progress';
@@ -154,7 +156,7 @@ export function bankForTier(
 }
 
 /** The grown-up's page: what this is, what each tier teaches, how a round works, and where the name goes. */
-export function renderInstructions(): HTMLElement {
+export function renderInstructions(locale: Locale = 'en'): HTMLElement {
   // The dimming layer is the element that covers the screen; the card sits inside it. Putting the
   // fixed backdrop on the card itself made the transform create a containing block, so the dim
   // covered only the card and the page stayed clickable behind a modal dialog.
@@ -212,9 +214,12 @@ export function renderInstructions(): HTMLElement {
   );
 
   // A parent asking "how is this said?" should be able to hear it rather than take our word for it.
+  // Each sample shows the words it will say, in the register currently chosen: otherwise the
+  // language buttons look like they change nothing on this screen.
   const sayRow = el('div', 'say-row');
   for (const [key, label] of [['oclock-3', '3:00'], ['qpast-3', '3:15'], ['qto-3', '3:45']] as const) {
-    const button = el('button', 'action-btn small say-btn', `🔊 ${label}`);
+    const words = phraseFor(key)?.[locale] ?? '';
+    const button = el('button', 'action-btn small say-btn', `🔊 ${label} · ${words}`);
     button.dataset.say = key;
     sayRow.append(button);
   }
