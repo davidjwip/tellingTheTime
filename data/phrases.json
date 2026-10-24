@@ -3,281 +3,336 @@
   "note": "One source of truth: the app reads this for wording, the generator reads it for clips, and a test asserts every key has both files.",
   "voices": {
     "en": "en-GB-SoniaNeural",
-    "yue": "zh-HK-HiuMaanNeural"
+    "yue": "zh-HK-HiuMaanNeural",
+    "zh": "zh-CN-XiaoxiaoNeural"
   },
   "rate": "-12%",
   "ui": [
     {
       "key": "prompt-read",
       "en": "What time is it?",
-      "yue": "而家幾點呀？"
+      "yue": "而家幾點呀？",
+      "zh": "現在幾點？"
     },
     {
       "key": "prompt-set",
       "en": "Can you make this time?",
-      "yue": "可唔可以整到呢個時間？"
+      "yue": "可唔可以整到呢個時間？",
+      "zh": "可以做出這個時間嗎？"
     },
     {
       "key": "praise-1",
       "en": "Well done!",
-      "yue": "好叻呀！"
+      "yue": "好叻呀！",
+      "zh": "做得好！"
     },
     {
       "key": "praise-2",
       "en": "That's it!",
-      "yue": "啱喇！"
+      "yue": "啱喇！",
+      "zh": "對了！"
     },
     {
       "key": "encourage",
       "en": "Let's try that one again.",
-      "yue": "再試多次啦。"
+      "yue": "再試多次啦。",
+      "zh": "再試一次。"
     },
     {
       "key": "celebrate",
       "en": "Amazing job!",
-      "yue": "好犀利呀！"
+      "yue": "好犀利呀！",
+      "zh": "太棒了！"
     }
   ],
   "chrono": [
     {
       "key": "oclock-1",
       "en": "one o'clock",
-      "yue": "一點鐘"
+      "yue": "一點鐘",
+      "zh": "一時正"
     },
     {
       "key": "half-1",
       "en": "half past one",
-      "yue": "一點半"
+      "yue": "一點半",
+      "zh": "一時三十分"
     },
     {
       "key": "qpast-1",
       "en": "quarter past one",
-      "yue": "一點三"
+      "yue": "一點三",
+      "zh": "一時十五分"
     },
     {
       "key": "qto-1",
       "en": "quarter to two",
-      "yue": "一點九"
+      "yue": "一點九",
+      "zh": "一時四十五分"
     },
     {
       "key": "oclock-2",
       "en": "two o'clock",
-      "yue": "兩點鐘"
+      "yue": "兩點鐘",
+      "zh": "二時正"
     },
     {
       "key": "half-2",
       "en": "half past two",
-      "yue": "兩點半"
+      "yue": "兩點半",
+      "zh": "二時三十分"
     },
     {
       "key": "qpast-2",
       "en": "quarter past two",
-      "yue": "兩點三"
+      "yue": "兩點三",
+      "zh": "二時十五分"
     },
     {
       "key": "qto-2",
       "en": "quarter to three",
-      "yue": "兩點九"
+      "yue": "兩點九",
+      "zh": "二時四十五分"
     },
     {
       "key": "oclock-3",
       "en": "three o'clock",
-      "yue": "三點鐘"
+      "yue": "三點鐘",
+      "zh": "三時正"
     },
     {
       "key": "half-3",
       "en": "half past three",
-      "yue": "三點半"
+      "yue": "三點半",
+      "zh": "三時三十分"
     },
     {
       "key": "qpast-3",
       "en": "quarter past three",
-      "yue": "三點三"
+      "yue": "三點三",
+      "zh": "三時十五分"
     },
     {
       "key": "qto-3",
       "en": "quarter to four",
-      "yue": "三點九"
+      "yue": "三點九",
+      "zh": "三時四十五分"
     },
     {
       "key": "oclock-4",
       "en": "four o'clock",
-      "yue": "四點鐘"
+      "yue": "四點鐘",
+      "zh": "四時正"
     },
     {
       "key": "half-4",
       "en": "half past four",
-      "yue": "四點半"
+      "yue": "四點半",
+      "zh": "四時三十分"
     },
     {
       "key": "qpast-4",
       "en": "quarter past four",
-      "yue": "四點三"
+      "yue": "四點三",
+      "zh": "四時十五分"
     },
     {
       "key": "qto-4",
       "en": "quarter to five",
-      "yue": "四點九"
+      "yue": "四點九",
+      "zh": "四時四十五分"
     },
     {
       "key": "oclock-5",
       "en": "five o'clock",
-      "yue": "五點鐘"
+      "yue": "五點鐘",
+      "zh": "五時正"
     },
     {
       "key": "half-5",
       "en": "half past five",
-      "yue": "五點半"
+      "yue": "五點半",
+      "zh": "五時三十分"
     },
     {
       "key": "qpast-5",
       "en": "quarter past five",
-      "yue": "五點三"
+      "yue": "五點三",
+      "zh": "五時十五分"
     },
     {
       "key": "qto-5",
       "en": "quarter to six",
-      "yue": "五點九"
+      "yue": "五點九",
+      "zh": "五時四十五分"
     },
     {
       "key": "oclock-6",
       "en": "six o'clock",
-      "yue": "六點鐘"
+      "yue": "六點鐘",
+      "zh": "六時正"
     },
     {
       "key": "half-6",
       "en": "half past six",
-      "yue": "六點半"
+      "yue": "六點半",
+      "zh": "六時三十分"
     },
     {
       "key": "qpast-6",
       "en": "quarter past six",
-      "yue": "六點三"
+      "yue": "六點三",
+      "zh": "六時十五分"
     },
     {
       "key": "qto-6",
       "en": "quarter to seven",
-      "yue": "六點九"
+      "yue": "六點九",
+      "zh": "六時四十五分"
     },
     {
       "key": "oclock-7",
       "en": "seven o'clock",
-      "yue": "七點鐘"
+      "yue": "七點鐘",
+      "zh": "七時正"
     },
     {
       "key": "half-7",
       "en": "half past seven",
-      "yue": "七點半"
+      "yue": "七點半",
+      "zh": "七時三十分"
     },
     {
       "key": "qpast-7",
       "en": "quarter past seven",
-      "yue": "七點三"
+      "yue": "七點三",
+      "zh": "七時十五分"
     },
     {
       "key": "qto-7",
       "en": "quarter to eight",
-      "yue": "七點九"
+      "yue": "七點九",
+      "zh": "七時四十五分"
     },
     {
       "key": "oclock-8",
       "en": "eight o'clock",
-      "yue": "八點鐘"
+      "yue": "八點鐘",
+      "zh": "八時正"
     },
     {
       "key": "half-8",
       "en": "half past eight",
-      "yue": "八點半"
+      "yue": "八點半",
+      "zh": "八時三十分"
     },
     {
       "key": "qpast-8",
       "en": "quarter past eight",
-      "yue": "八點三"
+      "yue": "八點三",
+      "zh": "八時十五分"
     },
     {
       "key": "qto-8",
       "en": "quarter to nine",
-      "yue": "八點九"
+      "yue": "八點九",
+      "zh": "八時四十五分"
     },
     {
       "key": "oclock-9",
       "en": "nine o'clock",
-      "yue": "九點鐘"
+      "yue": "九點鐘",
+      "zh": "九時正"
     },
     {
       "key": "half-9",
       "en": "half past nine",
-      "yue": "九點半"
+      "yue": "九點半",
+      "zh": "九時三十分"
     },
     {
       "key": "qpast-9",
       "en": "quarter past nine",
-      "yue": "九點三"
+      "yue": "九點三",
+      "zh": "九時十五分"
     },
     {
       "key": "qto-9",
       "en": "quarter to ten",
-      "yue": "九點九"
+      "yue": "九點九",
+      "zh": "九時四十五分"
     },
     {
       "key": "oclock-10",
       "en": "ten o'clock",
-      "yue": "十點鐘"
+      "yue": "十點鐘",
+      "zh": "十時正"
     },
     {
       "key": "half-10",
       "en": "half past ten",
-      "yue": "十點半"
+      "yue": "十點半",
+      "zh": "十時三十分"
     },
     {
       "key": "qpast-10",
       "en": "quarter past ten",
-      "yue": "十點三"
+      "yue": "十點三",
+      "zh": "十時十五分"
     },
     {
       "key": "qto-10",
       "en": "quarter to eleven",
-      "yue": "十點九"
+      "yue": "十點九",
+      "zh": "十時四十五分"
     },
     {
       "key": "oclock-11",
       "en": "eleven o'clock",
-      "yue": "十一點鐘"
+      "yue": "十一點鐘",
+      "zh": "十一時正"
     },
     {
       "key": "half-11",
       "en": "half past eleven",
-      "yue": "十一點半"
+      "yue": "十一點半",
+      "zh": "十一時三十分"
     },
     {
       "key": "qpast-11",
       "en": "quarter past eleven",
-      "yue": "十一點三"
+      "yue": "十一點三",
+      "zh": "十一時十五分"
     },
     {
       "key": "qto-11",
       "en": "quarter to twelve",
-      "yue": "十一點九"
+      "yue": "十一點九",
+      "zh": "十一時四十五分"
     },
     {
       "key": "oclock-12",
       "en": "twelve o'clock",
-      "yue": "十二點鐘"
+      "yue": "十二點鐘",
+      "zh": "十二時正"
     },
     {
       "key": "half-12",
       "en": "half past twelve",
-      "yue": "十二點半"
+      "yue": "十二點半",
+      "zh": "十二時三十分"
     },
     {
       "key": "qpast-12",
       "en": "quarter past twelve",
-      "yue": "十二點三"
+      "yue": "十二點三",
+      "zh": "十二時十五分"
     },
     {
       "key": "qto-12",
       "en": "quarter to one",
-      "yue": "十二點九"
+      "yue": "十二點九",
+      "zh": "十二時四十五分"
     }
   ],
   "clips": {
@@ -715,6 +770,224 @@
       "qto-12": {
         "text": "十二點九",
         "sha256": "1dca808f61eebfcef6fcba62a3ed38b98cc7c479b805c5f9e8570f5a7e02b8e7"
+      }
+    },
+    "zh": {
+      "prompt-read": {
+        "text": "現在幾點？",
+        "sha256": "40df60b9f4f151e512ab4bab63fb3463d41a52cde4874165eb5c3cd16815d50c"
+      },
+      "prompt-set": {
+        "text": "可以做出這個時間嗎？",
+        "sha256": "0d49ff05ba05ca6e84ca6b67353439fa7c5eca59c172a597590cca6743aa5efb"
+      },
+      "praise-1": {
+        "text": "做得好！",
+        "sha256": "2865be6a3ca37447f3ac6c97482b8674ce1c4e424772ec3155e96904928362f9"
+      },
+      "praise-2": {
+        "text": "對了！",
+        "sha256": "85cfbc860df5b239343ab8067d5b17a01ef5521b641e01d79e5064dca8693f29"
+      },
+      "encourage": {
+        "text": "再試一次。",
+        "sha256": "b57d8d0f502d8029eebd85310d3fd1a2aaaccceb13ec7cdd4935c150e198b4d9"
+      },
+      "celebrate": {
+        "text": "太棒了！",
+        "sha256": "0123f9422a9f08934a062b51caa3163dd182352d9713f8321b054895ba03b3b3"
+      },
+      "oclock-1": {
+        "text": "一時正",
+        "sha256": "76476318f50118db0f669d267ca75b699022921dad1a89ee7eeb948b404e0007"
+      },
+      "half-1": {
+        "text": "一時三十分",
+        "sha256": "30e43e91a7ff587a8f40e9b5e63a280d38361df7cac515894b401120801edbb0"
+      },
+      "qpast-1": {
+        "text": "一時十五分",
+        "sha256": "47e59190ff0ce7288e91e1728231d4d7293fd56da4de0866cca82a3e4fa7d7e2"
+      },
+      "qto-1": {
+        "text": "一時四十五分",
+        "sha256": "0ccd43d2201910dc5786fc1caf2a551fb429ebc75c8cb47a37b318cae16955ad"
+      },
+      "oclock-2": {
+        "text": "二時正",
+        "sha256": "fc69353be1be6fb878f3aeddb524275a3ab4c7716d82c90178a295744b310450"
+      },
+      "half-2": {
+        "text": "二時三十分",
+        "sha256": "f84dc7d63343fd6de299384f166ca58336e0a930f62e06c2e5f4545fcdc18acf"
+      },
+      "qpast-2": {
+        "text": "二時十五分",
+        "sha256": "70cc32c10f016869b315269104d45967757051bcb4d82c4ce21e9ab139a8884e"
+      },
+      "qto-2": {
+        "text": "二時四十五分",
+        "sha256": "9d68106c4d0a001aab7d9b2b226f68db633fef6213f4c126c08e0e91174c0c72"
+      },
+      "oclock-3": {
+        "text": "三時正",
+        "sha256": "ceccfbeb608eb8888223179182a7c8d01bde1bfdc282e81a5e1140f514811a1c"
+      },
+      "half-3": {
+        "text": "三時三十分",
+        "sha256": "620a20df4117ee07ebdc19a3f26967066273699001cd0bd8d11da013ca23ee8d"
+      },
+      "qpast-3": {
+        "text": "三時十五分",
+        "sha256": "adeabd8244e17b6b33001f8af3f40741b8763f4be32b0703288547e9625d4072"
+      },
+      "qto-3": {
+        "text": "三時四十五分",
+        "sha256": "b34ece10def19c40742a935ebb9d9ff8c11a4668af60f92677faf9f260039e6e"
+      },
+      "oclock-4": {
+        "text": "四時正",
+        "sha256": "8ad014fdff94071cb3a4ea6d036c16d9a92b750b623da1dbf9dd78ee216862d9"
+      },
+      "half-4": {
+        "text": "四時三十分",
+        "sha256": "ee189d4c754974e9b6e2e10905ebe4087f0fab29fc3e28f5c361aeaa6b0c5793"
+      },
+      "qpast-4": {
+        "text": "四時十五分",
+        "sha256": "a2337730bd2ca805999db9629375035a9e10c17e666b3a15d5b23ae1fde7a132"
+      },
+      "qto-4": {
+        "text": "四時四十五分",
+        "sha256": "68738957755d10d7e4ac74668bf470245de85a3f0dd6e4e0182e576ad0e4a23d"
+      },
+      "oclock-5": {
+        "text": "五時正",
+        "sha256": "eb1aa014d7078b09ea0afc521aef7f03013b5e6a1493348918066f81b94576e3"
+      },
+      "half-5": {
+        "text": "五時三十分",
+        "sha256": "7255c22db4fe4cd19af45f62ec923cb7f14ca2111f7a6f2b9856d71836bceba0"
+      },
+      "qpast-5": {
+        "text": "五時十五分",
+        "sha256": "f7e297547c2c75856b3fe128839ed50607c31be70273487fe941a68912a4b8a1"
+      },
+      "qto-5": {
+        "text": "五時四十五分",
+        "sha256": "cf3a2015aedc54bade107f38bd44ffc7da5ece6b5cd8e16c2a97b6773447a1fa"
+      },
+      "oclock-6": {
+        "text": "六時正",
+        "sha256": "92b63bcd00dbb7c76d254f95943f58d73993a8318b1e215ccf8f61a2f68bccae"
+      },
+      "half-6": {
+        "text": "六時三十分",
+        "sha256": "db556eb315d4b0c3cfd0adfc7dceaf96783ad8d94c5fef8b152014077bc66999"
+      },
+      "qpast-6": {
+        "text": "六時十五分",
+        "sha256": "7e8d4168af590c435a3c170d114483b43fc4217217e0d5458b19bd8bfa3e4a3e"
+      },
+      "qto-6": {
+        "text": "六時四十五分",
+        "sha256": "06c6eff91efe77cd9f2a75a9363f4ce2058bfd95a8de8daa644e1acabc4545db"
+      },
+      "oclock-7": {
+        "text": "七時正",
+        "sha256": "5919117d31f6027311176e109b2982f30c085ce0a47859594e16b2207e6172ce"
+      },
+      "half-7": {
+        "text": "七時三十分",
+        "sha256": "f106feaaa9ada2f07e9ee89d06ffdd73db6e0d76c30cd9a9b327594ce3b8f126"
+      },
+      "qpast-7": {
+        "text": "七時十五分",
+        "sha256": "24bbe1077839883d3da30feddcf4754e9ce553e3a2bd5df32890eac8188f24fc"
+      },
+      "qto-7": {
+        "text": "七時四十五分",
+        "sha256": "5094ef2f151e45540c608e4896069d94279a6beca570a136f3fdf9abc5d9124e"
+      },
+      "oclock-8": {
+        "text": "八時正",
+        "sha256": "d33bdf82e729de27c4c209cbc100de821343048c7a8db8796abfbf4b4ff1874c"
+      },
+      "half-8": {
+        "text": "八時三十分",
+        "sha256": "5b14092ab2c1a9a3e5d2e0b4ee1f55164c0e27eccd29db3845e4f6ffaa4c06b3"
+      },
+      "qpast-8": {
+        "text": "八時十五分",
+        "sha256": "f732e55974186e2b680825159391e42f14ddfbdc7fe235500fdb25b8fff73af8"
+      },
+      "qto-8": {
+        "text": "八時四十五分",
+        "sha256": "84fb6541ae6da113e63e41c950e3de54e7fe7e9b86dda1a164dccd3cba091eac"
+      },
+      "oclock-9": {
+        "text": "九時正",
+        "sha256": "4cb39dbb0741332e322dc0336a0716ea90083a8481b4d574426a01bd76d61bd9"
+      },
+      "half-9": {
+        "text": "九時三十分",
+        "sha256": "17b16cb10eb6895bec8415dfcc1fa0fdd6055d0908e1aebd89a73e154663be8d"
+      },
+      "qpast-9": {
+        "text": "九時十五分",
+        "sha256": "dd89c77c54343e7384483cc5e07cc67bcad939f7ef41a70c88df1d0d88b7012d"
+      },
+      "qto-9": {
+        "text": "九時四十五分",
+        "sha256": "391dff915e6e978536478a3965b3a72caf59452ae38e7f2c140547f28283971a"
+      },
+      "oclock-10": {
+        "text": "十時正",
+        "sha256": "8436f05267eb9fbdb6a1f279c0916146edb5357357d8f7a47129dcbb6ad2d4c8"
+      },
+      "half-10": {
+        "text": "十時三十分",
+        "sha256": "0bfaa652cfaf787758cae013392b00d74297c8967f6b50d8cda0c27d5e77949d"
+      },
+      "qpast-10": {
+        "text": "十時十五分",
+        "sha256": "e6c36253b0f924ceea1f61212f5888b779deb46fe1d1f385a50f0eb9424535fa"
+      },
+      "qto-10": {
+        "text": "十時四十五分",
+        "sha256": "1ed60bb1a420edfb0775161c5e5ea712172495661b8abcaa854d19001e8fc289"
+      },
+      "oclock-11": {
+        "text": "十一時正",
+        "sha256": "d8a5810c4e92e87565e5d4b3cc95e08ded2f9c432db52460e923c7266d9690fc"
+      },
+      "half-11": {
+        "text": "十一時三十分",
+        "sha256": "b20ccf69765ebf417e0b15c0590c5ba0e07159bec1ee1bbe338716ce7867733f"
+      },
+      "qpast-11": {
+        "text": "十一時十五分",
+        "sha256": "a5c9c28e8b09486add2666b69ed5907f3962a8728300fde9ad6a46557de931c0"
+      },
+      "qto-11": {
+        "text": "十一時四十五分",
+        "sha256": "659a8386bd530c5efda986406b333ade833586cb8dbadd1c3a25effdf79e1620"
+      },
+      "oclock-12": {
+        "text": "十二時正",
+        "sha256": "39c546e03407901b0aa2aac7636b25b77a035064b797d32f36a0a42177280aeb"
+      },
+      "half-12": {
+        "text": "十二時三十分",
+        "sha256": "fa1c42478ac01dba488adeb93aa34be1789650424a6eb76901ecb1fa8b1d90cd"
+      },
+      "qpast-12": {
+        "text": "十二時十五分",
+        "sha256": "ae77ff3507d63046cc2f597349fb1b8f457bb1113c2aa77a7aa04b04605afff8"
+      },
+      "qto-12": {
+        "text": "十二時四十五分",
+        "sha256": "a99f67f76fb879a525519809b3ed765313f4c7a1f8e5d1f92ea20de3a2236a87"
       }
     }
   }

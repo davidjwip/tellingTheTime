@@ -52,17 +52,17 @@ async def synth(text: str, voice: str, rate: str, target: pathlib.Path) -> None:
 async def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true", help="regenerate clips that already exist")
-    parser.add_argument("--only", choices=["en", "yue"], help="one language only")
+    parser.add_argument("--only", choices=["en", "yue", "zh"], help="one language only")
     args = parser.parse_args()
 
     manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     voices = manifest["voices"]
     rate = manifest["rate"]
-    locales = [args.only] if args.only else ["en", "yue"]
+    locales = [args.only] if args.only else ["en", "yue", "zh"]
 
     # locale -> key -> {"text": ..., "sha256": ...}. Written back, so the test can recompute.
-    clips: dict[str, dict[str, dict[str, str]]] = manifest.get("clips") or {"en": {}, "yue": {}}
-    for locale in ("en", "yue"):
+    clips: dict[str, dict[str, dict[str, str]]] = manifest.get("clips") or {}
+    for locale in ("en", "yue", "zh"):
         clips.setdefault(locale, {})
 
     made = kept = stale = 0
@@ -91,8 +91,7 @@ async def main() -> int:
             made += 1
             print(f"  {locale}/{phrase['key']}.mp3  <- {phrase[locale]}")
 
-    if not args.only:
-        manifest["clips"] = {locale: clips[locale] for locale in ("en", "yue")}
+    manifest["clips"] = {locale: clips[locale] for locale in ("en", "yue", "zh")}
     MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     print(f"\n{made} generated, {kept} already current, {stale} replaced because the wording changed")

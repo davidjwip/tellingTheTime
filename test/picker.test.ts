@@ -265,7 +265,23 @@ describe('the shelf', () => {
     }
   });
 
-  it('puts the language beside Instructions, at the same size', () => {
+  it('offers three registers, and calls the panel what a parent would call it', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    const codes = [...screen.querySelectorAll('[data-locale]')].map((n) => n.getAttribute('data-locale'));
+    expect(codes).toEqual(['en', 'yue', 'zh']);
+    expect(screen.querySelector('[data-action="instructions"]')?.textContent).toBe('How to use');
+  });
+
+  it('explains the spoken and written registers, and lets a parent hear both', () => {
+    const panel = renderInstructions();
+    const text = panel.textContent ?? '';
+    expect(text).toContain('三點三');
+    expect(text).toContain('三時十五分');
+    const samples = [...panel.querySelectorAll('[data-say]')].map((n) => n.getAttribute('data-say'));
+    expect(samples).toEqual(['oclock-3', 'qpast-3', 'qto-3']);
+  });
+
+  it('puts the language beside How to use, at the same size', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const help = screen.querySelector('[data-action="instructions"]');
     const toggle = screen.querySelector('.operator-toggle');
@@ -273,6 +289,7 @@ describe('the shelf', () => {
     expect(help?.classList.contains('small')).toBe(true);
     expect(screen.querySelector('[data-locale="en"]')?.classList.contains('small')).toBe(true);
     expect(screen.querySelector('[data-locale="yue"]')?.classList.contains('small')).toBe(true);
+    expect(screen.querySelector('[data-locale="zh"]')?.classList.contains('small')).toBe(true);
   });
 
   it('does not tell the adult to choose a level', () => {

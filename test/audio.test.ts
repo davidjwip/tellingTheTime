@@ -48,6 +48,36 @@ describe('the phrases', () => {
   });
 });
 
+describe('three registers', () => {
+  it('has words and a recorded clip in every register for every phrase', () => {
+    interface Entry {
+      key: string;
+      en: string;
+      yue: string;
+      zh: string;
+    }
+    const manifest = JSON.parse(readFileSync('data/phrases.json', 'utf8')) as {
+      ui: Entry[];
+      chrono: Entry[];
+      clips: Record<string, Record<string, { text: string }>>;
+    };
+    for (const phrase of [...manifest.ui, ...manifest.chrono]) {
+      for (const locale of ['en', 'yue', 'zh'] as const) {
+        expect(phrase[locale], `${phrase.key} ${locale} text`).toBeTruthy();
+        expect(manifest.clips[locale]?.[phrase.key]?.text, `${phrase.key} ${locale} clip`).toBe(
+          phrase[locale],
+        );
+      }
+    }
+  });
+
+  it('writes the time rather than saying it in the zh register', () => {
+    expect(phraseText('qpast-3', 'yue')).toBe('三點三');
+    expect(phraseText('qpast-3', 'zh')).toBe('三時十五分');
+    expect(phraseText('qto-3', 'zh')).toBe('三時四十五分');
+  });
+});
+
 describe('which clip a clock face needs', () => {
   it("names the hour for o'clock, half past and quarters", () => {
     expect(chronoKeyFor({ hour: 3, minute: 0 })).toBe('oclock-3');

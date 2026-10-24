@@ -288,6 +288,54 @@ describe('what a tap does', () => {
     expect(mounted.session()).toBe(before);
   });
 
+  it('repeats the question when the speaker button is pressed, never the answer', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+        return Promise.resolve();
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+    } as unknown as import('../src/audio').Speaker;
+
+    mountPlay(app, overlayRoot, level('t2.4'), { speaker });
+    said.length = 0; // ignore whatever the screen said on arrival
+    tap('[data-action="say"]');
+    expect(said).toEqual(['prompt-read']);
+    // a time phrase would hand the child the answer
+    expect(said.some((key) => key.includes('oclock') || key.includes('qpast'))).toBe(false);
+  });
+
+  it('keeps the tapped values marked when the screen is redrawn', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t1.1'));
+    tap('[data-numeral="1"]');
+    tap('[data-numeral="2"]');
+
+    mounted.setLocale('zh'); // a redraw that is not a new question
+
+    expect(app.querySelector('[data-numeral="1"]')?.getAttribute('data-done')).toBe('true');
+    expect(app.querySelector('[data-numeral="2"]')?.getAttribute('data-done')).toBe('true');
+    expect(app.querySelector('[data-numeral="3"]')?.getAttribute('data-done')).toBeNull();
+  });
+
+  it('does nothing when the speaker button is pressed on a screen with no question', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string | undefined) => {
+        if (key) said.push(key);
+        return Promise.resolve();
+      },
+      isMuted: () => false,
+      setMuted: () => undefined,
+    } as unknown as import('../src/audio').Speaker;
+
+    mountPlay(app, overlayRoot, level('t0.2'), { speaker }); // a choose screen: nothing to read out
+    said.length = 0;
+    tap('[data-action="say"]');
+    expect(said).toEqual([]);
+  });
+
   it('stops listening to the overlay once disposed', () => {
     const mounted = mountPlay(app, overlayRoot, level('t2.4'));
     for (let i = 0; i < 10; i += 1) tap('[data-verdict="correct"]');

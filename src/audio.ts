@@ -13,12 +13,15 @@
 
 import manifest from '../data/phrases.json';
 
-export type Locale = 'en' | 'yue';
+export type Locale = 'en' | 'yue' | 'zh';
 
 export interface Phrase {
   key: string;
   en: string;
+  /** How it is said. */
   yue: string;
+  /** How it is written: 三時十五分 rather than 三點三. */
+  zh: string;
 }
 
 /** Every phrase the app can say. */

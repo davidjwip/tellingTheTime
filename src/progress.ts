@@ -1,3 +1,5 @@
+
+import type { Locale } from './audio';
 /**
  * What the app remembers between visits.
  *
@@ -11,7 +13,7 @@ export interface Progress {
   lastLevel: string | null;
   cleared: string[];
   /** Which language the prompts are spoken in. */
-  locale: 'en' | 'yue';
+  locale: Locale;
 }
 
 /** The bit of Storage this needs. Narrow on purpose, so a test can supply one. */
@@ -44,7 +46,7 @@ export function loadProgress(store: Store): Progress {
     cleared: Array.isArray(shape.cleared)
       ? shape.cleared.filter((id): id is string => typeof id === 'string')
       : [],
-    locale: shape.locale === 'yue' ? 'yue' : 'en',
+    locale: shape.locale === 'yue' || shape.locale === 'zh' ? shape.locale : 'en',
   };
 }
 

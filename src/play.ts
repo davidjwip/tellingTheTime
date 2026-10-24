@@ -136,6 +136,7 @@ function mountRound(
             ...(lastVerdict ? { lastVerdict } : {}),
             placed,
             locale,
+            done: lap?.done ?? [],
           }),
     );
 
@@ -204,6 +205,13 @@ function mountRound(
 
     // The header's Level button belongs to the play screen, so it has to do something: go back to
     // the shelf. It was enabled and inert, which this codebase calls a lie.
+    if (action === 'say') {
+      const item = currentItem(session);
+      const key = item ? promptKeyFor(item) : undefined;
+      if (key) void options.speaker?.say(key);
+      return;
+    }
+
     if (action === 'level') {
       options.onChangeLevel?.(level);
       return;

@@ -171,6 +171,23 @@ describe('the shell decides what a click means', () => {
     }
   });
 
+  it('reads a sample time out loud from the panel, in whichever register is chosen', () => {
+    const said: string[] = [];
+    const speaker = {
+      say: (key: string) => {
+        said.push(key);
+        return Promise.resolve();
+      },
+      setLocale: () => undefined,
+    } as unknown as Speaker;
+    const fresh = createShell({ app, overlayRoot, store, levels: LEVELS, speaker });
+    fresh.start(null);
+
+    click('[data-action="instructions"]');
+    click('[data-say="qpast-3"]');
+    expect(said).toContain('qpast-3');
+  });
+
   it('puts focus in the panel, and gives it back to the control that opened it', () => {
     shell().start(null);
     const opener = app.querySelector<HTMLElement>('[data-action="instructions"]')!;

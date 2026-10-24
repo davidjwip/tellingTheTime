@@ -81,7 +81,12 @@ h1 {
   gap: 4px;
 }
 
+/* Three registers now, so only the outer edges are rounded. */
 .operator-toggle .action-btn {
+  border-radius: 0;
+}
+
+.operator-toggle .action-btn:first-child {
   border-radius: 8px 0 0 8px;
 }
 
@@ -687,4 +692,11 @@ section.tier:last-of-type .tier-entry[data-tip='true']::after {
 .tap-frame svg [data-done='true'] {
   fill: #2e9e77;
   font-weight: 700;
+}
+
+.say-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
 }
