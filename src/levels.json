@@ -945,7 +945,7 @@
         "hands": "both",
         "minuteHandParked": false,
         "numerals": true,
-        "minuteMarks": true,
+        "minuteMarks": false,
         "minuteLabels": true,
         "pastToShade": false,
         "showDigital": false
@@ -1004,7 +1004,7 @@
         "hands": "both",
         "minuteHandParked": false,
         "numerals": true,
-        "minuteMarks": true,
+        "minuteMarks": false,
         "minuteLabels": false,
         "pastToShade": false,
         "showDigital": false
