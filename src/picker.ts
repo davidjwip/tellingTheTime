@@ -221,15 +221,24 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
 
   container.append(el('h1', undefined, 'What time is it?'));
 
-  // The instructions are for the grown-up holding the tablet, so they sit at the top where a parent
-  // looks first, not buried under the levels.
+  // One line of grown-up controls at the top: the instructions, and the language the questions are
+  // read aloud in. Both are settings, so they sit together and look the same size.
   const topRow = el('div', 'header-actions');
   const help = el('button', 'action-btn small', 'Instructions');
   help.dataset.action = 'instructions';
-  topRow.append(help);
-  container.append(topRow);
 
-  container.append(el('p', 'instructions', 'Choose a level'));
+  const toggle = el('div', 'operator-toggle');
+  for (const [code, label] of [['en', 'EN'], ['yue', '粵']] as const) {
+    const button = el('button', 'action-btn small', label);
+    button.dataset.locale = code;
+    const chosen = progress.locale === code;
+    if (chosen) button.classList.add('operator-active');
+    button.setAttribute('aria-pressed', String(chosen));
+    toggle.append(button);
+  }
+
+  topRow.append(help, toggle);
+  container.append(topRow);
 
   const nameRow = el('div', 'name-row');
   const label = el('label', undefined, 'Who is playing?');
@@ -243,19 +252,6 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
   input.autocomplete = 'off';
   nameRow.append(label, input);
   container.append(nameRow);
-
-  // The language belongs on the shelf, not only inside a round: an adult choosing Cantonese should
-  // not have to start a level first, and the choice is remembered either way.
-  const toggle = el('div', 'operator-toggle');
-  for (const [code, label] of [['en', 'EN'], ['yue', '粵']] as const) {
-    const button = el('button', 'action-btn small', label);
-    button.dataset.locale = code;
-    const chosen = progress.locale === code;
-    if (chosen) button.classList.add('operator-active');
-    button.setAttribute('aria-pressed', String(chosen));
-    toggle.append(button);
-  }
-  container.append(toggle);
 
   for (const [tier, title] of TIERS) {
     const levels = shelved.filter((s) => s.level.tier === tier);
@@ -294,7 +290,7 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
   }
 
   const actions = el('div', 'header-actions');
-  const start = el('button', 'action-btn primary', 'Start');
+  const start = el('button', 'action-btn primary start-primary', 'Start');
   start.dataset.action = 'start';
   actions.append(start);
   container.append(actions);

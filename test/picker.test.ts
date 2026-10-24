@@ -173,6 +173,14 @@ describe('the language control in the stylesheet', () => {
       expect(block).not.toContain('255, 107, 107');
     }
   });
+
+  it('makes a level a pill, not a bar across the window', () => {
+    const css = readFileSync('src/styles.css', 'utf8');
+    const block = css.match(/\.level-btn \{[^}]*\}/)?.[0];
+    expect(block, '.level-btn must have rules of its own').toBeDefined();
+    expect(block).toContain('border-radius: 50px');
+    expect(block).not.toContain('width: 100%');
+  });
 });
 
 describe('the shelf', () => {
@@ -228,6 +236,26 @@ describe('the shelf', () => {
       expect(controls, `tier ${tier} controls`).toHaveLength(1);
       expect(controls[0]?.textContent).toContain(TIER_TITLES[tier]);
     }
+  });
+
+  it('puts the language beside Instructions, at the same size', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    const help = screen.querySelector('[data-action="instructions"]');
+    const toggle = screen.querySelector('.operator-toggle');
+    expect(toggle?.parentElement).toBe(help?.parentElement);
+    expect(help?.classList.contains('small')).toBe(true);
+    expect(screen.querySelector('[data-locale="en"]')?.classList.contains('small')).toBe(true);
+    expect(screen.querySelector('[data-locale="yue"]')?.classList.contains('small')).toBe(true);
+  });
+
+  it('does not tell the adult to choose a level', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    expect(screen.textContent).not.toContain('Choose a level');
+  });
+
+  it('sizes Start above the level buttons', () => {
+    const screen = renderPicker(shelved, DEFAULT_PROGRESS);
+    expect(screen.querySelector('[data-action="start"]')?.classList.contains('start-primary')).toBe(true);
   });
 
   it('colours Start as the primary action, not a level', () => {
