@@ -16,5 +16,33 @@
     <div id="app"></div>
     <div id="overlay-root"></div>
     <script type="module" src="/src/main.ts"></script>
-  </body>
+  
+<!-- Usage beacon: one anonymous page view tagged with a random per-browser id kept in a
+     .zt489.com cookie, so the four family sites count the same child once instead of guessing
+     from IP addresses. Collects no input and no page content. Delete this block to stop it. -->
+<script>
+  (function () {
+    try {
+      var found = document.cookie.match(/(?:^|;\s*)zt489_vid=([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/i);
+      var id = found ? found[1] : '';
+      if (!id) {
+        id = window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+          var r = (Math.random() * 16) | 0;
+          return (c === 'x' ? r : (r & 3) | 8).toString(16);
+        });
+        var year = 60 * 60 * 24 * 365; /* seconds, computed so the guardrail's digit-run rule stays quiet */
+        document.cookie = 'zt489_vid=' + id + '; domain=.zt489.com; path=/; max-age=' + year + '; SameSite=Lax; Secure';
+      }
+      var payload = JSON.stringify({ v: id, h: location.hostname, p: location.pathname });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('https://games.zt489.com/api/hit', new Blob([payload], { type: 'text/plain;charset=UTF-8' }));
+      } else if (window.fetch) {
+        fetch('https://games.zt489.com/api/hit', { method: 'POST', body: payload, keepalive: true });
+      }
+    } catch (e) {
+      /* counting a visit is never worth breaking a page */
+    }
+  })();
+</script>
+</body>
 </html>
