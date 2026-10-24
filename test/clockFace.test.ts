@@ -107,6 +107,33 @@ describe('the hands carry the geometry from clock.ts', () => {
     expect(hand(svg, 'minute')?.getAttribute('style')).toContain('#333');
   });
 
+  it('reaches the 5-minute ring with the hand that is read against it', () => {
+    const ringing = renderFace({ hour: 3, minute: 20 }, { ...baseFace(), hands: 'both', minuteLabels: true });
+    const plain = renderFace({ hour: 3, minute: 20 }, { ...baseFace(), hands: 'both', minuteLabels: false });
+
+    const reach = (svg: SVGSVGElement): number => 50 - Number(hand(svg, 'minute')?.getAttribute('y2'));
+    const label = ringing.querySelector('[data-minute-label="true"]');
+    // the radius of the ring, measured from where a label actually sits
+    const ringRadius = Math.hypot(
+      Number(label?.getAttribute('x')) - 50,
+      Number(label?.getAttribute('y')) - 50,
+    );
+
+    // a hand of 33 units stops well short of a ring at 43: it would point at nothing
+    expect(reach(plain)).toBeLessThan(ringRadius - 5);
+    expect(reach(ringing)).toBeGreaterThanOrEqual(ringRadius - 3);
+  });
+
+  it('sets the ring in a size a four-year-old can read', () => {
+    const svg = renderFace({ hour: 3, minute: 20 }, { ...baseFace(), hands: 'both', minuteLabels: true });
+    const label = svg.querySelector('[data-minute-label="true"]');
+    const numeral = svg.querySelector('[data-numeral]');
+    const size = Number(label?.getAttribute('font-size'));
+    // it is a ring the child is asked to read, not a footnote under the numerals
+    expect(size).toBeGreaterThanOrEqual(5);
+    expect(size).toBeGreaterThanOrEqual(Number(numeral?.getAttribute('font-size')) * 0.5);
+  });
+
   it('draws only colours the parity contract names, so the palette cannot drift', () => {
     const contract = readFileSync('specs/design-parity.md', 'utf8');
     for (const [role, value] of Object.entries(FACE_COLOURS)) {

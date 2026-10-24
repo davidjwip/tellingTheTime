@@ -123,6 +123,13 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
     expect(rules(atFour)).toContain(6);
   });
 
+  it('rule 6: a tier 5 face with only an hour hand cannot wear the ring', () => {
+    const hourOnly = mutated('t5.1', (l) => {
+      l.face!.hands = 'hour';
+    });
+    expect(rules(hourOnly)).toContain(6);
+  });
+
   it('rule 6: the tap lap rule still applies', () => {
     const noLabels = mutated('t1.3', (l) => {
       l.face!.minuteLabels = false;
