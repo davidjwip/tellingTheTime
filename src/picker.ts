@@ -38,6 +38,18 @@ const TIERS: Array<[number, string]> = [
   [4, 'Quarter past and to'],
 ];
 
+/** Tier names, exported so tests and the instructions panel cannot drift from the shelf. */
+export const TIER_TITLES: Record<number, string> = Object.fromEntries(TIERS);
+
+/** One plain sentence per tier, for the grown-up reading the instructions. */
+const TIER_BLURB: Record<number, string> = {
+  0: 'Time words before any clock: the order of the day, yesterday and tomorrow, which took longer, the days of the week.',
+  1: 'The numbers on the dial: tapping 1 to 12 in order, what comes after 12, counting round in fives, and building the face.',
+  2: "O'clock: the four anchor times, then all twelve, then making a time with the hands.",
+  3: 'Half past: spotting it, reading it, and making it — then telling o\'clock from half past.',
+  4: 'Quarter past and quarter to, and all four quarters together.',
+};
+
 export interface Shelved {
   level: Level;
   /** How many questions the app can actually ask today. */
@@ -141,10 +153,76 @@ export function bankForTier(
   return { tier, levels: own, review };
 }
 
+/** The grown-up's page: what this is, what each tier teaches, how a round works, and where the name goes. */
+export function renderInstructions(): HTMLElement {
+  const panel = el('div', 'instructions-panel');
+  panel.dataset.panel = 'instructions';
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-modal', 'true');
+  panel.setAttribute('aria-labelledby', 'instructions-title');
+
+  const title = el('h2', undefined, 'For the grown-up');
+  title.id = 'instructions-title';
+  panel.append(title);
+
+  panel.append(
+    el(
+      'p',
+      undefined,
+      'A clock-reading game for a child of about four: one clock face, big hands, and a handful of ' +
+        'questions at a time. It starts with time words before any clock, and works up to quarter to.',
+    ),
+  );
+
+  const list = el('ul', 'tier-list');
+  for (const [tier, name] of TIERS) {
+    const item = el('li');
+    item.append(el('strong', undefined, name));
+    item.append(el('span', undefined, ` — ${TIER_BLURB[tier] ?? ''}`));
+    list.append(item);
+  }
+  panel.append(el('p', undefined, 'The levels, in order:'));
+  panel.append(list);
+
+  panel.append(
+    el(
+      'p',
+      undefined,
+      'A round ends at ten right answers, and about one in four of the questions comes from an earlier ' +
+        'level, so what was learnt last week keeps coming back. A child who misses a question sees it ' +
+        'again a little later in the same round.',
+    ),
+  );
+
+  panel.append(
+    el(
+      'p',
+      undefined,
+      'The name on the shelf is kept on this device only. Nothing is sent anywhere, there is no account ' +
+        'and no advertising.',
+    ),
+  );
+
+  const close = el('button', 'action-btn primary', 'Close');
+  close.dataset.action = 'close-instructions';
+  panel.append(close);
+
+  return panel;
+}
+
 export function renderPicker(shelved: readonly Shelved[], progress: Progress): HTMLElement {
   const container = el('div', 'container picker');
 
   container.append(el('h1', undefined, 'What time is it?'));
+
+  // The instructions are for the grown-up holding the tablet, so they sit at the top where a parent
+  // looks first, not buried under the levels.
+  const topRow = el('div', 'header-actions');
+  const help = el('button', 'action-btn small', 'Instructions');
+  help.dataset.action = 'instructions';
+  topRow.append(help);
+  container.append(topRow);
+
   container.append(el('p', 'instructions', 'Choose a level'));
 
   const nameRow = el('div', 'name-row');
@@ -166,7 +244,9 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
   for (const [code, label] of [['en', 'EN'], ['yue', '粵']] as const) {
     const button = el('button', 'action-btn small', label);
     button.dataset.locale = code;
-    if (progress.locale === code) button.classList.add('operator-active');
+    const chosen = progress.locale === code;
+    if (chosen) button.classList.add('operator-active');
+    button.setAttribute('aria-pressed', String(chosen));
     toggle.append(button);
   }
   container.append(toggle);
@@ -181,8 +261,9 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
 
     const section = el('section', 'tier');
     section.dataset.tier = String(tier);
-    section.append(el('h2', undefined, title));
 
+    // The tier is one control: its name is the button. A heading above a second button reading the
+    // same words is a table of contents, not a shelf.
     const grid = el('div', 'level-grid');
     const button = el('button', 'level-btn tier-entry');
     button.dataset.level = first.level.id;
@@ -194,22 +275,20 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
     const exercises = levels.map((s) => s.level.title.en).join(', ');
     button.title = exercises;
     button.setAttribute('aria-description', exercises);
+    // Long press reads this on a touch screen; a title attribute never opens on an iPad.
+    button.dataset.exercises = exercises;
 
     button.append(el('span', 'level-name', title));
     const note = first.cleared ? '✓' : playable.length === 1 ? '1 exercise' : `${playable.length} exercises`;
     button.append(el('span', 'level-note', note));
     grid.append(button);
 
-    // A title attribute never opens on an iPad - the device this is played on - so the exercises are
-    // printed quietly underneath as well, where an adult can read them without a hover.
-    section.append(el('p', 'tier-note', exercises));
-
     section.append(grid);
     container.append(section);
   }
 
   const actions = el('div', 'header-actions');
-  const start = el('button', 'action-btn', 'Start');
+  const start = el('button', 'action-btn primary', 'Start');
   start.dataset.action = 'start';
   actions.append(start);
   container.append(actions);

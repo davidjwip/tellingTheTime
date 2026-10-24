@@ -90,14 +90,88 @@ h1 {
   border-radius: 0 8px 8px 0;
 }
 
-.operator-toggle .action-btn:first-child.operator-active {
+/* The chosen language is green; the other is neutral. Red means "the answer was wrong" in this
+   app, and no language is wrong - the base .action-btn is red, so both states are set explicitly. */
+.operator-toggle .action-btn {
+  background-color: #eef1f6;
+  color: #2d3561;
+  box-shadow: none;
+}
+
+.operator-toggle .action-btn:hover {
+  background-color: #dfe4ee;
+  transform: none;
+}
+
+.operator-toggle .action-btn.operator-active,
+.operator-toggle .action-btn.operator-active:hover {
   background-color: #4ecdc4;
+  color: white;
   box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.4);
 }
 
-.operator-toggle .action-btn:last-child.operator-active {
-  background-color: #ff6b6b;
-  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.4);
+.action-btn.primary {
+  background-color: #4ecdc4;
+}
+
+.action-btn.primary:hover {
+  background-color: #3aa897;
+}
+
+/* A tier is one button; its exercises appear in a bubble on a long press, because a title
+   attribute never opens on a touch screen. */
+.tier-entry {
+  position: relative;
+}
+
+.tier-entry[data-tip="true"]::after {
+  content: attr(data-exercises);
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: calc(100% + 8px);
+  z-index: 6;
+  background-color: #2d3561;
+  color: white;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.instructions-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(34rem, 90vw);
+  max-height: 80vh;
+  overflow-y: auto;
+  background-color: white;
+  color: #2d3561;
+  border-radius: 18px;
+  padding: 22px 24px;
+  text-align: left;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
+.instructions-panel::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-color: rgba(45, 53, 97, 0.45);
+  z-index: -1;
+}
+
+.instructions-panel h2 {
+  margin-top: 0;
+}
+
+.instructions-panel .tier-list li {
+  margin-bottom: 8px;
 }
 
 .mute-btn {
