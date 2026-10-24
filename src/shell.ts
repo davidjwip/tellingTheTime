@@ -138,7 +138,13 @@ export function createShell(deps: ShellDeps): Shell {
   // The panel lives in the overlay, which is outside #app, so its Close button needs its own listener.
   overlayRoot.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
-    if (target?.closest('[data-action="close-instructions"]')) closeInstructions();
+    if (target?.closest('[data-action="close-instructions"]')) {
+      closeInstructions();
+      return;
+    }
+    // The panel's sample buttons read a time out in whichever register is chosen.
+    const sample = target?.closest<HTMLElement>('[data-say]')?.dataset.say;
+    if (sample) void speaker?.say(sample);
   });
 
   // Escape closes the panel: an adult who opened it by accident should not have to hunt for the button.
@@ -226,7 +232,7 @@ export function createShell(deps: ShellDeps): Shell {
     }
 
     const locale = target?.closest<HTMLElement>('[data-locale]')?.dataset.locale;
-    if (locale === 'en' || locale === 'yue') {
+    if (locale === 'en' || locale === 'yue' || locale === 'zh') {
       progress = { ...progress, locale };
       saveProgress(store, progress);
       if (mounted) mounted.setLocale(locale);

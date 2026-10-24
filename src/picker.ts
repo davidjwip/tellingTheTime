@@ -200,6 +200,26 @@ export function renderInstructions(): HTMLElement {
     ),
   );
 
+  card.append(el('h3', undefined, 'The two Chinese buttons'));
+  card.append(
+    el(
+      'p',
+      undefined,
+      '粵 is how a clock is spoken in Cantonese — 三點三 for a quarter past three. 中 is how the time is ' +
+        'written, in the style Putonghua reading uses — 三時十五分. They say the same time; one is for ' +
+        'talking and one is for reading.',
+    ),
+  );
+
+  // A parent asking "how is this said?" should be able to hear it rather than take our word for it.
+  const sayRow = el('div', 'say-row');
+  for (const [key, label] of [['oclock-3', '3:00'], ['qpast-3', '3:15'], ['qto-3', '3:45']] as const) {
+    const button = el('button', 'action-btn small say-btn', `🔊 ${label}`);
+    button.dataset.say = key;
+    sayRow.append(button);
+  }
+  card.append(sayRow);
+
   card.append(
     el(
       'p',
@@ -224,11 +244,11 @@ export function renderPicker(shelved: readonly Shelved[], progress: Progress): H
   // One line of grown-up controls at the top: the instructions, and the language the questions are
   // read aloud in. Both are settings, so they sit together and look the same size.
   const topRow = el('div', 'header-actions');
-  const help = el('button', 'action-btn small', 'Instructions');
+  const help = el('button', 'action-btn small', 'How to use');
   help.dataset.action = 'instructions';
 
   const toggle = el('div', 'operator-toggle');
-  for (const [code, label] of [['en', 'EN'], ['yue', '粵']] as const) {
+  for (const [code, label] of [['en', 'EN'], ['yue', '粵'], ['zh', '中']] as const) {
     const button = el('button', 'action-btn small', label);
     button.dataset.locale = code;
     const chosen = progress.locale === code;

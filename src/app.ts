@@ -16,9 +16,13 @@ import { renderOrder } from './order';
 import type { Session, Item } from './engine';
 import type { Level, Task } from './types';
 
+import type { Locale } from './audio';
+
 export interface PlayOptions {
   mascot?: string;
-  locale?: 'en' | 'yue';
+  locale?: Locale;
+  /** Values the child has already tapped in the current lap, so a redraw keeps them marked. */
+  done?: readonly number[];
   /** Where "Change level" goes. Injected so the action can be tested without navigating. */
   onChangeLevel?: (level: Level) => void;
   /** What the adult just said, so the feedback line can show it. */
@@ -52,19 +56,21 @@ function header(level: Level, options: PlayOptions): HTMLElement {
   actions.append(levelButton);
 
   const toggle = el('div', 'operator-toggle');
-  const en = el('button', 'action-btn small', 'EN');
-  const yue = el('button', 'action-btn small', '粵');
-  en.dataset.locale = 'en';
-  yue.dataset.locale = 'yue';
-  const english = (options.locale ?? 'en') === 'en';
-  const cantonese = options.locale === 'yue';
-  en.classList.toggle('operator-active', english);
-  yue.classList.toggle('operator-active', cantonese);
-  // A segmented setting has to announce which half is chosen, not just look tinted.
-  en.setAttribute('aria-pressed', String(english));
-  yue.setAttribute('aria-pressed', String(cantonese));
-  toggle.append(en, yue);
-  actions.append(toggle);
+  for (const [code, label] of [['en', 'EN'], ['yue', '粵'], ['zh', '中']] as const) {
+    const button = el('button', 'action-btn small', label);
+    button.dataset.locale = code;
+    const chosen = (options.locale ?? 'en') === code;
+    if (chosen) button.classList.add('operator-active');
+    // A segmented setting has to announce which part is chosen, not just look tinted.
+    button.setAttribute('aria-pressed', String(chosen));
+    toggle.append(button);
+  }
+
+  // Reading the time out loud again, for the adult. It repeats the question, never the answer.
+  const sayButton = el('button', 'action-btn small', '🔊');
+  sayButton.dataset.action = 'say';
+  sayButton.setAttribute('aria-label', 'Say the question again');
+  actions.append(toggle, sayButton);
 
   // Sound and profile have no screen yet. They are disabled rather than inert: a button that looks
   // pressable and does nothing teaches a child that the app is unresponsive (and is a lie to the adult).
@@ -139,6 +145,11 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
     panel.append(el('div', 'prompt', promptFor(item, item.task)));
     const frame = el('div', 'clock-frame tap-frame');
     if (level.face) frame.append(renderFace(item.time ?? { hour: 12, minute: 0 }, level.face));
+    // One pass over both rings: whatever the child has already touched stays marked after a redraw.
+    for (const node of frame.querySelectorAll<HTMLElement>('[data-numeral], [data-minute-label="true"]')) {
+      const value = Number(node.dataset.numeral ?? node.textContent?.trim());
+      if ((options.done ?? []).includes(value)) node.dataset.done = 'true';
+    }
     panel.append(frame);
     panel.append(
       el('p', 'tap-hint', `Tap ${item.tap?.sequence[0]} to ${item.tap?.sequence[item.tap.sequence.length - 1]}, one at a time`),

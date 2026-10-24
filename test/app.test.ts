@@ -43,8 +43,8 @@ describe('the screen a child sees', () => {
     const actions = [...screen.querySelectorAll('.header-actions [data-action]')].map((n) =>
       n.getAttribute('data-action'),
     );
-    expect(actions).toEqual(['level', 'sound', 'profile']);
-    expect(screen.querySelectorAll('[data-locale]')).toHaveLength(2);
+    expect(actions).toEqual(['level', 'say', 'sound', 'profile']);
+    expect(screen.querySelectorAll('[data-locale]')).toHaveLength(3);
   });
 
   it('marks the current language on the toggle', () => {
