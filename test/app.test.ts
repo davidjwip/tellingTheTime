@@ -21,6 +21,20 @@ const answerRight = (s: Session, n: number): Session => {
   return next;
 };
 
+describe('what the adult is told to say', () => {
+  const item = {} as Parameters<typeof promptFor>[0];
+
+  it('names every task, and leaves the fallback alone', () => {
+    expect(promptFor(item, 'read')).toBe('What time is it?');
+    expect(promptFor(item, 'set')).toBe('Make this time');
+    expect(promptFor(item, 'choose')).toBe('Which one?');
+    expect(promptFor(item, 'tap')).toBe('Tap them in order');
+    // nothing reaches the fallback today; it exists so a new task fails visibly rather than silently
+    expect(promptFor(item, 'build')).toBe('Have a go');
+    expect(promptFor(item, 'order')).toBe('Have a go');
+  });
+});
+
 describe('the screen a child sees', () => {
   it('keeps the reference app\'s skeleton: header, problem area, padding, progress, footer', () => {
     const screen = renderPlay(level('t2.2'), session('t2.2'));

@@ -20,7 +20,7 @@ the child said "three o'clock"), a choice is checkable, so no ✓/✗ pad appear
 Wrong answers get the same encouragement sound and the item returns three places later, exactly as
 a miss does elsewhere.
 
-Prompt is spoken from the existing clips (`prompt-tap`) and shown as text for the adult.
+The prompt is shown as text for the adult. It is not spoken: the "Have a go" clip was removed in v1.11, because a nudge repeated ten times a round teaches a child to stop listening.
 
 ## Content (fixed, in the level data — no new audio needed)
 

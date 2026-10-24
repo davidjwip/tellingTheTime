@@ -128,6 +128,7 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
         'dominant-baseline': 'central',
         fill: FACE_COLOURS.label,
         'data-minute-label': 'true',
+        'data-value': i === 0 ? 60 : i * 5,
       });
       label.textContent = i === 0 ? '60' : String(i * 5);
       svg.append(label);
@@ -146,6 +147,7 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
         'dominant-baseline': 'central',
         fill: FACE_COLOURS.numeral,
         'data-numeral': i === 0 ? 12 : i,
+        'data-value': i === 0 ? 12 : i,
       });
       numeral.textContent = String(i === 0 ? 12 : i);
       svg.append(numeral);

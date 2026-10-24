@@ -264,6 +264,18 @@ export function validateLevels(levels: readonly Level[] = LEVELS, options: Valid
       if (hands === 'none' && (taskOrder.includes('read') || taskOrder.includes('set'))) {
         fail(6, level.id, 'hands:none cannot carry read or set steps');
       }
+
+      // A tap lap is unwinnable if the ring it asks for is not drawn: the child would hunt for
+      // numbers that are not on the face.
+      for (const step of level.round) {
+        if (step.task !== 'tap') continue;
+        if (level.content.kind === 'numberOrder' && !face.numerals) {
+          fail(6, level.id, 'a numberOrder lap needs the numerals drawn');
+        }
+        if (level.content.kind === 'fivesRing' && !face.minuteLabels) {
+          fail(6, level.id, 'a fivesRing lap needs the 5-minute labels drawn');
+        }
+      }
       if (hands === 'hour' && taskOrder.includes('set') && (level.minutes ?? []).length !== 1) {
         fail(6, level.id, 'hands:hour set step needs a single fixed minute');
       }
