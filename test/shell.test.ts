@@ -52,7 +52,7 @@ describe('the shell decides what a click means', () => {
     app = document.createElement('div');
     overlayRoot = document.createElement('div');
     document.body.append(app, overlayRoot);
-    shell().start('t1.1'); // needs tapping the dial: not playable
+    shell().start('t1.4'); // needs a screen that does not exist
     expect(app.querySelector('.picker')).not.toBeNull();
   });
 
@@ -192,10 +192,10 @@ describe('the shell decides what a click means', () => {
   it('does nothing for a door whose tier has no playable bank', () => {
     shell().start(null);
     const section = document.createElement('section');
-    section.dataset.tier = '1'; // tier 1 has levels, none of them playable
+    section.dataset.tier = '5'; // tier 5 has no levels at all
     const door = document.createElement('button');
     door.dataset.tierEntry = 'true';
-    door.dataset.level = 't1.1';
+    door.dataset.level = 't5.1';
     section.append(door);
     app.querySelector('.picker')?.append(section);
     door.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 60, clientY: 60 }));
@@ -247,13 +247,13 @@ describe('the shell decides what a click means', () => {
   });
 
   it('starts a playable level from the Start button, never a shelved one', () => {
-    store.setItem('clock.v1.progress', JSON.stringify({ lastLevel: 't1.1', locale: 'en' }));
+    store.setItem('clock.v1.progress', JSON.stringify({ lastLevel: 't1.4', locale: 'en' }));
     const fresh = shell();
     fresh.start(null);
     click('[data-action="start"]');
-    // t1.1 needs a screen that does not exist, so Start must fall through to something playable
+    // t1.4 needs a screen that does not exist, so Start must fall through to something playable
     expect(app.querySelector('.picker')).toBeNull();
-    expect(fresh.currentLevel()?.id).not.toBe('t1.1');
+    expect(fresh.currentLevel()?.id).not.toBe('t1.4');
   });
 
   it('ignores a shelf button naming a level that does not exist', () => {

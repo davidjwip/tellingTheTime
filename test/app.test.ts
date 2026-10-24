@@ -66,7 +66,7 @@ describe('the screen a child sees', () => {
     expect(promptFor(item, 'read')).toBe('What time is it?');
     expect(promptFor(item, 'set')).toBe('Make this time');
     expect(promptFor(item, 'choose')).toBe('Which one?');
-    expect(promptFor(item, 'tap')).toBe('Have a go');
+    expect(promptFor(item, 'tap')).toBe('Tap them in order');
   });
 
   it('draws the dial in the cream frame', () => {
