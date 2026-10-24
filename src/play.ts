@@ -137,6 +137,7 @@ function mountRound(
             placed,
             locale,
             done: lap?.done ?? [],
+            ...(lap ? { next: lapValue(lap) ?? 0 } : {}),
           }),
     );
 
@@ -230,21 +231,36 @@ function mountRound(
     // it is a mis-aimed finger, so it does nothing at all.
     const tapItem = currentItem(session);
     if (tapItem?.tap) {
-      const numerals = target?.closest<HTMLElement>('[data-numeral]');
-      const labels = target?.closest<HTMLElement>('[data-minute-label]');
-      const hit = tapItem.tap.target === 'numerals' ? numerals : labels;
-      if (!hit) return;
+      // A disc is the target and a glyph is the mark; they are siblings, not nested, so the value has
+      // to be read from the thing that was hit rather than from an ancestor.
+      const direct = target?.getAttribute('data-hit');
+      const disc = direct != null ? target : target?.closest<HTMLElement>('[data-hit]');
+      const ring = tapItem.tap.target;
+      const glyphOnRing = target?.closest<HTMLElement>(
+        ring === 'numerals' ? '[data-numeral]' : '[data-minute-label="true"]',
+      );
+      const raw =
+        direct ??
+        glyphOnRing?.getAttribute('data-value') ??
+        glyphOnRing?.textContent ??
+        '';
+      if (disc == null && glyphOnRing == null) return;
 
-      const raw = hit.dataset.numeral ?? hit.textContent ?? '';
       const value = Number(raw);
       const result = tapValue(lap ?? startLap(tapItem.tap.sequence), value);
+      if (!result.correct) return;
+
       lap = result.lap;
-      if (result.correct) hit.dataset.done = 'true';
       if (result.complete) {
         lap = undefined;
         lapKey = undefined;
         onVerdict('correct');
+        return;
       }
+
+      // Redraw rather than patching the DOM: the marks and the "next" hint both come from the lap,
+      // so the model and the screen cannot disagree.
+      draw(false);
       return;
     }
 

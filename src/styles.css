@@ -700,3 +700,25 @@ section.tier:last-of-type .tier-entry[data-tip='true']::after {
   gap: 8px;
   margin: 10px 0;
 }
+
+/* The real tap targets: invisible, thumb-sized, laid over the glyphs. */
+.tap-disc {
+  fill: transparent;
+  cursor: pointer;
+}
+
+.tap-disc[data-done='true'] {
+  fill: rgba(78, 205, 196, 0.18);
+}
+
+/* The next value breathes, so a child who has lost the thread can find it without a word. */
+.tap-disc[data-next='true'] {
+  stroke: #4ecdc4;
+  stroke-width: 0.8;
+  animation: tap-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tap-pulse {
+  0%, 100% { stroke-opacity: 0.25; }
+  50% { stroke-opacity: 1; }
+}

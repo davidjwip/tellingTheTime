@@ -487,6 +487,32 @@ describe('tapping the dial', () => {
       (node) => node.textContent === value,
     );
 
+  it('gives every value a thumb-sized target over the glyph', () => {
+    mountPlay(app, overlayRoot, level('t1.1'));
+    const discs = [...app.querySelectorAll<SVGElement>('[data-hit]')];
+    expect(discs).toHaveLength(12);
+    // a numeral glyph is about 27px on an iPad; the disc is what a finger actually hits
+    for (const disc of discs) expect(Number(disc.getAttribute('r'))).toBeGreaterThanOrEqual(5);
+    expect(discs.map((d) => d.dataset.hit)).toContain('7');
+  });
+
+  it('answers from the disc, not only from the glyph', () => {
+    mountPlay(app, overlayRoot, level('t1.1'));
+    const disc = app.querySelector<SVGElement>('[data-hit="1"]');
+    disc?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(app.querySelector('[data-numeral="1"]')?.getAttribute('data-done')).toBe('true');
+  });
+
+  it('hints at the next value, and the hint moves as the lap goes on', () => {
+    mountPlay(app, overlayRoot, level('t1.1'));
+    expect(app.querySelector('[data-hit="1"]')?.getAttribute('data-next')).toBe('true');
+    expect(app.querySelector('[data-hit="2"]')?.getAttribute('data-next')).toBeNull();
+
+    tap('[data-hit="1"]');
+    expect(app.querySelector('[data-hit="2"]')?.getAttribute('data-next')).toBe('true');
+    expect(app.querySelector('[data-hit="1"]')?.getAttribute('data-next')).toBeNull();
+  });
+
   it('takes one number at a time, and a stray tap does not skip ahead', () => {
     mountPlay(app, overlayRoot, level('t1.1'));
     tap('[data-numeral="7"]'); // not the next number: nothing happens

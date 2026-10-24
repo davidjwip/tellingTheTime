@@ -23,6 +23,8 @@ export interface PlayOptions {
   locale?: Locale;
   /** Values the child has already tapped in the current lap, so a redraw keeps them marked. */
   done?: readonly number[];
+  /** The value the child should touch next, so the dial can hint at it. */
+  next?: number;
   /** Where "Change level" goes. Injected so the action can be tested without navigating. */
   onChangeLevel?: (level: Level) => void;
   /** What the adult just said, so the feedback line can show it. */
@@ -147,8 +149,28 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
     if (level.face) frame.append(renderFace(item.time ?? { hour: 12, minute: 0 }, level.face));
     // One pass over both rings: whatever the child has already touched stays marked after a redraw.
     for (const node of frame.querySelectorAll<HTMLElement>('[data-numeral], [data-minute-label="true"]')) {
-      const value = Number(node.dataset.numeral ?? node.textContent?.trim());
+      const value = Number(node.dataset.value ?? node.dataset.numeral ?? node.textContent?.trim());
       if ((options.done ?? []).includes(value)) node.dataset.done = 'true';
+    }
+
+    // A numeral is about 27px on an iPad and a minute label about 11px: neither is a finger target.
+    // These transparent discs are the real controls, sized for a thumb, over the glyphs.
+    const svg = frame.querySelector('svg');
+    if (svg && item.tap) {
+      const ring = item.tap.target === 'numerals' ? '[data-numeral]' : '[data-minute-label="true"]';
+      for (const glyph of frame.querySelectorAll<SVGElement>(ring)) {
+        const value = Number(glyph.dataset.value ?? glyph.textContent?.trim());
+        const disc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        disc.setAttribute('cx', glyph.getAttribute('x') ?? '0');
+        disc.setAttribute('cy', glyph.getAttribute('y') ?? '0');
+        disc.setAttribute('r', item.tap.target === 'numerals' ? '7' : '5');
+        disc.setAttribute('class', 'tap-disc');
+        disc.setAttribute('data-hit', String(value));
+        disc.setAttribute('data-ring', item.tap.target);
+        if (value === options.next) disc.setAttribute('data-next', 'true');
+        if ((options.done ?? []).includes(value)) disc.setAttribute('data-done', 'true');
+        svg.append(disc);
+      }
     }
     panel.append(frame);
     panel.append(

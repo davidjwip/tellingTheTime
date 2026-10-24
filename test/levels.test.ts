@@ -94,6 +94,18 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
     }))).toContain(3);
   });
 
+  it('rule 6: a tap lap whose ring is not drawn could never be finished', () => {
+    const noLabels = mutated('t1.3', (l) => {
+      l.face!.minuteLabels = false;
+    });
+    expect(rules(noLabels)).toContain(6);
+
+    const noNumerals = mutated('t1.1', (l) => {
+      l.face!.numerals = false;
+    });
+    expect(rules(noNumerals)).toContain(6);
+  });
+
   it('rule 4: minutes that are not multiples of five', () => {
     expect(rules(mutated('t4.2', (l) => { l.minutes = [7]; }))).toContain(4);
   });
