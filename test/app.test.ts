@@ -21,6 +21,23 @@ const answerRight = (s: Session, n: number): Session => {
   return next;
 };
 
+describe('the five-minute ring as a scaffold', () => {
+  const face = (id: string, verdict?: 'correct' | 'wrong'): HTMLElement => {
+    const level = LEVELS.find((l) => l.id === id)!;
+    return renderPlay(level, createSession(level), verdict ? { lastVerdict: verdict } : {});
+  };
+
+  it('is always on for the level that teaches it', () => {
+    expect(face('t5.1').querySelector('[data-minute-label="true"]')).not.toBeNull();
+  });
+
+  it('is off for the level that tests it, and returns only when the child has missed', () => {
+    expect(face('t5.2').querySelector('[data-minute-label="true"]')).toBeNull();
+    expect(face('t5.2', 'correct').querySelector('[data-minute-label="true"]')).toBeNull();
+    expect(face('t5.2', 'wrong').querySelector('[data-minute-label="true"]')).not.toBeNull();
+  });
+});
+
 describe('what the adult is told to say', () => {
   const item = {} as Parameters<typeof promptFor>[0];
 
