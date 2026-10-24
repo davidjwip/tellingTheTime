@@ -11,7 +11,15 @@
 
 import { mountPlay } from './play';
 import { mountTierPlay } from './play';
-import { bankForTier, firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from './picker';
+import {
+  bankForTier,
+  firstPlayable,
+  levelFromClick,
+  renderInstructions,
+  renderPicker,
+  resolveStartLevel,
+  shelve,
+} from './picker';
 import { loadProgress, markCleared, rememberLevel, saveProgress, setName } from './progress';
 
 import type { Mounted } from './play';
@@ -34,6 +42,9 @@ export interface Shell {
   /** The level on screen, for tests and for the badge write-back. */
   currentLevel: () => Level | null;
 }
+
+/** How long a finger rests on a tier before its exercises are shown. Long enough not to fire on a tap. */
+export const LONG_PRESS_MS = 400;
 
 export function createShell(deps: ShellDeps): Shell {
   const { app, overlayRoot, store, levels, speaker } = deps;
@@ -104,14 +115,62 @@ export function createShell(deps: ShellDeps): Shell {
     });
   };
 
+  const openInstructions = (): void => {
+    overlayRoot.replaceChildren(renderInstructions());
+  };
+
+  const closeInstructions = (): void => {
+    if (overlayRoot.querySelector('[data-panel="instructions"]')) overlayRoot.replaceChildren();
+  };
+
+  // The panel lives in the overlay, which is outside #app, so its Close button needs its own listener.
+  overlayRoot.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('[data-action="close-instructions"]')) closeInstructions();
+  });
+
+  // Escape closes the panel: an adult who opened it by accident should not have to hunt for the button.
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeInstructions();
+  });
+
+  let pressTimer: ReturnType<typeof setTimeout> | undefined;
+  const cancelPress = (): void => {
+    if (pressTimer !== undefined) clearTimeout(pressTimer);
+    pressTimer = undefined;
+  };
+
+  // A title attribute never opens on an iPad, so the exercises come out on a long press instead.
+  app.addEventListener('pointerdown', (event) => {
+    const door = (event.target as HTMLElement | null)?.closest<HTMLElement>('.picker [data-tier-entry]');
+    if (!door) return;
+    cancelPress();
+    pressTimer = setTimeout(() => {
+      door.dataset.tip = 'true';
+    }, LONG_PRESS_MS);
+  });
+  app.addEventListener('pointerup', cancelPress);
+  app.addEventListener('pointercancel', cancelPress);
+
   app.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
+
+    if (target?.closest('[data-action="instructions"]')) {
+      openInstructions();
+      return;
+    }
 
     // Scoped to the shelf: the play screen's container also carries data-level, and a bare
     // closest() there turned every tap inside a round into "open this level again".
     // A tier door and a specific level both carry data-level, so the door is checked first.
     const door = target?.closest<HTMLElement>('.picker [data-tier-entry]');
     const doorTier = door?.closest<HTMLElement>('[data-tier]')?.dataset.tier;
+    if (door?.dataset.tip === 'true') {
+      // The press that revealed the tooltip must not also start the round; a second tap will.
+      delete door.dataset.tip;
+      return;
+    }
+
     if (door && doorTier !== undefined) {
       playTier(Number(doorTier));
       return;
