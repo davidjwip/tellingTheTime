@@ -18,11 +18,6 @@
       "yue": "可唔可以整到呢個時間？"
     },
     {
-      "key": "prompt-tap",
-      "en": "Have a go.",
-      "yue": "試吓啦。"
-    },
-    {
       "key": "praise-1",
       "en": "Well done!",
       "yue": "好叻呀！"
@@ -295,10 +290,6 @@
         "text": "Can you make this time?",
         "sha256": "9835d4e6de2bae53547e60e042070dfaed9be5b7729516e6216c8dafd4ba4fc5"
       },
-      "prompt-tap": {
-        "text": "Have a go.",
-        "sha256": "e0b5d07758afa054d63d6614dba52917f17a7d2f71f9d9b080435d7f4b0b078c"
-      },
       "praise-1": {
         "text": "Well done!",
         "sha256": "133a9875bf2bc1d0da779c6f151c38661d637bea9413496eab23db67afc2a397"
@@ -516,10 +507,6 @@
       "prompt-set": {
         "text": "可唔可以整到呢個時間？",
         "sha256": "94cfcf74ed5e23d659dded8bde2beec4a05cd633014fc598af4734e6a8831231"
-      },
-      "prompt-tap": {
-        "text": "試吓啦。",
-        "sha256": "ba8d6ab5c4351a81286a76156fcf428eaa30dffd58ee4ebe65f91be566a5b230"
       },
       "praise-1": {
         "text": "好叻呀！",
