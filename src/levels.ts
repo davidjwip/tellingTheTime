@@ -280,13 +280,18 @@ export function validateLevels(levels: readonly Level[] = LEVELS, options: Valid
         fail(6, level.id, 'hands:hour set step needs a single fixed minute');
       }
       for (const field of RESERVED_FACE_FIELDS) {
-        if (face[field]) fail(6, level.id, `${field} is reserved for T5+; keep it false in v1`);
+        // Reserved for T5 and above: the fields exist, and this is the tier that uses them.
+        if (face[field] && level.tier < 5) {
+          fail(6, level.id, `${field} is reserved for T5+; keep it false in v1`);
+        }
       }
       if (face.minuteHandParked && hands !== 'both') {
         fail(6, level.id, 'minuteHandParked needs hands:both — there is no minute hand to park');
       }
-      if (face.minuteLabels && hands !== 'none') {
-        fail(6, level.id, 'minuteLabels belongs to the numerals-only face (T1), not a two-hand face');
+      // The 5/10/.../60 ring is the bridge from numerals to minutes: it belongs on the numerals-only
+      // face at T1, and on a two-hand clock at T5 where it is the whole point, and nowhere else.
+      if (face.minuteLabels && hands !== 'none' && level.tier !== 5) {
+        fail(6, level.id, 'minuteLabels belongs to the numerals-only face (T1) or a tier 5 clock');
       }
     }
 
