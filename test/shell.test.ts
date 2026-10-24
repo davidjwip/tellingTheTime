@@ -209,10 +209,10 @@ describe('the shell decides what a click means', () => {
   it('does nothing for a door whose tier has no playable bank', () => {
     shell().start(null);
     const section = document.createElement('section');
-    section.dataset.tier = '5'; // tier 5 has no levels at all
+    section.dataset.tier = '6'; // tier 6 does not exist
     const door = document.createElement('button');
     door.dataset.tierEntry = 'true';
-    door.dataset.level = 't5.1';
+    door.dataset.level = 't6.1';
     section.append(door);
     app.querySelector('.picker')?.append(section);
     door.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 60, clientY: 60 }));

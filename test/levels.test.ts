@@ -44,11 +44,26 @@ describe('AC-06 — the committed level data passes every rule', () => {
     expect(validateLevels(LEVELS)).toEqual([]);
   });
 
-  it('has the 20 levels the spec tabulates, 4 per tier from T0 to T4', () => {
-    expect(LEVELS).toHaveLength(20);
+  it('has the 22 levels the spec tabulates: 4 per tier from T0 to T4, and 2 at T5', () => {
+    expect(LEVELS).toHaveLength(22);
     for (const tier of [0, 1, 2, 3, 4]) {
       expect(LEVELS.filter((l) => l.tier === tier)).toHaveLength(4);
     }
+  });
+
+  it('builds tier 5 as the bridge: one level with the ring, one without', () => {
+    const five = LEVELS.filter((l) => l.tier === 5);
+    expect(five.map((l) => l.id)).toEqual(['t5.1', 't5.2']);
+
+    const grid = [5, 10, 20, 25, 35, 40, 50, 55];
+    for (const level of five) {
+      expect(level.minutes, level.id).toEqual(grid);
+      expect(level.face?.hands, level.id).toBe('both');
+    }
+
+    // the scaffold is the difference between the two levels, and the whole point of the pair
+    expect(five[0]?.face?.minuteLabels).toBe(true);
+    expect(five[1]?.face?.minuteLabels).toBe(false);
   });
 
   it('gives every T2–T4 round ten items, as the spec promises', () => {
@@ -94,7 +109,21 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
     }))).toContain(3);
   });
 
-  it('rule 6: a tap lap whose ring is not drawn could never be finished', () => {
+  it('rule 6: the 5-minute ring is allowed on a two-hand clock at tier 5, and nowhere below', () => {
+    // the shipped level carries the ring on a two-hand face, and the file still validates
+    const atFive = LEVELS.find((l) => l.id === 't5.1');
+    expect(atFive?.face?.minuteLabels).toBe(true);
+    expect(atFive?.face?.hands).toBe('both');
+    expect(rules(LEVELS)).not.toContain(6);
+
+    // the same face one tier earlier is still a scaffold on the wrong clock
+    const atFour = mutated('t4.4', (l) => {
+      l.face!.minuteLabels = true;
+    });
+    expect(rules(atFour)).toContain(6);
+  });
+
+  it('rule 6: the tap lap rule still applies', () => {
     const noLabels = mutated('t1.3', (l) => {
       l.face!.minuteLabels = false;
     });
@@ -178,7 +207,7 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
     delete broken[0]!.knobs;
     const out = parseLevelsFile({ levels: broken });
     expect(out.violations.map((v) => v.rule)).toContain(8);
-    expect(out.levels).toHaveLength(19); // the malformed level never reaches the rules
+    expect(out.levels).toHaveLength(21); // the malformed level never reaches the rules
   });
 });
 
