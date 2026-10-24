@@ -82,7 +82,6 @@ h1 {
 }
 
 .operator-toggle .action-btn {
-  padding: 8px 24px;
   border-radius: 8px 0 0 8px;
 }
 
@@ -548,7 +547,6 @@ footer {
   h1 { font-size: 1.6rem; }
   .header-actions { gap: 6px; }
   .header-actions .action-btn.small { padding: 6px 12px; font-size: 0.85rem; }
-  .operator-toggle .action-btn.small { padding: 6px 14px; }
   .step { width: 100%; max-width: 42px; aspect-ratio: 1; height: auto; font-size: 0.85rem; }
   .goal-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; }
   .pad-btn { min-height: 80px; font-size: 1.2rem; }
@@ -562,11 +560,13 @@ footer {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  width: 100%;
-  min-height: 64px;
-  padding: 14px 18px;
+  width: auto;
+  min-width: 240px;
+  max-width: 90%;
+  min-height: 60px;
+  padding: 14px 32px;
   border: none;
-  border-radius: 16px;
+  border-radius: 50px;
   background-color: white;
   color: #2d3561;
   font-family: inherit;
@@ -596,4 +596,38 @@ footer {
 section.tier:last-of-type .tier-entry[data-tip='true']::after {
   top: auto;
   bottom: calc(100% + 8px);
+}
+
+/* The shelf's own layout: one line of grown-up controls, the name, then a centred pill per tier. */
+.picker .name-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 10px 0 18px;
+}
+
+.picker .name-row label {
+  font-size: 1.12rem;
+  color: #2d3561;
+}
+
+.tier {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.level-grid {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Start is the one action a child presses, so it is larger than the buttons around it. */
+.action-btn.start-primary {
+  font-size: 1.25rem;
+  padding: 16px 56px;
+  margin-top: 8px;
 }
