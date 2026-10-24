@@ -281,6 +281,7 @@ describe('the shelf', () => {
 
   it('shows the sample words in the chosen register, not just a speaker icon', () => {
     expect(renderInstructions('zh').textContent).toContain('三時十五分');
+    expect(renderInstructions('zh').textContent).toContain('四時十分'); // ten past four
     expect(renderInstructions('yue').textContent).toContain('三點三');
     expect(renderInstructions('en').textContent).toContain('quarter past three');
   });
@@ -291,7 +292,7 @@ describe('the shelf', () => {
     expect(text).toContain('三點三');
     expect(text).toContain('三時十五分');
     const samples = [...panel.querySelectorAll('[data-say]')].map((n) => n.getAttribute('data-say'));
-    expect(samples).toEqual(['oclock-3', 'qpast-3', 'qto-3']);
+    expect(samples).toEqual(['oclock-3', 'qpast-3', 'qto-3', 't4-10']);
   });
 
   it('puts the language beside How to use, at the same size', () => {

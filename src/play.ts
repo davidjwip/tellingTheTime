@@ -8,7 +8,7 @@
  */
 
 import { renderCelebration, renderPlay, renderSummary } from './app';
-import { promptKeyFor } from './audio';
+import { chronoKeyFor, promptKeyFor } from './audio';
 import { lapValue, startLap, tapValue } from './tap';
 
 import type { Lap } from './tap';
@@ -207,8 +207,10 @@ function mountRound(
     // The header's Level button belongs to the play screen, so it has to do something: go back to
     // the shelf. It was enabled and inert, which this codebase calls a lie.
     if (action === 'say') {
+      // The time on the clock, not the question: the level exists to teach how this time is said,
+      // and repeating "What time is it?" teaches nothing. The question is still spoken on arrival.
       const item = currentItem(session);
-      const key = item ? promptKeyFor(item) : undefined;
+      const key = (item?.time ? chronoKeyFor(item.time) : undefined) ?? (item ? promptKeyFor(item) : undefined);
       if (key) void options.speaker?.say(key);
       return;
     }
