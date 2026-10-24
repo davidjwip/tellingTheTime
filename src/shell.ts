@@ -45,6 +45,10 @@ export interface Shell {
 
 /** How long a finger rests on a tier before its exercises are shown. Long enough not to fire on a tap. */
 export const LONG_PRESS_MS = 400;
+/** A finger that moves further than this is scrolling, not pressing. */
+export const MOVE_TOLERANCE_PX = 10;
+/** How long the bubble stays readable after the finger lifts. */
+export const TIP_LINGER_MS = 5000;
 
 export function createShell(deps: ShellDeps): Shell {
   const { app, overlayRoot, store, levels, speaker } = deps;
@@ -115,12 +119,20 @@ export function createShell(deps: ShellDeps): Shell {
     });
   };
 
-  const openInstructions = (): void => {
+  let instructionsOpener: HTMLElement | null = null;
+
+  const openInstructions = (opener: HTMLElement | null): void => {
+    instructionsOpener = opener;
     overlayRoot.replaceChildren(renderInstructions());
+    // the panel must take focus, or a keyboard user stays behind a modal dialog
+    overlayRoot.querySelector<HTMLElement>('[data-action="close-instructions"]')?.focus();
   };
 
   const closeInstructions = (): void => {
-    if (overlayRoot.querySelector('[data-panel="instructions"]')) overlayRoot.replaceChildren();
+    if (!overlayRoot.querySelector('[data-panel="instructions"]')) return;
+    overlayRoot.replaceChildren();
+    instructionsOpener?.focus();
+    instructionsOpener = null;
   };
 
   // The panel lives in the overlay, which is outside #app, so its Close button needs its own listener.
@@ -135,9 +147,17 @@ export function createShell(deps: ShellDeps): Shell {
   });
 
   let pressTimer: ReturnType<typeof setTimeout> | undefined;
+  let pressOrigin: { x: number; y: number } | null = null;
   const cancelPress = (): void => {
     if (pressTimer !== undefined) clearTimeout(pressTimer);
     pressTimer = undefined;
+    pressOrigin = null;
+  };
+
+  const clearTips = (): void => {
+    for (const tipped of Array.from(app.querySelectorAll<HTMLElement>('[data-tip]'))) {
+      delete tipped.dataset.tip;
+    }
   };
 
   // A title attribute never opens on an iPad, so the exercises come out on a long press instead.
@@ -145,18 +165,37 @@ export function createShell(deps: ShellDeps): Shell {
     const door = (event.target as HTMLElement | null)?.closest<HTMLElement>('.picker [data-tier-entry]');
     if (!door) return;
     cancelPress();
+    pressOrigin = { x: event.clientX, y: event.clientY };
     pressTimer = setTimeout(() => {
       door.dataset.tip = 'true';
     }, LONG_PRESS_MS);
   });
-  app.addEventListener('pointerup', cancelPress);
-  app.addEventListener('pointercancel', cancelPress);
+
+  // A press that becomes a scroll is not a long press, and must not leave a bubble behind.
+  app.addEventListener('pointermove', (event) => {
+    if (!pressOrigin) return;
+    const moved = Math.abs(event.clientX - pressOrigin.x) + Math.abs(event.clientY - pressOrigin.y);
+    if (moved > MOVE_TOLERANCE_PX) cancelPress();
+  });
+
+  const endPress = (): void => {
+    cancelPress();
+    // the bubble stays while the finger is down and for a moment after, so it can be read
+    if (app.querySelector('[data-tip]')) {
+      setTimeout(() => {
+        if (!app.querySelector('[data-tip]')?.getAttribute('data-tip-held')) clearTips();
+      }, TIP_LINGER_MS);
+    }
+  };
+  app.addEventListener('pointerup', endPress);
+  app.addEventListener('pointercancel', endPress);
+  app.addEventListener('pointerleave', endPress, true);
 
   app.addEventListener('click', (event) => {
     const target = event.target as HTMLElement | null;
 
     if (target?.closest('[data-action="instructions"]')) {
-      openInstructions();
+      openInstructions(target.closest<HTMLElement>('[data-action="instructions"]'));
       return;
     }
 
@@ -170,6 +209,9 @@ export function createShell(deps: ShellDeps): Shell {
       delete door.dataset.tip;
       return;
     }
+
+    // anywhere else on the screen: the bubble has done its job
+    clearTips();
 
     if (door && doorTier !== undefined) {
       playTier(Number(doorTier));

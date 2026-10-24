@@ -141,13 +141,21 @@ h1 {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
+/* The outer element is the dimming layer and covers the screen; the card sits inside it. */
 .instructions-panel {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: min(34rem, 90vw);
-  max-height: 80vh;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background-color: rgba(45, 53, 97, 0.45);
+  z-index: 20;
+}
+
+.instructions-card {
+  width: min(34rem, 100%);
+  max-height: 82vh;
   overflow-y: auto;
   background-color: white;
   color: #2d3561;
@@ -155,18 +163,9 @@ h1 {
   padding: 22px 24px;
   text-align: left;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
-  z-index: 20;
 }
 
-.instructions-panel::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-color: rgba(45, 53, 97, 0.45);
-  z-index: -1;
-}
-
-.instructions-panel h2 {
+.instructions-card h2 {
   margin-top: 0;
 }
 
@@ -554,4 +553,47 @@ footer {
   .goal-steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; width: 100%; }
   .pad-btn { min-height: 80px; font-size: 1.2rem; }
   .mascot, .goal-end { font-size: 1.5rem; }
+}
+/* A tier is now the only control in its section, so it has to be a comfortable target for a
+   four-year-old's finger: at least 44pt square, full width, with the name on its own line. */
+.level-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 100%;
+  min-height: 64px;
+  padding: 14px 18px;
+  border: none;
+  border-radius: 16px;
+  background-color: white;
+  color: #2d3561;
+  font-family: inherit;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(45, 53, 97, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.level-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(45, 53, 97, 0.18);
+}
+
+.level-btn .level-note {
+  font-size: 0.85rem;
+  font-weight: 400;
+  color: #6b7280;
+}
+
+.level-btn[data-cleared='true'] .level-note {
+  color: #2e9e77;
+}
+
+/* The last tier would otherwise open its bubble off the bottom of the screen. */
+section.tier:last-of-type .tier-entry[data-tip='true']::after {
+  top: auto;
+  bottom: calc(100% + 8px);
 }
