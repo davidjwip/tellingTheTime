@@ -28,7 +28,7 @@ describe('the phrases', () => {
     // nothing in the logs to say why
     const missing: string[] = [];
     for (const phrase of PHRASES) {
-      for (const locale of ['en', 'yue'] as const) {
+      for (const locale of ['en', 'yue', 'zh'] as const) {
         const path = `public${audioUrl(phrase.key, locale)}`;
         if (!existsSync(path)) missing.push(path);
       }
@@ -120,7 +120,7 @@ describe('the clips on disk', () => {
     // sha256 per clip into the manifest; this recomputes it.
     const wrong: string[] = [];
     for (const phrase of PHRASES) {
-      for (const locale of ['en', 'yue'] as const) {
+      for (const locale of ['en', 'yue', 'zh'] as const) {
         const path = `public${audioUrl(phrase.key, locale)}`;
         const recorded = CLIPS[locale][phrase.key];
         if (!recorded) {

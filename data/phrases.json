@@ -12,13 +12,13 @@
       "key": "prompt-read",
       "en": "What time is it?",
       "yue": "而家幾點呀？",
-      "zh": "現在幾點？"
+      "zh": "現在是幾時？"
     },
     {
       "key": "prompt-set",
       "en": "Can you make this time?",
       "yue": "可唔可以整到呢個時間？",
-      "zh": "可以做出這個時間嗎？"
+      "zh": "請做出這個時間。"
     },
     {
       "key": "praise-1",
@@ -774,12 +774,12 @@
     },
     "zh": {
       "prompt-read": {
-        "text": "現在幾點？",
-        "sha256": "40df60b9f4f151e512ab4bab63fb3463d41a52cde4874165eb5c3cd16815d50c"
+        "text": "現在是幾時？",
+        "sha256": "5a7269ac5b1c43e15693e8fb592603cb9a5fe6bb67ccc400fb9deb32aefe6573"
       },
       "prompt-set": {
-        "text": "可以做出這個時間嗎？",
-        "sha256": "0d49ff05ba05ca6e84ca6b67353439fa7c5eca59c172a597590cca6743aa5efb"
+        "text": "請做出這個時間。",
+        "sha256": "9cf9d657af1f7deefe54e9b4e8b305d7df45a9c8e6d9162aff20c3af30b69bf7"
       },
       "praise-1": {
         "text": "做得好！",
