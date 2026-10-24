@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS } from '../src/levels';
@@ -160,6 +162,19 @@ describe('where Start goes', () => {
   });
 });
 
+describe('the language control in the stylesheet', () => {
+  it('never paints an option the colour this app uses for a wrong answer', () => {
+    // happy-dom gives import.meta.url an http scheme, so resolve from the repo root instead
+    const css = readFileSync('src/styles.css', 'utf8');
+    const blocks = [...css.matchAll(/\.operator-toggle[^{]*\{[^}]*\}/g)].map((m) => m[0]);
+    expect(blocks.length).toBeGreaterThan(0);
+    for (const block of blocks) {
+      expect(block.toLowerCase()).not.toContain('#ff6b6b');
+      expect(block).not.toContain('255, 107, 107');
+    }
+  });
+});
+
 describe('the shelf', () => {
   const shelved = shelve(LEVELS, DEFAULT_PROGRESS);
 
@@ -242,6 +257,14 @@ describe('the shelf', () => {
     expect(text).toContain('ten right answers');
     expect(text.toLowerCase()).toContain('on this device');
     expect(panel.querySelector('[data-action="close-instructions"]')).not.toBeNull();
+  });
+
+  it('puts the panel body in a card, so the dimming layer can cover the screen', () => {
+    const panel = renderInstructions();
+    const card = panel.querySelector('.instructions-card');
+    expect(card).not.toBeNull();
+    expect(card?.querySelector('[data-action="close-instructions"]')).not.toBeNull();
+    expect(card?.textContent).toContain('ten right answers');
   });
 
   it('keeps the exercises out of the buttons and inside the entry tooltip', () => {

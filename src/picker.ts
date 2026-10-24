@@ -155,17 +155,23 @@ export function bankForTier(
 
 /** The grown-up's page: what this is, what each tier teaches, how a round works, and where the name goes. */
 export function renderInstructions(): HTMLElement {
+  // The dimming layer is the element that covers the screen; the card sits inside it. Putting the
+  // fixed backdrop on the card itself made the transform create a containing block, so the dim
+  // covered only the card and the page stayed clickable behind a modal dialog.
   const panel = el('div', 'instructions-panel');
   panel.dataset.panel = 'instructions';
   panel.setAttribute('role', 'dialog');
   panel.setAttribute('aria-modal', 'true');
   panel.setAttribute('aria-labelledby', 'instructions-title');
 
+  const card = el('div', 'instructions-card');
+  panel.append(card);
+
   const title = el('h2', undefined, 'For the grown-up');
   title.id = 'instructions-title';
-  panel.append(title);
+  card.append(title);
 
-  panel.append(
+  card.append(
     el(
       'p',
       undefined,
@@ -181,10 +187,10 @@ export function renderInstructions(): HTMLElement {
     item.append(el('span', undefined, ` — ${TIER_BLURB[tier] ?? ''}`));
     list.append(item);
   }
-  panel.append(el('p', undefined, 'The levels, in order:'));
-  panel.append(list);
+  card.append(el('p', undefined, 'The levels, in order:'));
+  card.append(list);
 
-  panel.append(
+  card.append(
     el(
       'p',
       undefined,
@@ -194,7 +200,7 @@ export function renderInstructions(): HTMLElement {
     ),
   );
 
-  panel.append(
+  card.append(
     el(
       'p',
       undefined,
@@ -205,7 +211,7 @@ export function renderInstructions(): HTMLElement {
 
   const close = el('button', 'action-btn primary', 'Close');
   close.dataset.action = 'close-instructions';
-  panel.append(close);
+  card.append(close);
 
   return panel;
 }

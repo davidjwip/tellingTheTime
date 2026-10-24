@@ -123,6 +123,64 @@ describe('the shell decides what a click means', () => {
     }
   });
 
+  it('dismisses the bubble on its own when the finger simply lifts', () => {
+    vi.useFakeTimers();
+    try {
+      shell().start(null);
+      const door = app.querySelector<HTMLElement>('[data-tier-entry]')!;
+      door.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 40, clientY: 40 }));
+      vi.advanceTimersByTime(450);
+      expect(door.dataset.tip).toBe('true');
+
+      // the finger lifts and nothing else happens: no click, no second tap, no stuck bubble
+      door.dispatchEvent(new PointerEvent('pointerup', { bubbles: true }));
+      vi.advanceTimersByTime(5200);
+      expect(door.dataset.tip).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('treats a press that moves as a scroll, not a long press', () => {
+    vi.useFakeTimers();
+    try {
+      shell().start(null);
+      const door = app.querySelector<HTMLElement>('[data-tier-entry]')!;
+      door.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 40, clientY: 40 }));
+      door.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: 40, clientY: 90 }));
+      vi.advanceTimersByTime(450);
+      expect(door.dataset.tip).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('dismisses the bubble when something else is tapped', () => {
+    vi.useFakeTimers();
+    try {
+      shell().start(null);
+      const door = app.querySelector<HTMLElement>('[data-tier-entry]')!;
+      door.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 40, clientY: 40 }));
+      vi.advanceTimersByTime(450);
+      expect(door.dataset.tip).toBe('true');
+
+      click('#child-name');
+      expect(door.dataset.tip).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('puts focus in the panel, and gives it back to the control that opened it', () => {
+    shell().start(null);
+    const opener = app.querySelector<HTMLElement>('[data-action="instructions"]')!;
+    click('[data-action="instructions"]');
+    expect(document.activeElement?.getAttribute('data-action')).toBe('close-instructions');
+
+    click('[data-action="close-instructions"]');
+    expect(document.activeElement).toBe(opener);
+  });
+
   it('returns to the shelf from a tier round', () => {
     shell().start(null);
     app.querySelector<HTMLElement>('section[data-tier="2"] [data-tier-entry]')
