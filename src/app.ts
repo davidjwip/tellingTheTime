@@ -201,7 +201,12 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
       // There is no set-task branch here any more. With set steps filtered out of every round there is
       // no way to reach one, and untested code that cannot run is the thing this project keeps
       // finding. Drawing a set task properly needs hand-dragging, and that branch returns with it.
-      const face = renderFace(item?.time ?? { hour: 12, minute: 0 }, level.face);
+      // A wrong answer on a tier 5 clock brings the ring back for that question only: the scaffold
+      // fades in when it is needed rather than being present or absent for the whole level.
+      const peek =
+        level.tier === 5 && !level.face?.minuteLabels && options.lastVerdict === 'wrong';
+      const faceConfig = peek ? { ...level.face!, minuteLabels: true } : level.face!;
+      const face = renderFace(item?.time ?? { hour: 12, minute: 0 }, faceConfig);
       face.setAttribute('class', 'clock-face');
       frame.append(face);
     }

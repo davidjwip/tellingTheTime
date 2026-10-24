@@ -290,8 +290,8 @@ export function validateLevels(levels: readonly Level[] = LEVELS, options: Valid
       }
       // The 5/10/.../60 ring is the bridge from numerals to minutes: it belongs on the numerals-only
       // face at T1, and on a two-hand clock at T5 where it is the whole point, and nowhere else.
-      if (face.minuteLabels && hands !== 'none' && level.tier !== 5) {
-        fail(6, level.id, 'minuteLabels belongs to the numerals-only face (T1) or a tier 5 clock');
+      if (face.minuteLabels && hands !== 'none' && !(level.tier === 5 && hands === 'both')) {
+        fail(6, level.id, 'minuteLabels belongs to the numerals-only face (T1) or a two-hand tier 5 clock');
       }
     }
 

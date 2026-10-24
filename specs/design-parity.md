@@ -43,6 +43,7 @@ Either way the CSS below is identical.
 | Body text | `#333` | `body`, inputs |
 | Muted text | `#7f8c8d` | `.step`, `.streak-best` |
 | Label grey | `#555` | `.name-input label`, `.mascot-picker label` |
+| Clock ring ink | `#4b5563` | the 5/10/…/60 ring on the clock face. Darker than the muted grey `#7f8c8d`, because a four-year-old reads this ring rather than glancing at it (v1.12, AC-65) |
 | Streak brown | `#e67e22` | `.streak-count` |
 | Streak panel | `linear-gradient(135deg, #fff3cd, #ffe69c)` | `.streak-area` |
 | Celebration title | `#ffd1dc` on `#ff6b6b` shadow | `.celebration-title` |

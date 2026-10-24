@@ -26,13 +26,15 @@ const LABEL_RADIUS = 43;
 // Hand lengths as a fraction of the dial, per specs/design-parity.md §4.2 (0.46 / 0.70).
 const HOUR_HAND_LENGTH = DIAL_RADIUS * 0.46;
 const MINUTE_HAND_LENGTH = DIAL_RADIUS * 0.7;
+/** A minute hand being read against the 5-minute ring has to reach it, or it points at nothing. */
+const MINUTE_HAND_TO_RING = LABEL_RADIUS - 1.5;
 
 /** The parity palette. Both hand colours already exist in the reference stylesheet. */
 export const FACE_COLOURS = {
   hour: '#ff6b6b',
   minute: '#333',
   numeral: '#333',
-  label: '#7f8c8d',
+  label: '#4b5563',
   dial: '#fff',
 } as const;
 
@@ -120,10 +122,12 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
   if (face.minuteLabels) {
     for (let i = 0; i < 12; i += 1) {
       const { x, y } = pointAt(i * 30, LABEL_RADIUS);
+      // A 4-year-old reads this ring, so it is not a footnote: larger type, and a stronger ink than
+      // the tick marks it sits beside.
       const label = el('text', {
         x,
         y,
-        'font-size': 3.6,
+        'font-size': 5,
         'text-anchor': 'middle',
         'dominant-baseline': 'central',
         fill: FACE_COLOURS.label,
@@ -177,6 +181,7 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
   }
 
   if (face.hands === 'both') {
+    const minuteLength = face.minuteLabels ? MINUTE_HAND_TO_RING : MINUTE_HAND_LENGTH;
     // A parked minute hand is drawn at 12 and never moves — t2.4, where o'clock is secure and the
     // second hand's existence is the only new thing.
     const angle = face.minuteHandParked ? 0 : minuteAngle(time.minute);
@@ -185,14 +190,14 @@ export function renderFace(time: ClockTime, face: Face): SVGSVGElement {
         x1: CENTRE,
         y1: CENTRE,
         x2: CENTRE,
-        y2: CENTRE - MINUTE_HAND_LENGTH,
+        y2: CENTRE - minuteLength,
         stroke: 'currentColor',
         style: `color: ${FACE_COLOURS.minute}`,
         'stroke-width': 2.5,
         'stroke-linecap': 'round',
         transform: `rotate(${angle} ${CENTRE} ${CENTRE})`,
         'data-hand': 'minute',
-        'data-length': MINUTE_HAND_LENGTH,
+        'data-length': minuteLength,
       }),
     );
   }
