@@ -229,13 +229,13 @@ describe('the shelf', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const tiers = [...screen.querySelectorAll('[data-tier]')].map((n) => n.getAttribute('data-tier'));
     // tier 1 has no playable exercise, so it has no door of its own
-    expect(tiers).toEqual(['0', '1', '2', '3', '4']);
+    expect(tiers).toEqual(['0', '1', '2', '3', '4', '5']);
   });
 
   it('gives each playable tier one entry carrying its first playable level', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const ids = entries(screen).map((n) => n.dataset.level);
-    expect(ids).toEqual(['t0.1', 't1.1', 't2.1', 't3.2', 't4.2']);
+    expect(ids).toEqual(['t0.1', 't1.1', 't2.1', 't3.2', 't4.2', 't5.1']);
   });
 
   it('builds a tier bank from that tier plus every playable tier below it', () => {
@@ -248,8 +248,15 @@ describe('the shelf', () => {
     expect(bank?.review.some((l) => l.tier === 1)).toBe(true);
   });
 
+  it('draws five-minute revision from the tiers below it', () => {
+    const bank = bankForTier(LEVELS, DEFAULT_PROGRESS, 5);
+    expect(bank?.levels.map((l) => l.id)).toEqual(['t5.1', 't5.2']);
+    expect(bank?.review.length).toBeGreaterThan(0);
+    expect(bank?.review.every((l) => l.tier < 5)).toBe(true);
+  });
+
   it('has no bank for a tier that cannot be played', () => {
-    expect(bankForTier(LEVELS, DEFAULT_PROGRESS, 5)).toBeNull(); // tier 5 has no levels yet
+    expect(bankForTier(LEVELS, DEFAULT_PROGRESS, 6)).toBeNull(); // tier 6 does not exist
   });
 
   it('makes the tier name itself the button, with no heading above it', () => {
