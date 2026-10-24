@@ -104,13 +104,28 @@ h1 {
 
 .operator-toggle .action-btn.operator-active,
 .operator-toggle .action-btn.operator-active:hover {
-  background-color: #4ecdc4;
-  color: white;
-  box-shadow: 0 0 0 4px rgba(78, 205, 196, 0.4);
+  /* green, because the chosen language is the right one; soft, because Start is the one solid
+     green on this screen and a child should not have to guess which green to press */
+  background-color: #d3f2ee;
+  color: #1f6f66;
+  box-shadow: inset 0 0 0 2px #4ecdc4;
 }
 
 .action-btn.primary {
   background-color: #4ecdc4;
+}
+
+/* The grown-up controls sit on one line, so they must carry the same weight: Instructions is a
+   setting, not the thing to press. Grey, like the unchosen language beside it. */
+.picker .header-actions .action-btn[data-action='instructions'] {
+  background-color: #eef1f6;
+  color: #2d3561;
+  box-shadow: none;
+}
+
+.picker .header-actions .action-btn[data-action='instructions']:hover {
+  background-color: #dfe4ee;
+  transform: none;
 }
 
 .action-btn.primary:hover {
@@ -553,7 +568,8 @@ footer {
   .mascot, .goal-end { font-size: 1.5rem; }
 }
 /* A tier is now the only control in its section, so it has to be a comfortable target for a
-   four-year-old's finger: at least 44pt square, full width, with the name on its own line. */
+   four-year-old's finger: at least 44pt tall, a centred pill rather than a bar across the window,
+   with the name above the count. */
 .level-btn {
   display: flex;
   flex-direction: column;
@@ -612,6 +628,24 @@ section.tier:last-of-type .tier-entry[data-tip='true']::after {
   color: #2d3561;
 }
 
+.picker .name-input {
+  min-height: 44px;
+  width: min(14rem, 55vw);
+  padding: 10px 14px;
+  border: 2px solid #4ecdc4;
+  border-radius: 12px;
+  background-color: white;
+  color: #2d3561;
+  font-family: inherit;
+  font-size: 1.05rem;
+}
+
+.picker .name-input:focus {
+  outline: none;
+  border-color: #3aa897;
+  box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.3);
+}
+
 .tier {
   display: flex;
   flex-direction: column;
@@ -630,4 +664,5 @@ section.tier:last-of-type .tier-entry[data-tip='true']::after {
   font-size: 1.25rem;
   padding: 16px 56px;
   margin-top: 8px;
+  box-shadow: 0 8px 22px rgba(78, 205, 196, 0.55);
 }
