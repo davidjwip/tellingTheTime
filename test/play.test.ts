@@ -214,7 +214,7 @@ describe('what a tap does', () => {
     } as unknown as import('../src/audio').Speaker;
 
     // a level whose every task needs a screen that does not exist yet: nothing to show, nothing to say
-    mountPlay(app, overlayRoot, level('t1.1'), { speaker });
+    mountPlay(app, overlayRoot, level('t1.4'), { speaker });
     expect(said).toEqual([]);
   });
 
@@ -423,12 +423,56 @@ describe('choosing a card', () => {
     } as unknown as import('../src/audio').Speaker;
 
     const mounted = mountPlay(app, overlayRoot, level('t0.2'), { speaker });
-    expect(said).toEqual(['prompt-tap']);
+    // a tap screen says nothing when it appears: there is no prompt that carries information
+    expect(said).toEqual([]);
 
     const item = currentItem(mounted.session());
     if (!item?.answer) throw new Error('no choose answer');
     tap(`[data-choice="${item.answer}"]`);
-    expect(said).toEqual(['prompt-tap', 'praise-1', 'prompt-tap']);
+    expect(said).toEqual(['praise-1']);
+  });
+});
+
+describe('tapping the dial', () => {
+  const label = (value: string): HTMLElement | undefined =>
+    [...app.querySelectorAll<HTMLElement>('[data-minute-label="true"]')].find(
+      (node) => node.textContent === value,
+    );
+
+  it('takes one number at a time, and a stray tap does not skip ahead', () => {
+    mountPlay(app, overlayRoot, level('t1.1'));
+    tap('[data-numeral="7"]'); // not the next number: nothing happens
+    expect(app.querySelector('[data-numeral="7"]')?.getAttribute('data-done')).toBeNull();
+
+    tap('[data-numeral="1"]');
+    expect(app.querySelector('[data-numeral="1"]')?.getAttribute('data-done')).toBe('true');
+    expect(app.querySelector('[data-numeral="2"]')?.getAttribute('data-done')).toBeNull();
+  });
+
+  it('moves to the next question once the lap is finished', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t1.1'));
+    const before = currentItem(mounted.session())?.key;
+    for (let value = 1; value <= 12; value += 1) tap(`[data-numeral="${value}"]`);
+    expect(currentItem(mounted.session())?.key).not.toBe(before);
+  });
+
+  it('ignores the hour numerals during a fives lap', () => {
+    mountPlay(app, overlayRoot, level('t1.3'));
+    tap('[data-numeral="12"]'); // wrong ring: the lap is over the 5-minute labels
+    expect(label('5')?.getAttribute('data-done')).toBeNull();
+
+    tap('[data-minute-label="true"]'); // the first label is 60, not the next value
+    expect(label('60')?.getAttribute('data-done')).toBeNull();
+  });
+
+  it('counts round in fives when the right labels are tapped', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t1.3'));
+    const before = currentItem(mounted.session())?.key;
+    for (let value = 5; value <= 60; value += 5) {
+      // an SVG text node has no .click() in this DOM, so dispatch the event the app listens for
+      label(String(value))?.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    }
+    expect(currentItem(mounted.session())?.key).not.toBe(before);
   });
 });
 
@@ -575,9 +619,9 @@ describe('ordering the cards', () => {
     } as unknown as import('../src/audio').Speaker;
 
     mountPlay(app, overlayRoot, level('t0.1'), { speaker });
-    expect(said).toEqual(['prompt-tap']);
+    expect(said).toEqual([]);
 
     tapOrder(DAY_ORDER);
-    expect(said).toEqual(['prompt-tap', 'praise-1', 'prompt-tap']);
+    expect(said).toEqual(['praise-1']);
   });
 });

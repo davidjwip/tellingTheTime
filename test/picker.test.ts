@@ -45,7 +45,7 @@ describe('which levels can be played today', () => {
   });
 
   it('names what the unanswerable questions need, so the shelf is a to-do list', () => {
-    expect(shelve([level('t1.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/tap/i);
+    expect(shelve([level('t1.1')], DEFAULT_PROGRESS)[0]?.available).toBe(true); // the dial can be tapped now
     expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
     expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/build/i);
 
@@ -157,7 +157,7 @@ describe('which click means a level', () => {
 
 describe('where Start goes', () => {
   it('falls back to the first playable level when the remembered one is shelved', () => {
-    const remembered = { ...DEFAULT_PROGRESS, lastLevel: 't1.1' }; // needs a screen that does not exist
+    const remembered = { ...DEFAULT_PROGRESS, lastLevel: 't1.4' }; // needs a screen that does not exist
     expect(firstPlayable(LEVELS, remembered)?.id).toBe('t0.1');
   });
 });
@@ -229,13 +229,13 @@ describe('the shelf', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const tiers = [...screen.querySelectorAll('[data-tier]')].map((n) => n.getAttribute('data-tier'));
     // tier 1 has no playable exercise, so it has no door of its own
-    expect(tiers).toEqual(['0', '2', '3', '4']);
+    expect(tiers).toEqual(['0', '1', '2', '3', '4']);
   });
 
   it('gives each playable tier one entry carrying its first playable level', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const ids = entries(screen).map((n) => n.dataset.level);
-    expect(ids).toEqual(['t0.1', 't2.1', 't3.2', 't4.2']);
+    expect(ids).toEqual(['t0.1', 't1.1', 't2.1', 't3.2', 't4.2']);
   });
 
   it('builds a tier bank from that tier plus every playable tier below it', () => {
@@ -244,12 +244,12 @@ describe('the shelf', () => {
     expect(bank?.tier).toBe(3);
     expect(bank?.levels.every((l) => l.tier === 3)).toBe(true);
     expect(bank?.review.every((l) => l.tier < 3)).toBe(true);
-    // tier 1 has nothing playable today, so it must not appear in the revision pool
-    expect(bank?.review.some((l) => l.tier === 1)).toBe(false);
+    // tier 1 is playable now that the dial can be tapped, so it belongs in the revision pool
+    expect(bank?.review.some((l) => l.tier === 1)).toBe(true);
   });
 
   it('has no bank for a tier that cannot be played', () => {
-    expect(bankForTier(LEVELS, DEFAULT_PROGRESS, 1)).toBeNull();
+    expect(bankForTier(LEVELS, DEFAULT_PROGRESS, 5)).toBeNull(); // tier 5 has no levels yet
   });
 
   it('makes the tier name itself the button, with no heading above it', () => {

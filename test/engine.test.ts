@@ -50,7 +50,7 @@ describe('building questions', () => {
   });
 
   it('asks nothing on a level whose every question needs a screen that does not exist', () => {
-    expect(buildQueue(level('t1.1'), seededRng(3))).toEqual([]);
+    expect(buildQueue(level('t1.4'), seededRng(3))).toEqual([]);
   });
 
   it('never shows the same time within two positions (AC-09)', () => {
@@ -252,9 +252,27 @@ describe('misses are not failures', () => {
   });
 });
 
+describe('a level whose questions are a lap of the dial', () => {
+  it('builds one lap per planned item, carrying the sequence and the ring', () => {
+    const queue = buildQueue(level('t1.1'), seededRng(5));
+    expect(queue).toHaveLength(4);
+    for (const item of queue) {
+      expect(item.task).toBe('tap');
+      expect(item.tap?.target).toBe('numerals');
+      expect(item.tap?.sequence).toHaveLength(12);
+    }
+  });
+
+  it('counts in fives on the label ring', () => {
+    const queue = buildQueue(level('t1.3'), seededRng(5));
+    expect(queue[0]?.tap?.target).toBe('labels');
+    expect(queue[0]?.tap?.sequence).toEqual([5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]);
+  });
+});
+
 describe('a level with nothing to ask', () => {
   it('has no questions, and answering one changes nothing', () => {
-    const session = createSession(level('t1.1'), seededRng(1)); // tap the numbers: no screen yet
+    const session = createSession(level('t1.4'), seededRng(1)); // build the face: no screen yet
     expect(session.queue).toEqual([]);
     expect(currentItem(session)).toBeUndefined();
     expect(recordVerdict(session, true)).toBe(session);

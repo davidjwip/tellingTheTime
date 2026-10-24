@@ -74,9 +74,12 @@ describe('which clip a clock face needs', () => {
     expect(chronoKeyFor({ hour: 3, minute: 7 })).toBeUndefined();
   });
 
-  it('asks a question for reading and a nudge for everything else', () => {
+  it('speaks the question for a read item, and says nothing for a screen the child answers by touch', () => {
     expect(promptKeyFor({ task: 'read' })).toBe('prompt-read');
-    expect(promptKeyFor({ task: 'tap' })).toBe('prompt-tap');
+    // "Have a go" ten times a round teaches a child to stop listening
+    expect(promptKeyFor({ task: 'tap' })).toBeUndefined();
+    expect(promptKeyFor({ task: 'choose' })).toBeUndefined();
+    expect(promptKeyFor({ task: 'order' })).toBeUndefined();
   });
 });
 
