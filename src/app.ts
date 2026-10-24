@@ -74,9 +74,9 @@ function header(level: Level, options: PlayOptions): HTMLElement {
   // screen there is nothing to say, and a button that is present but inert is a lie - the same rule
   // this file states two lines below about the placeholder controls.
   if (options.canSay) {
-    const sayButton = el('button', 'action-btn small', '🔊 Say it');
+    const sayButton = el('button', 'action-btn small', '🔊 Say the time');
     sayButton.dataset.action = 'say';
-    sayButton.setAttribute('aria-label', 'Say the question again');
+    sayButton.setAttribute('aria-label', 'Say the time on the clock');
     actions.append(toggle, sayButton);
   } else {
     actions.append(toggle);

@@ -333,6 +333,582 @@
       "en": "quarter to one",
       "yue": "十二點九",
       "zh": "十二時四十五分"
+    },
+    {
+      "key": "t1-05",
+      "en": "five past one",
+      "yue": "一點一個字",
+      "zh": "一時零五分"
+    },
+    {
+      "key": "t1-10",
+      "en": "ten past one",
+      "yue": "一點兩個字",
+      "zh": "一時十分"
+    },
+    {
+      "key": "t1-20",
+      "en": "twenty past one",
+      "yue": "一點四個字",
+      "zh": "一時二十分"
+    },
+    {
+      "key": "t1-25",
+      "en": "twenty-five past one",
+      "yue": "一點五個字",
+      "zh": "一時二十五分"
+    },
+    {
+      "key": "t1-35",
+      "en": "twenty-five to two",
+      "yue": "一點七個字",
+      "zh": "一時三十五分"
+    },
+    {
+      "key": "t1-40",
+      "en": "twenty to two",
+      "yue": "一點八個字",
+      "zh": "一時四十分"
+    },
+    {
+      "key": "t1-50",
+      "en": "ten to two",
+      "yue": "一點十個字",
+      "zh": "一時五十分"
+    },
+    {
+      "key": "t1-55",
+      "en": "five to two",
+      "yue": "一點十一個字",
+      "zh": "一時五十五分"
+    },
+    {
+      "key": "t2-05",
+      "en": "five past two",
+      "yue": "二點一個字",
+      "zh": "二時零五分"
+    },
+    {
+      "key": "t2-10",
+      "en": "ten past two",
+      "yue": "二點兩個字",
+      "zh": "二時十分"
+    },
+    {
+      "key": "t2-20",
+      "en": "twenty past two",
+      "yue": "二點四個字",
+      "zh": "二時二十分"
+    },
+    {
+      "key": "t2-25",
+      "en": "twenty-five past two",
+      "yue": "二點五個字",
+      "zh": "二時二十五分"
+    },
+    {
+      "key": "t2-35",
+      "en": "twenty-five to three",
+      "yue": "二點七個字",
+      "zh": "二時三十五分"
+    },
+    {
+      "key": "t2-40",
+      "en": "twenty to three",
+      "yue": "二點八個字",
+      "zh": "二時四十分"
+    },
+    {
+      "key": "t2-50",
+      "en": "ten to three",
+      "yue": "二點十個字",
+      "zh": "二時五十分"
+    },
+    {
+      "key": "t2-55",
+      "en": "five to three",
+      "yue": "二點十一個字",
+      "zh": "二時五十五分"
+    },
+    {
+      "key": "t3-05",
+      "en": "five past three",
+      "yue": "三點一個字",
+      "zh": "三時零五分"
+    },
+    {
+      "key": "t3-10",
+      "en": "ten past three",
+      "yue": "三點兩個字",
+      "zh": "三時十分"
+    },
+    {
+      "key": "t3-20",
+      "en": "twenty past three",
+      "yue": "三點四個字",
+      "zh": "三時二十分"
+    },
+    {
+      "key": "t3-25",
+      "en": "twenty-five past three",
+      "yue": "三點五個字",
+      "zh": "三時二十五分"
+    },
+    {
+      "key": "t3-35",
+      "en": "twenty-five to four",
+      "yue": "三點七個字",
+      "zh": "三時三十五分"
+    },
+    {
+      "key": "t3-40",
+      "en": "twenty to four",
+      "yue": "三點八個字",
+      "zh": "三時四十分"
+    },
+    {
+      "key": "t3-50",
+      "en": "ten to four",
+      "yue": "三點十個字",
+      "zh": "三時五十分"
+    },
+    {
+      "key": "t3-55",
+      "en": "five to four",
+      "yue": "三點十一個字",
+      "zh": "三時五十五分"
+    },
+    {
+      "key": "t4-05",
+      "en": "five past four",
+      "yue": "四點一個字",
+      "zh": "四時零五分"
+    },
+    {
+      "key": "t4-10",
+      "en": "ten past four",
+      "yue": "四點兩個字",
+      "zh": "四時十分"
+    },
+    {
+      "key": "t4-20",
+      "en": "twenty past four",
+      "yue": "四點四個字",
+      "zh": "四時二十分"
+    },
+    {
+      "key": "t4-25",
+      "en": "twenty-five past four",
+      "yue": "四點五個字",
+      "zh": "四時二十五分"
+    },
+    {
+      "key": "t4-35",
+      "en": "twenty-five to five",
+      "yue": "四點七個字",
+      "zh": "四時三十五分"
+    },
+    {
+      "key": "t4-40",
+      "en": "twenty to five",
+      "yue": "四點八個字",
+      "zh": "四時四十分"
+    },
+    {
+      "key": "t4-50",
+      "en": "ten to five",
+      "yue": "四點十個字",
+      "zh": "四時五十分"
+    },
+    {
+      "key": "t4-55",
+      "en": "five to five",
+      "yue": "四點十一個字",
+      "zh": "四時五十五分"
+    },
+    {
+      "key": "t5-05",
+      "en": "five past five",
+      "yue": "五點一個字",
+      "zh": "五時零五分"
+    },
+    {
+      "key": "t5-10",
+      "en": "ten past five",
+      "yue": "五點兩個字",
+      "zh": "五時十分"
+    },
+    {
+      "key": "t5-20",
+      "en": "twenty past five",
+      "yue": "五點四個字",
+      "zh": "五時二十分"
+    },
+    {
+      "key": "t5-25",
+      "en": "twenty-five past five",
+      "yue": "五點五個字",
+      "zh": "五時二十五分"
+    },
+    {
+      "key": "t5-35",
+      "en": "twenty-five to six",
+      "yue": "五點七個字",
+      "zh": "五時三十五分"
+    },
+    {
+      "key": "t5-40",
+      "en": "twenty to six",
+      "yue": "五點八個字",
+      "zh": "五時四十分"
+    },
+    {
+      "key": "t5-50",
+      "en": "ten to six",
+      "yue": "五點十個字",
+      "zh": "五時五十分"
+    },
+    {
+      "key": "t5-55",
+      "en": "five to six",
+      "yue": "五點十一個字",
+      "zh": "五時五十五分"
+    },
+    {
+      "key": "t6-05",
+      "en": "five past six",
+      "yue": "六點一個字",
+      "zh": "六時零五分"
+    },
+    {
+      "key": "t6-10",
+      "en": "ten past six",
+      "yue": "六點兩個字",
+      "zh": "六時十分"
+    },
+    {
+      "key": "t6-20",
+      "en": "twenty past six",
+      "yue": "六點四個字",
+      "zh": "六時二十分"
+    },
+    {
+      "key": "t6-25",
+      "en": "twenty-five past six",
+      "yue": "六點五個字",
+      "zh": "六時二十五分"
+    },
+    {
+      "key": "t6-35",
+      "en": "twenty-five to seven",
+      "yue": "六點七個字",
+      "zh": "六時三十五分"
+    },
+    {
+      "key": "t6-40",
+      "en": "twenty to seven",
+      "yue": "六點八個字",
+      "zh": "六時四十分"
+    },
+    {
+      "key": "t6-50",
+      "en": "ten to seven",
+      "yue": "六點十個字",
+      "zh": "六時五十分"
+    },
+    {
+      "key": "t6-55",
+      "en": "five to seven",
+      "yue": "六點十一個字",
+      "zh": "六時五十五分"
+    },
+    {
+      "key": "t7-05",
+      "en": "five past seven",
+      "yue": "七點一個字",
+      "zh": "七時零五分"
+    },
+    {
+      "key": "t7-10",
+      "en": "ten past seven",
+      "yue": "七點兩個字",
+      "zh": "七時十分"
+    },
+    {
+      "key": "t7-20",
+      "en": "twenty past seven",
+      "yue": "七點四個字",
+      "zh": "七時二十分"
+    },
+    {
+      "key": "t7-25",
+      "en": "twenty-five past seven",
+      "yue": "七點五個字",
+      "zh": "七時二十五分"
+    },
+    {
+      "key": "t7-35",
+      "en": "twenty-five to eight",
+      "yue": "七點七個字",
+      "zh": "七時三十五分"
+    },
+    {
+      "key": "t7-40",
+      "en": "twenty to eight",
+      "yue": "七點八個字",
+      "zh": "七時四十分"
+    },
+    {
+      "key": "t7-50",
+      "en": "ten to eight",
+      "yue": "七點十個字",
+      "zh": "七時五十分"
+    },
+    {
+      "key": "t7-55",
+      "en": "five to eight",
+      "yue": "七點十一個字",
+      "zh": "七時五十五分"
+    },
+    {
+      "key": "t8-05",
+      "en": "five past eight",
+      "yue": "八點一個字",
+      "zh": "八時零五分"
+    },
+    {
+      "key": "t8-10",
+      "en": "ten past eight",
+      "yue": "八點兩個字",
+      "zh": "八時十分"
+    },
+    {
+      "key": "t8-20",
+      "en": "twenty past eight",
+      "yue": "八點四個字",
+      "zh": "八時二十分"
+    },
+    {
+      "key": "t8-25",
+      "en": "twenty-five past eight",
+      "yue": "八點五個字",
+      "zh": "八時二十五分"
+    },
+    {
+      "key": "t8-35",
+      "en": "twenty-five to nine",
+      "yue": "八點七個字",
+      "zh": "八時三十五分"
+    },
+    {
+      "key": "t8-40",
+      "en": "twenty to nine",
+      "yue": "八點八個字",
+      "zh": "八時四十分"
+    },
+    {
+      "key": "t8-50",
+      "en": "ten to nine",
+      "yue": "八點十個字",
+      "zh": "八時五十分"
+    },
+    {
+      "key": "t8-55",
+      "en": "five to nine",
+      "yue": "八點十一個字",
+      "zh": "八時五十五分"
+    },
+    {
+      "key": "t9-05",
+      "en": "five past nine",
+      "yue": "九點一個字",
+      "zh": "九時零五分"
+    },
+    {
+      "key": "t9-10",
+      "en": "ten past nine",
+      "yue": "九點兩個字",
+      "zh": "九時十分"
+    },
+    {
+      "key": "t9-20",
+      "en": "twenty past nine",
+      "yue": "九點四個字",
+      "zh": "九時二十分"
+    },
+    {
+      "key": "t9-25",
+      "en": "twenty-five past nine",
+      "yue": "九點五個字",
+      "zh": "九時二十五分"
+    },
+    {
+      "key": "t9-35",
+      "en": "twenty-five to ten",
+      "yue": "九點七個字",
+      "zh": "九時三十五分"
+    },
+    {
+      "key": "t9-40",
+      "en": "twenty to ten",
+      "yue": "九點八個字",
+      "zh": "九時四十分"
+    },
+    {
+      "key": "t9-50",
+      "en": "ten to ten",
+      "yue": "九點十個字",
+      "zh": "九時五十分"
+    },
+    {
+      "key": "t9-55",
+      "en": "five to ten",
+      "yue": "九點十一個字",
+      "zh": "九時五十五分"
+    },
+    {
+      "key": "t10-05",
+      "en": "five past ten",
+      "yue": "十點一個字",
+      "zh": "十時零五分"
+    },
+    {
+      "key": "t10-10",
+      "en": "ten past ten",
+      "yue": "十點兩個字",
+      "zh": "十時十分"
+    },
+    {
+      "key": "t10-20",
+      "en": "twenty past ten",
+      "yue": "十點四個字",
+      "zh": "十時二十分"
+    },
+    {
+      "key": "t10-25",
+      "en": "twenty-five past ten",
+      "yue": "十點五個字",
+      "zh": "十時二十五分"
+    },
+    {
+      "key": "t10-35",
+      "en": "twenty-five to eleven",
+      "yue": "十點七個字",
+      "zh": "十時三十五分"
+    },
+    {
+      "key": "t10-40",
+      "en": "twenty to eleven",
+      "yue": "十點八個字",
+      "zh": "十時四十分"
+    },
+    {
+      "key": "t10-50",
+      "en": "ten to eleven",
+      "yue": "十點十個字",
+      "zh": "十時五十分"
+    },
+    {
+      "key": "t10-55",
+      "en": "five to eleven",
+      "yue": "十點十一個字",
+      "zh": "十時五十五分"
+    },
+    {
+      "key": "t11-05",
+      "en": "five past eleven",
+      "yue": "十一點一個字",
+      "zh": "十一時零五分"
+    },
+    {
+      "key": "t11-10",
+      "en": "ten past eleven",
+      "yue": "十一點兩個字",
+      "zh": "十一時十分"
+    },
+    {
+      "key": "t11-20",
+      "en": "twenty past eleven",
+      "yue": "十一點四個字",
+      "zh": "十一時二十分"
+    },
+    {
+      "key": "t11-25",
+      "en": "twenty-five past eleven",
+      "yue": "十一點五個字",
+      "zh": "十一時二十五分"
+    },
+    {
+      "key": "t11-35",
+      "en": "twenty-five to twelve",
+      "yue": "十一點七個字",
+      "zh": "十一時三十五分"
+    },
+    {
+      "key": "t11-40",
+      "en": "twenty to twelve",
+      "yue": "十一點八個字",
+      "zh": "十一時四十分"
+    },
+    {
+      "key": "t11-50",
+      "en": "ten to twelve",
+      "yue": "十一點十個字",
+      "zh": "十一時五十分"
+    },
+    {
+      "key": "t11-55",
+      "en": "five to twelve",
+      "yue": "十一點十一個字",
+      "zh": "十一時五十五分"
+    },
+    {
+      "key": "t12-05",
+      "en": "five past twelve",
+      "yue": "十二點一個字",
+      "zh": "十二時零五分"
+    },
+    {
+      "key": "t12-10",
+      "en": "ten past twelve",
+      "yue": "十二點兩個字",
+      "zh": "十二時十分"
+    },
+    {
+      "key": "t12-20",
+      "en": "twenty past twelve",
+      "yue": "十二點四個字",
+      "zh": "十二時二十分"
+    },
+    {
+      "key": "t12-25",
+      "en": "twenty-five past twelve",
+      "yue": "十二點五個字",
+      "zh": "十二時二十五分"
+    },
+    {
+      "key": "t12-35",
+      "en": "twenty-five to one",
+      "yue": "十二點七個字",
+      "zh": "十二時三十五分"
+    },
+    {
+      "key": "t12-40",
+      "en": "twenty to one",
+      "yue": "十二點八個字",
+      "zh": "十二時四十分"
+    },
+    {
+      "key": "t12-50",
+      "en": "ten to one",
+      "yue": "十二點十個字",
+      "zh": "十二時五十分"
+    },
+    {
+      "key": "t12-55",
+      "en": "five to one",
+      "yue": "十二點十一個字",
+      "zh": "十二時五十五分"
     }
   ],
   "clips": {
@@ -552,6 +1128,390 @@
       "qto-12": {
         "text": "quarter to one",
         "sha256": "8c5b682a30c45de6bc486ace63f515e4b48b97901630ec1309130e633ea71707"
+      },
+      "t1-05": {
+        "text": "five past one",
+        "sha256": "4c1b9264f3b5882dd306609b7de448caa4bbf7aee2309f3c30f5cdabd1588e06"
+      },
+      "t1-10": {
+        "text": "ten past one",
+        "sha256": "dbae4e7e4fcdcd04a0d9ccbceb51c02766f9b1ed1acff58832a3745d757fff49"
+      },
+      "t1-20": {
+        "text": "twenty past one",
+        "sha256": "2fe66806f69da3857649e680a6db69095ec02a9fcb551b75be585f75015608a2"
+      },
+      "t1-25": {
+        "text": "twenty-five past one",
+        "sha256": "af03b9d8ad2d1f74a1221f3f3a6d3c113c692a1df062113fc1fbc77d8d7ed80a"
+      },
+      "t1-35": {
+        "text": "twenty-five to two",
+        "sha256": "2f18592dc3dcbbfb83b5dfa39a3db18afa8c98f90e31db8583a1435a4e8d1bb1"
+      },
+      "t1-40": {
+        "text": "twenty to two",
+        "sha256": "c725113b7f40796320937e09569a825338de8a3ffe55080552891eda226fe1f8"
+      },
+      "t1-50": {
+        "text": "ten to two",
+        "sha256": "a3a1fe510dca6a3ecdbb07386c5d8aaa4dd460acc2d436cfca0ecf3daab9b83b"
+      },
+      "t1-55": {
+        "text": "five to two",
+        "sha256": "da09f2980ae887ed6398cd97e15b6e20c192db5c7254d573cfedcdf2bb6dadb4"
+      },
+      "t2-05": {
+        "text": "five past two",
+        "sha256": "ab85592130d04bca8a74c2b7f8577004c3d34450c6a666e965af1a01a65e0f57"
+      },
+      "t2-10": {
+        "text": "ten past two",
+        "sha256": "fa3552e9cbec65e2d7b269159c9a0144bb8123b1a6a0c1733c55ef5e457753fc"
+      },
+      "t2-20": {
+        "text": "twenty past two",
+        "sha256": "69ec6315172d19e702f6799c47f2099b80d48f9ffe86de3a1dd18b8b66e71795"
+      },
+      "t2-25": {
+        "text": "twenty-five past two",
+        "sha256": "26d92d6b21705486093cddf4c5df5ba37fe51829089ac9c2e2a43799dbb4f18b"
+      },
+      "t2-35": {
+        "text": "twenty-five to three",
+        "sha256": "0c60d714a9354834c77dd9fb64c0412f42e2eb864a0b22bb5612a4b676d5b6e1"
+      },
+      "t2-40": {
+        "text": "twenty to three",
+        "sha256": "237a21f0b52764acf6f35cb72235ca7375a2c80d2216c137133be17fca1961ef"
+      },
+      "t2-50": {
+        "text": "ten to three",
+        "sha256": "c4f5dac5303bc6315c9a7a6cc9a453522b0ae8f31036e75e411aea1fc8ddfcde"
+      },
+      "t2-55": {
+        "text": "five to three",
+        "sha256": "fe10d5ce823c00bb927b4a33e1eb6d7d280bcd01bea9f2aecfb665d2fa1a2c98"
+      },
+      "t3-05": {
+        "text": "five past three",
+        "sha256": "157181b438371528ae89d10a9dd2a1bf322236fa6994a20786fad46ba84ad467"
+      },
+      "t3-10": {
+        "text": "ten past three",
+        "sha256": "c634eae61bca2c611ec1c30ad74806fec3c2bb538f79dd1e64954fd002c7da17"
+      },
+      "t3-20": {
+        "text": "twenty past three",
+        "sha256": "7b20d3d6394b7587bd2d2544dafd087ea9be19327e43b91efbc812e74c5fe478"
+      },
+      "t3-25": {
+        "text": "twenty-five past three",
+        "sha256": "cff27635af6c4b164fa0ae957b1999453e661d019b16b77ae4fc4cc581775d64"
+      },
+      "t3-35": {
+        "text": "twenty-five to four",
+        "sha256": "78ff364540ed520e0461a1cdd60e10a185ab98b778b6c0aa1834bee228f61b90"
+      },
+      "t3-40": {
+        "text": "twenty to four",
+        "sha256": "bb9331fe17445231fc9bf4a71ce4fa9f22feaf2dc598465ab178155660e83137"
+      },
+      "t3-50": {
+        "text": "ten to four",
+        "sha256": "a1f0c0a80599934a47cfaeb0ff164ad0520267cd8db51c1ed4a731a4c5f62115"
+      },
+      "t3-55": {
+        "text": "five to four",
+        "sha256": "073d029cccd8119d951b7763c3b489996db324b850ef344efff0b3039f5f0430"
+      },
+      "t4-05": {
+        "text": "five past four",
+        "sha256": "bd8c3fc6b3386c8f0012070e06191027bfedb102b188f008a69d14a62b469488"
+      },
+      "t4-10": {
+        "text": "ten past four",
+        "sha256": "7a25f0ecfe9ecb7869ed5a17912742cb24cbc4fdbd2652aa4cfbe7fab9d185e7"
+      },
+      "t4-20": {
+        "text": "twenty past four",
+        "sha256": "93cecd3a2df799e0d6caa08173f076c622cdac2d3a2fe87723fbd4cf7e17e590"
+      },
+      "t4-25": {
+        "text": "twenty-five past four",
+        "sha256": "6664f990605161354841cd956080ef4bbe169fce064ee2753cf511f57928a85c"
+      },
+      "t4-35": {
+        "text": "twenty-five to five",
+        "sha256": "701e781a23b34d2fa422c22e5df983ddee735b8d00d42579e10d08dcd696a56e"
+      },
+      "t4-40": {
+        "text": "twenty to five",
+        "sha256": "931e603e29262eb3a3bda154a6c6955f328c411cee9bab53a4abc1b6c33c6cc9"
+      },
+      "t4-50": {
+        "text": "ten to five",
+        "sha256": "b9c4a1ed80345a8fb2eedb9d72e04d1cf7fe3200707e24e5cccc141f6b55f7c1"
+      },
+      "t4-55": {
+        "text": "five to five",
+        "sha256": "dc721968f4f89966b3329ae167419942bc5fc6c89da9bb3425a28b64a3597be7"
+      },
+      "t5-05": {
+        "text": "five past five",
+        "sha256": "54ad56a8873ab2b2b92689a57a51113cbdcebe54580dae18fe9da0a1b1a2b956"
+      },
+      "t5-10": {
+        "text": "ten past five",
+        "sha256": "475bc402a30338fe9022389f03e402697f4d76593e482a392237347455379626"
+      },
+      "t5-20": {
+        "text": "twenty past five",
+        "sha256": "c5a9fdfb03eaa92155b6f111ef97fe0373998e894756172fb916e973a056ba9f"
+      },
+      "t5-25": {
+        "text": "twenty-five past five",
+        "sha256": "fa89a5f5624add09a70c369428743a9e0736c76cb23af3fe16ebf207f239aad4"
+      },
+      "t5-35": {
+        "text": "twenty-five to six",
+        "sha256": "2edc5f56e9028ff1a642cdf42055ad57e44690e8c8ddd314cb7e427201f2d573"
+      },
+      "t5-40": {
+        "text": "twenty to six",
+        "sha256": "96e95240ee1b7c5cefe89852ca34bcad5e9b3bf8e13e0d2a1b6a83cea6f47c22"
+      },
+      "t5-50": {
+        "text": "ten to six",
+        "sha256": "486716f83601c8458ccf471d3dacd7d24db502ca46f9dbd090e8ac174947104e"
+      },
+      "t5-55": {
+        "text": "five to six",
+        "sha256": "f33b45accb3b0efe3cb0ec7f5891b2cb454d5cfee7d20b0f6727f016a22c84f4"
+      },
+      "t6-05": {
+        "text": "five past six",
+        "sha256": "69f1e3449cc8b5906e0249427261a2f8df28adde25934b8af55ea956610e4520"
+      },
+      "t6-10": {
+        "text": "ten past six",
+        "sha256": "b34e1a4dfb69d7b77d16b46ee43e1ee0a99d102f6a5695ed07ed66b062aa7aa1"
+      },
+      "t6-20": {
+        "text": "twenty past six",
+        "sha256": "99a351266f8ba4b367d2f86498163e710410d33194b61ba75eeaabec347f2d9d"
+      },
+      "t6-25": {
+        "text": "twenty-five past six",
+        "sha256": "5cb49a340c1a0c3712b5b722a94d8c258656a57d49b9c3b46b91e75673d5aaec"
+      },
+      "t6-35": {
+        "text": "twenty-five to seven",
+        "sha256": "393a04dfe9680dada7797dbd274f03c46763845884936f6533e43102da82e1b0"
+      },
+      "t6-40": {
+        "text": "twenty to seven",
+        "sha256": "c41e3086183932a77c511be354e7dc6c2bc6787a51d63748e632fffc7c346306"
+      },
+      "t6-50": {
+        "text": "ten to seven",
+        "sha256": "ca2396e2808332702ef2146e40b0b158bc1c180e9f105d266aaabadfa962c109"
+      },
+      "t6-55": {
+        "text": "five to seven",
+        "sha256": "75dc240b899515d3340d0d98b2a55c6867e975cc0ce8241751630675e5be2c21"
+      },
+      "t7-05": {
+        "text": "five past seven",
+        "sha256": "dfaf0acc839f011eb4326a2b7c14bc2b42f6453f4aec00bb467e521b6ede5e7c"
+      },
+      "t7-10": {
+        "text": "ten past seven",
+        "sha256": "259b50c879d5b0b49a30ecdb653e3f39275fef515f178ab21b37ba2d7903d054"
+      },
+      "t7-20": {
+        "text": "twenty past seven",
+        "sha256": "61ba96efb0f6e671a369a2a1c1598d4d3adeaa60b538d28eb258b6004c923912"
+      },
+      "t7-25": {
+        "text": "twenty-five past seven",
+        "sha256": "66556c84b7856f3b8c5dc46a59f5fc60e70b5b78c56951a1e79a1f4e9f4ba221"
+      },
+      "t7-35": {
+        "text": "twenty-five to eight",
+        "sha256": "d7c69ee5aa775a8b4ce4e817c98d91ee2dae10d74d505f2a9f235e6dc14552af"
+      },
+      "t7-40": {
+        "text": "twenty to eight",
+        "sha256": "0f83994b9f5897c7090d074e4a4a500441b67f99e57ed2a3a3446aa2a2f3300e"
+      },
+      "t7-50": {
+        "text": "ten to eight",
+        "sha256": "c50c4be71894e83fe347875c70f62ab66050e5fa106f51b49b96856f8307f918"
+      },
+      "t7-55": {
+        "text": "five to eight",
+        "sha256": "a0540fbaa32ec3eef0b2a089a1cbc18378c09fef9ef3b9612bc35bd53a9483f3"
+      },
+      "t8-05": {
+        "text": "five past eight",
+        "sha256": "d48b715d0c1cce0d20b7428240fa0bde123eebcec8b90e5e7b4b30f03d2aa59c"
+      },
+      "t8-10": {
+        "text": "ten past eight",
+        "sha256": "96b63110198d5a7f3f199d3f17aca367f4e48681b6a6f65ad9b841a91a42790e"
+      },
+      "t8-20": {
+        "text": "twenty past eight",
+        "sha256": "702622d1f483a345efce5da940c196ce66cf7fecc47c77a1e8c465c818a42681"
+      },
+      "t8-25": {
+        "text": "twenty-five past eight",
+        "sha256": "150100f4f4d3ead7ca1cd42d7da2a7602d6a5a9daf64144e7a516bdea305816e"
+      },
+      "t8-35": {
+        "text": "twenty-five to nine",
+        "sha256": "25b6196313c4e2ae1f4e6d19e8b4e290d730bbb6d3e1bbc5d435c49758101711"
+      },
+      "t8-40": {
+        "text": "twenty to nine",
+        "sha256": "ee1161d4abe7a1abc70b50c9311d4edc82a192ca953617af017a2a50c2b83831"
+      },
+      "t8-50": {
+        "text": "ten to nine",
+        "sha256": "bf21875c9162864abe6c6b4c6144d2a81777a0ea92afcaa78a153dab00d65680"
+      },
+      "t8-55": {
+        "text": "five to nine",
+        "sha256": "53b23ae6063057f8de149f8f4b015c954468ae74074eef4984e4d57afae9b166"
+      },
+      "t9-05": {
+        "text": "five past nine",
+        "sha256": "06d54ee9c66a90e0a58e275517841a222a46db7edab4a311ab2c0d7f20c76b3e"
+      },
+      "t9-10": {
+        "text": "ten past nine",
+        "sha256": "0420858b487e9442ecd3f5151dc8eba233888332d7107298b045ea9821605551"
+      },
+      "t9-20": {
+        "text": "twenty past nine",
+        "sha256": "476a3e9deb4200d6d5d618fbfbf12ed99d60b60507534eb98e9effd2fd1d48ba"
+      },
+      "t9-25": {
+        "text": "twenty-five past nine",
+        "sha256": "d830841893726f59c1007f24d50ec0392fdbf4d1ad08462394380f3cbde92f68"
+      },
+      "t9-35": {
+        "text": "twenty-five to ten",
+        "sha256": "ea1a4cc2048b95d342b6eee1677ae213c136e30adcc882cffb6d428861848133"
+      },
+      "t9-40": {
+        "text": "twenty to ten",
+        "sha256": "771f8ad5364e9e8117e3bbebb5280dd205fc7847ae56dababb1b67eef75a0122"
+      },
+      "t9-50": {
+        "text": "ten to ten",
+        "sha256": "d6b37c7e799d2cc21b09b44541830db63f41a070bab7249a9e501db199d05d1c"
+      },
+      "t9-55": {
+        "text": "five to ten",
+        "sha256": "9644ecfa2356ce0b2c3558f31c007d64a563a5d57a1a69cb50af8da450dc1f51"
+      },
+      "t10-05": {
+        "text": "five past ten",
+        "sha256": "13ade3f9578e274f14a5d021a2b61d213387e264851cf4d4745bfff040c8e4ac"
+      },
+      "t10-10": {
+        "text": "ten past ten",
+        "sha256": "cd15ade50f9d3189910713f3da5113909d29ee57fc62139ee5a8ba61278e637c"
+      },
+      "t10-20": {
+        "text": "twenty past ten",
+        "sha256": "0f0db289dd90132638ef317961aee98b0776fe6cc591b299ab3139cab5bc3327"
+      },
+      "t10-25": {
+        "text": "twenty-five past ten",
+        "sha256": "4b54c66e92cff21b2f8cdae740a63ff4d3a0b56cf481525ab5edbeed5407eef5"
+      },
+      "t10-35": {
+        "text": "twenty-five to eleven",
+        "sha256": "2f3c5d4638ba729d3dbfcd5dc535edbf6aa1106e38ebd3835aeb2aba14fe4534"
+      },
+      "t10-40": {
+        "text": "twenty to eleven",
+        "sha256": "4b79b7bdc0be1304a7d583d5c832ba3eb4be7501b089561faf586305ed786e67"
+      },
+      "t10-50": {
+        "text": "ten to eleven",
+        "sha256": "d390e468dbc109c47209b2f3f3180aa0be45bb9475c7aed21060fe8e8a716149"
+      },
+      "t10-55": {
+        "text": "five to eleven",
+        "sha256": "95aa36f0850296b7d3ac68123cd3595f36ec215892138842d7c35b5eec9c72da"
+      },
+      "t11-05": {
+        "text": "five past eleven",
+        "sha256": "26c5d94723d5e2b768f44d153d4e77435ba24111191c7b50faf0f85bf4c4f0cc"
+      },
+      "t11-10": {
+        "text": "ten past eleven",
+        "sha256": "04e4bcda8ecd78f9dc4754f2e0e7a9fe6b6b482daa7673c2c905cb4e76017318"
+      },
+      "t11-20": {
+        "text": "twenty past eleven",
+        "sha256": "fa14eb5b1a6a9e7cc416ff077faee0c8d4dc85602c745851ad9f09287feda682"
+      },
+      "t11-25": {
+        "text": "twenty-five past eleven",
+        "sha256": "053cba00f4b1e1491ebace4d32dd00e4224a2aef3203551a6229b35a70070c91"
+      },
+      "t11-35": {
+        "text": "twenty-five to twelve",
+        "sha256": "7c3b9ff148073b77c2a881d12cc2f33478a65dbb0cc7ebc0be0e45ff73269f6e"
+      },
+      "t11-40": {
+        "text": "twenty to twelve",
+        "sha256": "f1ff74c8baed84d56e9177f21e3f1990e173b97ff1fd17f899f050ce25eb3933"
+      },
+      "t11-50": {
+        "text": "ten to twelve",
+        "sha256": "2611bf79c09f1cf92ef858715cacb9a101195506230ebde9f84d010c4aa06bf4"
+      },
+      "t11-55": {
+        "text": "five to twelve",
+        "sha256": "ae20cd8a5d23d96ef54c8af9e0e8153b85a4774ca364e5007cfbb1444af90f67"
+      },
+      "t12-05": {
+        "text": "five past twelve",
+        "sha256": "798b61512c61bcc265325055ea085274eef2d7090ab8ecffc847d41a938aed29"
+      },
+      "t12-10": {
+        "text": "ten past twelve",
+        "sha256": "a7733fbc1b592be1260cb026cf0553356a245ace60aeccd1869a94fb050e9034"
+      },
+      "t12-20": {
+        "text": "twenty past twelve",
+        "sha256": "25487b1f7913d153b280bb06741c4180c8a9b0c036d6c7c95983b8474f71d03d"
+      },
+      "t12-25": {
+        "text": "twenty-five past twelve",
+        "sha256": "4f40227fd94ba27b452d15dde097bf0e8ef966bbbf133bb91b74d80cf69cc556"
+      },
+      "t12-35": {
+        "text": "twenty-five to one",
+        "sha256": "508e65770a9b73bc908ff8d584a6eb9cc73cb3baa5c34ce29f023c674c324d2b"
+      },
+      "t12-40": {
+        "text": "twenty to one",
+        "sha256": "b0792727c4d92d12b654bc64ac5b007eafbdce425ff6dac074cab83e52cfefeb"
+      },
+      "t12-50": {
+        "text": "ten to one",
+        "sha256": "f6e8ab10c9f4a5a742ea514590c4548006b559805b1db573e1a1596c11adcd4b"
+      },
+      "t12-55": {
+        "text": "five to one",
+        "sha256": "2127eb1cef8a0a4e023f745b250ed9832c29bab4b255639dc44156b20e2e99d0"
       }
     },
     "yue": {
@@ -770,6 +1730,390 @@
       "qto-12": {
         "text": "十二點九",
         "sha256": "1dca808f61eebfcef6fcba62a3ed38b98cc7c479b805c5f9e8570f5a7e02b8e7"
+      },
+      "t1-05": {
+        "text": "一點一個字",
+        "sha256": "96ff63c88fe8e1f0d20dbd769246e743798ed111f1d5d5576f25f5936855ab2d"
+      },
+      "t1-10": {
+        "text": "一點兩個字",
+        "sha256": "af69120a4ca9ee904d0367c1a3296bb83e10a8b49d77686aea959dc0357a28d1"
+      },
+      "t1-20": {
+        "text": "一點四個字",
+        "sha256": "c90542047929e21f6bc8b09cb631b74fcedb98dbece5b1f56a25c154095bc9c6"
+      },
+      "t1-25": {
+        "text": "一點五個字",
+        "sha256": "452fb0f3a6624355b3aa21e97d156d808c74e538424ba5a6eff9691652de16bd"
+      },
+      "t1-35": {
+        "text": "一點七個字",
+        "sha256": "cc9a52bd17f9e3b67cb10395eafe2fc9eb255ad86fd53abab4ef97d30a61c86a"
+      },
+      "t1-40": {
+        "text": "一點八個字",
+        "sha256": "60bb412cbc9645257889aad303279b80b9d3d6556ad254b6299b5e5720b48ff2"
+      },
+      "t1-50": {
+        "text": "一點十個字",
+        "sha256": "60e8b59f366197ae409b7c59da78670361b36c31f112866de1e35ec3a0d25763"
+      },
+      "t1-55": {
+        "text": "一點十一個字",
+        "sha256": "665dd9f9b96c89388d77f85b2d94ee2033d6e86839265c32c3d8d7bbc2df7367"
+      },
+      "t2-05": {
+        "text": "二點一個字",
+        "sha256": "3e6d145eef9c55ce4128662e6694bbfcd7478822cdd3cce83727cf303f1abb90"
+      },
+      "t2-10": {
+        "text": "二點兩個字",
+        "sha256": "5ba399550e915b843b3a441284953824b4b6e780e432c310390268f38386e747"
+      },
+      "t2-20": {
+        "text": "二點四個字",
+        "sha256": "a24b34937f431a5178dc88ae048f0968fa39e2db74ec1a214bb0edd010ee61e8"
+      },
+      "t2-25": {
+        "text": "二點五個字",
+        "sha256": "5f1b28c272b12bb70df90058c7cbf1fb9a211c279d857e6ce96ef548a51aff7c"
+      },
+      "t2-35": {
+        "text": "二點七個字",
+        "sha256": "d3ee60b731ab4029b24e66a338c98f29fa55e78c60b90fe44c31b9f6452886d1"
+      },
+      "t2-40": {
+        "text": "二點八個字",
+        "sha256": "7bc2c668a19ded19b683cb01d71273a520a46ad0af81966c0a1c6fbc946dda4e"
+      },
+      "t2-50": {
+        "text": "二點十個字",
+        "sha256": "6b9fe70285c683927cded45342b00358dd1badf40e92174ba2a1c1ef71bdb8d8"
+      },
+      "t2-55": {
+        "text": "二點十一個字",
+        "sha256": "b99349af87e83a6845129cfb6e7de906ee856380cfeb362f992a224233b8f41c"
+      },
+      "t3-05": {
+        "text": "三點一個字",
+        "sha256": "630c54ba5f077ae0f336e0f8e5978e19c5eba164dbf5e8009157b5a7cd2d3e0f"
+      },
+      "t3-10": {
+        "text": "三點兩個字",
+        "sha256": "05a99b0b4a8e76523a51f8f1ef6af89e9344050bc61dba67687363ce3e02ac9c"
+      },
+      "t3-20": {
+        "text": "三點四個字",
+        "sha256": "18d5d1c33beadac123d1022b518e8dbcd39ff9a59ba194f4a401a59ef81810b0"
+      },
+      "t3-25": {
+        "text": "三點五個字",
+        "sha256": "c63ac28447dd166607023983a1f0ac460dec1e310834c071451e4d24ea0a725d"
+      },
+      "t3-35": {
+        "text": "三點七個字",
+        "sha256": "797b23a9c058ea2ee1aba8b82e1b22218a15dcabc3342ac0fcb50408b6542ecc"
+      },
+      "t3-40": {
+        "text": "三點八個字",
+        "sha256": "d7ac09c39390147c3b37734b650b587b7ccc995ffcfe885a1ddc7588f68b2d60"
+      },
+      "t3-50": {
+        "text": "三點十個字",
+        "sha256": "4b1bbb87be13436a8b8e551d7ed84ed3d080fa1fb1d6ef171a3212d138fc203f"
+      },
+      "t3-55": {
+        "text": "三點十一個字",
+        "sha256": "697036c0e9bc3d6619f472b52672ca71d128367cad29fbeeabafbc8511935168"
+      },
+      "t4-05": {
+        "text": "四點一個字",
+        "sha256": "2ae4ee9ce3888ad06754346c3a8e2babae28286485e57fe35a72caa8aaa9cde6"
+      },
+      "t4-10": {
+        "text": "四點兩個字",
+        "sha256": "c71c74b5f1d47d14b5a3e6ace3950714ad2a507af90978c8682498a820ac7947"
+      },
+      "t4-20": {
+        "text": "四點四個字",
+        "sha256": "edbfa8b9e9e8cce9758f28e74e06e26cb717ad20256a51438f0e9fcf71c48df3"
+      },
+      "t4-25": {
+        "text": "四點五個字",
+        "sha256": "894b6a38761cf1757a5fcec22228e76a25289f6a6107331d16f9f66a0830f70b"
+      },
+      "t4-35": {
+        "text": "四點七個字",
+        "sha256": "b9ff8a9d2515260ddf58729f982411660e4f14d971c5bdaf9d8d026743f2a83e"
+      },
+      "t4-40": {
+        "text": "四點八個字",
+        "sha256": "22941e78e49fdb8c3899d34589a2404e6b4aac50cbb7b5aac87ab4f964cd3b82"
+      },
+      "t4-50": {
+        "text": "四點十個字",
+        "sha256": "e507c7ebc044766b43d9bf24cadd0e58378d368c40ddb05c244c2f90b1512362"
+      },
+      "t4-55": {
+        "text": "四點十一個字",
+        "sha256": "98d3a87b76309262162d0dc5ed22d940a884e786503365117cfd9ce727031a6a"
+      },
+      "t5-05": {
+        "text": "五點一個字",
+        "sha256": "9559cb9775d37e6daceec9e389c4303d73df2a8935579e3cd7bfc0ad9c25cc9d"
+      },
+      "t5-10": {
+        "text": "五點兩個字",
+        "sha256": "dd383a8bd50c65d93d1ed8ad559958268b3cb79ef217f7322ef610769fd5cf96"
+      },
+      "t5-20": {
+        "text": "五點四個字",
+        "sha256": "87a4c69f7f0ea1915e9a1d2496d148871e75095073887a153af08ad55b1e28bf"
+      },
+      "t5-25": {
+        "text": "五點五個字",
+        "sha256": "ea498c7ee94fc6033c98f4d5e093ad9943d33ed3efbdca318dc161f077f991ea"
+      },
+      "t5-35": {
+        "text": "五點七個字",
+        "sha256": "3c2cfd3c38dde1ffc6d8e161105e480acad67c7169eb385a902fc291e4ab5386"
+      },
+      "t5-40": {
+        "text": "五點八個字",
+        "sha256": "eeb0288188ea5ee824aa0591c681788ac3721871d88e6504922f1b92d01687c5"
+      },
+      "t5-50": {
+        "text": "五點十個字",
+        "sha256": "64c9fd8744b64c5ee421f1f80ad840050ada40db3a2bc37a3b64f6e9fc2680d5"
+      },
+      "t5-55": {
+        "text": "五點十一個字",
+        "sha256": "e12c9ce75d68634eb558f49e132db865fe2156188871ff5bff6d01156e17180e"
+      },
+      "t6-05": {
+        "text": "六點一個字",
+        "sha256": "47c5dc027237bec477773fb914d3f953a23b728a978d2b5f3b27aaa02efcd7f1"
+      },
+      "t6-10": {
+        "text": "六點兩個字",
+        "sha256": "c01a38ee16720feca9d27ea8699f4a3e2b0574ba16db6502c5ab219e40374751"
+      },
+      "t6-20": {
+        "text": "六點四個字",
+        "sha256": "cec3969d478b63d43dabd00a1516186285446d1f946d1128682c6ecee0998a7c"
+      },
+      "t6-25": {
+        "text": "六點五個字",
+        "sha256": "99c3e8ab1a432862a313e2a7f32bf9a5a02fd84423f4887108f85ffc9fd0022f"
+      },
+      "t6-35": {
+        "text": "六點七個字",
+        "sha256": "846cea3969e4caf8b1084a1cda26609630f216194c486fdf8b27c63a60d920d5"
+      },
+      "t6-40": {
+        "text": "六點八個字",
+        "sha256": "2af88a55ecab624f66aee14088fa9a231bf49c57a8a2a1b3717230881d4dae02"
+      },
+      "t6-50": {
+        "text": "六點十個字",
+        "sha256": "1da93ab23b6329faef0be4af9479e43bdcab76df4c8ea085993db744adb19b34"
+      },
+      "t6-55": {
+        "text": "六點十一個字",
+        "sha256": "ee84075ad4081cd20e8aad38c5c0bd1ed4bef80e11318d6d19fbe370459fe30e"
+      },
+      "t7-05": {
+        "text": "七點一個字",
+        "sha256": "408395c9ffa914b0c3b7f4731b2fc15e2ce178f57cc4d24e0c88fc6971b17036"
+      },
+      "t7-10": {
+        "text": "七點兩個字",
+        "sha256": "ea607240995e0a6532c979677f8e236b8ac730e03011559d50dfa52f3a5c7df4"
+      },
+      "t7-20": {
+        "text": "七點四個字",
+        "sha256": "c4618e9d7a99e20a628140232921166101b7c70d25ede8ea2676d54c47c37ce0"
+      },
+      "t7-25": {
+        "text": "七點五個字",
+        "sha256": "891b904629946ef84abde1e290737b11541c349630c619d21534e5ce457995d6"
+      },
+      "t7-35": {
+        "text": "七點七個字",
+        "sha256": "b86bc45fff62ca006890f23124dfaf45c5bfec3b591cbe2b90d37dd585f03b77"
+      },
+      "t7-40": {
+        "text": "七點八個字",
+        "sha256": "bed8fd15ea9679e9f852ffccf3711cbf02d3306fd0423f272dca6568ec51a2ee"
+      },
+      "t7-50": {
+        "text": "七點十個字",
+        "sha256": "a2b96c126d27eeaf95486d640ebcf21a5d7e0b376b18289911503e1f21c6a75f"
+      },
+      "t7-55": {
+        "text": "七點十一個字",
+        "sha256": "aa2e9c030ea7e8f1fc73854f3cbc6a7fa278ad2c37d5342b397c4e2d11b63968"
+      },
+      "t8-05": {
+        "text": "八點一個字",
+        "sha256": "e8ff1561bb548df8ba1d6bb47d18ac018b2d6f7d5454a4dfe8bdecfbcb46ff6d"
+      },
+      "t8-10": {
+        "text": "八點兩個字",
+        "sha256": "850dbf2bfdf582f6a18fe499b4146fedc45cf4c9c6d621cf69002acab8f7d642"
+      },
+      "t8-20": {
+        "text": "八點四個字",
+        "sha256": "e6c62090ce400532e3e08db29db74db932b58e3b5f44191cf5804aebe62e05b2"
+      },
+      "t8-25": {
+        "text": "八點五個字",
+        "sha256": "55580ed6f02e559d68825cfa974578d151ccb610818caf47c526ca0d9e075b87"
+      },
+      "t8-35": {
+        "text": "八點七個字",
+        "sha256": "0c14bb6f21226dc679ed2ec703ba2acf5e0f08c335db6d94d64fd620ce567737"
+      },
+      "t8-40": {
+        "text": "八點八個字",
+        "sha256": "8bb1a21040d93a16fccac4dcd4d1f9cb21da30d4fbb5a4e8fada02391094955c"
+      },
+      "t8-50": {
+        "text": "八點十個字",
+        "sha256": "39cd5f1dbe759e47d380d432318f2a1c1ddb7927b7ff1ec975286ea7f8d73105"
+      },
+      "t8-55": {
+        "text": "八點十一個字",
+        "sha256": "ebcaa8fb5d8ee16d699e3e0ed1302c2c0fa711f5217691d6c9bc3997a5bc9d65"
+      },
+      "t9-05": {
+        "text": "九點一個字",
+        "sha256": "86e2a9a836157a28313f495790214a342f1e991432ce5b6d2297114e04f2e017"
+      },
+      "t9-10": {
+        "text": "九點兩個字",
+        "sha256": "f1c2dac43a8308e01f370f4f7068d1a67af96d47f1ab085f24a3ad9d2459a659"
+      },
+      "t9-20": {
+        "text": "九點四個字",
+        "sha256": "fd20fe8dae55a71223608a11ab8ef178004d50eac505213d852083077b7ae154"
+      },
+      "t9-25": {
+        "text": "九點五個字",
+        "sha256": "2e8d65f9f18f2575f1fcd8c5ae7ccc04acec6c3aa896e47a33ea6aef049016fe"
+      },
+      "t9-35": {
+        "text": "九點七個字",
+        "sha256": "44ffdfd741efaa78e219843e2e212c47c5f8c928383014631c82060541f4261e"
+      },
+      "t9-40": {
+        "text": "九點八個字",
+        "sha256": "128a2b173bcd554307a2201f55fc5602d26ced6cae3da2d80993b6f9a9834efb"
+      },
+      "t9-50": {
+        "text": "九點十個字",
+        "sha256": "bc073200b7b1443be167b538c2c247845b03520f22ce4bbe2ca82c88d17704f4"
+      },
+      "t9-55": {
+        "text": "九點十一個字",
+        "sha256": "af88810f6a768696a0ee910751585c81ac916a13041a7e7277d2532e9c5295e0"
+      },
+      "t10-05": {
+        "text": "十點一個字",
+        "sha256": "5d155402c3e6a208e450f10432845d06998486cb93db120640d646ad72141605"
+      },
+      "t10-10": {
+        "text": "十點兩個字",
+        "sha256": "df3bb95a18dda9fd1324587f081656c61a36b55b2fa5c733759e1e8a9df17121"
+      },
+      "t10-20": {
+        "text": "十點四個字",
+        "sha256": "2f8239f09e8c36e899ea26ad031dd8b571e3fd8b096411ea4df26b41245a87e8"
+      },
+      "t10-25": {
+        "text": "十點五個字",
+        "sha256": "80e23fa9c72c677a7ed500772907f30a86d99e0b065a8184ddcd6452626aa516"
+      },
+      "t10-35": {
+        "text": "十點七個字",
+        "sha256": "3e1a429898bd11969f8fb917a66a94f5cda9c6a102fc84e22af9b0f0d1465a9e"
+      },
+      "t10-40": {
+        "text": "十點八個字",
+        "sha256": "3170902425d619f939b1964a6b8570e98f55b0433f6dbee2a71a885ed010aa74"
+      },
+      "t10-50": {
+        "text": "十點十個字",
+        "sha256": "e730f38d27bf1f3f725df031ff91daaef61cb25ed4e634a52b73f30729850fc2"
+      },
+      "t10-55": {
+        "text": "十點十一個字",
+        "sha256": "e7159b03ad0741560daa24432608a3082ee36b4b9b92f68e6110817a032b4d76"
+      },
+      "t11-05": {
+        "text": "十一點一個字",
+        "sha256": "b79e19b4547b464bb632778cd5bc94481e5fa9b4c0e09dfccacdb790c5f8cd7b"
+      },
+      "t11-10": {
+        "text": "十一點兩個字",
+        "sha256": "f7b94af753317b5b33c96a8a9b6cf0280730cdd57158d906b06220268843c5de"
+      },
+      "t11-20": {
+        "text": "十一點四個字",
+        "sha256": "c9cde238f2602b7380831413acfebbaf31938d08765745cd12dc6a1f0cb9edc3"
+      },
+      "t11-25": {
+        "text": "十一點五個字",
+        "sha256": "f5044e0b7c80b4c68da35afc039d5cca2e4ee4709e49dbdab91864e94ac5da0c"
+      },
+      "t11-35": {
+        "text": "十一點七個字",
+        "sha256": "75d0e1632f2000c41d32bfb2247395ebf9ff9041438e1f93a8f28dc0db0ac686"
+      },
+      "t11-40": {
+        "text": "十一點八個字",
+        "sha256": "b253282f43e4f9c466f1f2246e568923031ed0500337482ff0e17470f6491a12"
+      },
+      "t11-50": {
+        "text": "十一點十個字",
+        "sha256": "e13f9fcd9a007e80bb0725b7177a94013d8594d4e2b18a77f526d2f1a544b885"
+      },
+      "t11-55": {
+        "text": "十一點十一個字",
+        "sha256": "6ca678f310a0dd5ca6301c56f9d20889471880fc20cd31ae3641cd61ffa702a7"
+      },
+      "t12-05": {
+        "text": "十二點一個字",
+        "sha256": "0bb64fad9ab352f64cec61ee8ff969f15790b3618fa8a56b090faf3b135dc71f"
+      },
+      "t12-10": {
+        "text": "十二點兩個字",
+        "sha256": "9832194ade3866c468976b329d03053b495e8ecd98ff2dd03341dbd9963e34f2"
+      },
+      "t12-20": {
+        "text": "十二點四個字",
+        "sha256": "85d2675310fe1da93b12c33f84db867f590600158b77b678a544157303b373c4"
+      },
+      "t12-25": {
+        "text": "十二點五個字",
+        "sha256": "e0f42c3937560fe24749ca23ce7695aa3c2cca59980c54c34bb3e38e8c9f1e8e"
+      },
+      "t12-35": {
+        "text": "十二點七個字",
+        "sha256": "18e5d61908f5bd118e419cdc6ecb90c3773bc18296a70c9694eaa40a4d0a9d10"
+      },
+      "t12-40": {
+        "text": "十二點八個字",
+        "sha256": "f56941f3c88a3a216ad12524b649b78e2ccb110e5a63615b9d700fd6f1c9b6a0"
+      },
+      "t12-50": {
+        "text": "十二點十個字",
+        "sha256": "996741fa3e7dcf014d6effc277182578f0a5d52ceeb3cee7da80dae2121058ec"
+      },
+      "t12-55": {
+        "text": "十二點十一個字",
+        "sha256": "0d7a8d0fab999c8a67b0753995801b45a0dd426212713618b847b4d8d0d7d08d"
       }
     },
     "zh": {
@@ -988,6 +2332,390 @@
       "qto-12": {
         "text": "十二時四十五分",
         "sha256": "c1225d96dd0bea9127bdb7a9375e66e9de50ec29c7a0e76838efb6a96b1c5b76"
+      },
+      "t1-05": {
+        "text": "一時零五分",
+        "sha256": "d13cd1715ac3abc0d0febd9698955da1e88ca716c914551629235fac44967a38"
+      },
+      "t1-10": {
+        "text": "一時十分",
+        "sha256": "8d79291a7982ec732ec9d1d08503091f63c9edef72dcfead543cfbcc060b7bd9"
+      },
+      "t1-20": {
+        "text": "一時二十分",
+        "sha256": "12d2b6243af99e441b4117dc4a390d53b6ecb52e14d5e8a1a88f13dae06d7dae"
+      },
+      "t1-25": {
+        "text": "一時二十五分",
+        "sha256": "3f00401e0a2ffaa4f5e0f26e5065cc67c2fb46c2b624c6c3ef6bb43f1f6146ca"
+      },
+      "t1-35": {
+        "text": "一時三十五分",
+        "sha256": "14ffa9d1db88b417dc02847ce4f59e04041609b8f4573d709f8c14775f4243a6"
+      },
+      "t1-40": {
+        "text": "一時四十分",
+        "sha256": "87ce93ff7796a9e1b920d14ca07c63cd2ac5eb36ef8f2edb07646490c57b074b"
+      },
+      "t1-50": {
+        "text": "一時五十分",
+        "sha256": "2e6f7ccedc62909d2040e1ed0f241a7ed87f3ae4f277fe77075a4ea2c7035ed3"
+      },
+      "t1-55": {
+        "text": "一時五十五分",
+        "sha256": "ba53aae446c381828b323962e3855f590d8b827461842035edb01f34d30e84b4"
+      },
+      "t2-05": {
+        "text": "二時零五分",
+        "sha256": "01080828301ee62080cc61aa77d5ad0ea8567bb93a64aceef2010fe595d6b2f6"
+      },
+      "t2-10": {
+        "text": "二時十分",
+        "sha256": "772941ceed616b7368e80d093c20b859bcdfab790b5e1440a8e1e126d196be36"
+      },
+      "t2-20": {
+        "text": "二時二十分",
+        "sha256": "b9037a71996a94a5d925c9d39d21c6968b8e3dba13cbfeb11b86112cf94e5493"
+      },
+      "t2-25": {
+        "text": "二時二十五分",
+        "sha256": "069e694bf866f37ba8808d7782e4143b8d4e7cee2051d447222ceb20e190de7e"
+      },
+      "t2-35": {
+        "text": "二時三十五分",
+        "sha256": "397d69359cf88732fa10a66f2466867fa6a847bf44ed6e0d469f60acf2e4e8dd"
+      },
+      "t2-40": {
+        "text": "二時四十分",
+        "sha256": "b11493ed543cc204ff758578a473280064dabafb49fc20fe38056dd2ebc7f68a"
+      },
+      "t2-50": {
+        "text": "二時五十分",
+        "sha256": "8482277ef22a72dc1cef5b47e92ecb626df402f3785aa61e32ea8c8f7f49f683"
+      },
+      "t2-55": {
+        "text": "二時五十五分",
+        "sha256": "73d4eeef0e3c154ba1f34ac4f680cfd2b83ed6f9ca76bf58b5c60bdb465f81fe"
+      },
+      "t3-05": {
+        "text": "三時零五分",
+        "sha256": "eee143d6f4056bd17ada750704734a8e4f2a58aefff3389a2d7fd2130f046f9c"
+      },
+      "t3-10": {
+        "text": "三時十分",
+        "sha256": "f7be7f1ef90a175d29217efa050968e87b76b28732b3ebcae2cd20e3510aed31"
+      },
+      "t3-20": {
+        "text": "三時二十分",
+        "sha256": "4fda564faf4aed519e954a826543d5ffebea5a0c0d16e1ce3497f49e37f50cf2"
+      },
+      "t3-25": {
+        "text": "三時二十五分",
+        "sha256": "89d8cff5165d666d7f41363caab7fe4b57c7ed575da2a2eb2af8502910fc2474"
+      },
+      "t3-35": {
+        "text": "三時三十五分",
+        "sha256": "4650dbc898f0f24b0c2cc884cb9d2f649af4ed62bb468a9fc5c233670cc39973"
+      },
+      "t3-40": {
+        "text": "三時四十分",
+        "sha256": "ef82c2ede17a681ce4832407f081c15524bbe2f071ed3b2bf31dfa1868513ba8"
+      },
+      "t3-50": {
+        "text": "三時五十分",
+        "sha256": "b4df311ac079c0dd8d59d4529689a22d16eb33bb768228d5f40dc76c2df878b6"
+      },
+      "t3-55": {
+        "text": "三時五十五分",
+        "sha256": "4b14a4e73b9dc913d7de67bfd1af80bf163e15ccce697a3d5e5a2e164c2da868"
+      },
+      "t4-05": {
+        "text": "四時零五分",
+        "sha256": "96b156791f91fa2dc3aa8000a50662a9c5f5d383e502e42485985a8d57c6034e"
+      },
+      "t4-10": {
+        "text": "四時十分",
+        "sha256": "e92aa907f7f83ecbc7e07aa312390063c2e64189ef6f61250e0c17a366f6cc14"
+      },
+      "t4-20": {
+        "text": "四時二十分",
+        "sha256": "4c11f5bca1b528218d00d61aa3508b403d68307338231dcb15894ab3b280f4cc"
+      },
+      "t4-25": {
+        "text": "四時二十五分",
+        "sha256": "8fdc14d231dcfcb626eee44cd3877291f5c90c704c753e02df529891a7877cbf"
+      },
+      "t4-35": {
+        "text": "四時三十五分",
+        "sha256": "952354cc298ad13d94ee5734f00a872fd56397ce5d1c226574bf1f08a2f9d770"
+      },
+      "t4-40": {
+        "text": "四時四十分",
+        "sha256": "e9ff9c5db06a1062c8f98a3899ff60d3bb30550ff691362746a4c0538c7c2146"
+      },
+      "t4-50": {
+        "text": "四時五十分",
+        "sha256": "6a26af26fe9d8273874d315318630597718be5f282d604baa53ce5a8b3436999"
+      },
+      "t4-55": {
+        "text": "四時五十五分",
+        "sha256": "52a6b278a73434e2bb5ff1e1b68d5ae3ccc2b64c2d5f0d76ca14a14f366ebd75"
+      },
+      "t5-05": {
+        "text": "五時零五分",
+        "sha256": "c3b0079e865cf4c65be8646a5721b0e6a6350d7197fad84be75d8ecb450db2ac"
+      },
+      "t5-10": {
+        "text": "五時十分",
+        "sha256": "0a7cca386cb1148c8614c01eb479050a1552ba0f4df1d4eee574c650e2f0d661"
+      },
+      "t5-20": {
+        "text": "五時二十分",
+        "sha256": "916e97e4e94f94616c42aab29c5e256faa7d399b3626594cfe167efbcb43d0b3"
+      },
+      "t5-25": {
+        "text": "五時二十五分",
+        "sha256": "2ab8582f82b90357584332e24478215996e0e0856f6430ee1ae033fb44480d5a"
+      },
+      "t5-35": {
+        "text": "五時三十五分",
+        "sha256": "907794b104114ae20a478b73d6eec5d616e90349016c4a1206bae0986adb8f86"
+      },
+      "t5-40": {
+        "text": "五時四十分",
+        "sha256": "d64a98783db3f807128b6058dfaeb9097bc58f77bd7558a8dd89d61cffae9d1c"
+      },
+      "t5-50": {
+        "text": "五時五十分",
+        "sha256": "21d178771c240d9a5e0e90634ad10b79a94d8ac879f59c67ed26f687b597f59d"
+      },
+      "t5-55": {
+        "text": "五時五十五分",
+        "sha256": "f5ad8b55eb840d1ef077354263065afb9c7cc7c6c2085109b133358806e184ab"
+      },
+      "t6-05": {
+        "text": "六時零五分",
+        "sha256": "dcbe301cc186a7108bdb87d3a5faffce8fa3e024a15525fa9fa3032c7a173da7"
+      },
+      "t6-10": {
+        "text": "六時十分",
+        "sha256": "c1d463e3615b1e3eee2eede2e43cb8941a5afd35042106eb026b12de5106f70a"
+      },
+      "t6-20": {
+        "text": "六時二十分",
+        "sha256": "64255fafd985d71dc7190c87903643b3088407cb22c34d28170fbfc565c12a9c"
+      },
+      "t6-25": {
+        "text": "六時二十五分",
+        "sha256": "6584423f1372dab84211d2e73a0aa2257b3dc8b95e207adda7026e3c1484326c"
+      },
+      "t6-35": {
+        "text": "六時三十五分",
+        "sha256": "5a2d7263e29c93a865c67cb54b5c9f5f29ebe552dedeb48d2b2bdc539ef146f1"
+      },
+      "t6-40": {
+        "text": "六時四十分",
+        "sha256": "a006386207db74dd7b0a84c036abf09d720f4f789360ad79c042a01808f9c0dc"
+      },
+      "t6-50": {
+        "text": "六時五十分",
+        "sha256": "a83a5f4c5d9360fe26d314cd7c11c2632caf7d8dc5db460c2fe86ed88fa5929e"
+      },
+      "t6-55": {
+        "text": "六時五十五分",
+        "sha256": "25c74568dc31297f126927ab305689665ba97c8d6b56025ff7c3fbfd28507c2f"
+      },
+      "t7-05": {
+        "text": "七時零五分",
+        "sha256": "2d3525031c3258d4ad2934033ea4c6c2fd00ec3c8da8c70e45451db263c3431e"
+      },
+      "t7-10": {
+        "text": "七時十分",
+        "sha256": "a15f46d391eaca0bfcfaab71e2312374ab9e5af3a002ca8ca5f45872650aa812"
+      },
+      "t7-20": {
+        "text": "七時二十分",
+        "sha256": "f1e117b0369989cdce673c140ad7e47580742b52df650a215fa7e1ea58451f3b"
+      },
+      "t7-25": {
+        "text": "七時二十五分",
+        "sha256": "2f1248c2bc71882d5c55ccb0be7fbb3bee11a2e90d94810a6633ab376954b57e"
+      },
+      "t7-35": {
+        "text": "七時三十五分",
+        "sha256": "d06bb21613bbd6ae480f1bdd15d0a8d8a5400c91d6997d01cb03935091f66391"
+      },
+      "t7-40": {
+        "text": "七時四十分",
+        "sha256": "28a9edebe4da2ee93c924529f67d810e46770e876aa52f2849c032f4070ae807"
+      },
+      "t7-50": {
+        "text": "七時五十分",
+        "sha256": "9e2ac707aeba22e9714c8291cdb085b876afa1541e7566dba8bba8b71fbb9864"
+      },
+      "t7-55": {
+        "text": "七時五十五分",
+        "sha256": "d8f8ab83733ffd620c358deaa0c28a85fcec7bac0bbd40a65a9a459c5e506572"
+      },
+      "t8-05": {
+        "text": "八時零五分",
+        "sha256": "4f0ce778db7f187c4c07d64d5d91b09491e75685a6cc08b44168561075100c3f"
+      },
+      "t8-10": {
+        "text": "八時十分",
+        "sha256": "4a327d766994031150e268331539650fee0f89c95062f19322544f7e96b59ad5"
+      },
+      "t8-20": {
+        "text": "八時二十分",
+        "sha256": "44170844e6893e23846063077a0a52012a8a5c45cd8390e047c61da11564ec40"
+      },
+      "t8-25": {
+        "text": "八時二十五分",
+        "sha256": "0de7367343d02f81dd0d48b1a1ae055407b29743fb43eb6f7d12fe188d3ecbaa"
+      },
+      "t8-35": {
+        "text": "八時三十五分",
+        "sha256": "11b8912afb0b4c7c0d618f7a8d9b60de685a35bc68464b9bcbc9c551288d83c8"
+      },
+      "t8-40": {
+        "text": "八時四十分",
+        "sha256": "ef06c0e4513ef022ce0f689547a66706fc5608ad51554e2b850c4990a0280e2e"
+      },
+      "t8-50": {
+        "text": "八時五十分",
+        "sha256": "52f143f923e841dbbaa6aaee8a37696c71a563f8e9c59ba47ec2b9ac66212caf"
+      },
+      "t8-55": {
+        "text": "八時五十五分",
+        "sha256": "4d1e30af240e67cd6a04702f472444aa1d91578627ae5ee523d040f580ba0e65"
+      },
+      "t9-05": {
+        "text": "九時零五分",
+        "sha256": "8131f1c712963077ae5242207f983c281912adcf0709f1ae39a91b526aae53fa"
+      },
+      "t9-10": {
+        "text": "九時十分",
+        "sha256": "849cc5e8a124d3be3fb979ae10ace8039cbef4a587e35213241fa7bac9ace6ce"
+      },
+      "t9-20": {
+        "text": "九時二十分",
+        "sha256": "e14e1b8b2a30678139daeb2e1a3729a93f90e41190473dc3ea98a631047220d6"
+      },
+      "t9-25": {
+        "text": "九時二十五分",
+        "sha256": "107f804df6bdcbab4b7b64f24fe94bff3707aac2c9243208296d0634b9eea83e"
+      },
+      "t9-35": {
+        "text": "九時三十五分",
+        "sha256": "0eb6c4bcbd7714573785cac29996cf21e49a659624d38bfa6f596fc618bd4751"
+      },
+      "t9-40": {
+        "text": "九時四十分",
+        "sha256": "8704d264dde74fbedb3a140f497ef240adefa06e8c68113123fc6a127bfcccbb"
+      },
+      "t9-50": {
+        "text": "九時五十分",
+        "sha256": "2760880c35804793eb55a328156669162bc24cdc79546d833aa8f0433b12aaf1"
+      },
+      "t9-55": {
+        "text": "九時五十五分",
+        "sha256": "78dc3cbc56ee3f175ce6ac4245999a007252c0d43d91defa56e4db1b166202bd"
+      },
+      "t10-05": {
+        "text": "十時零五分",
+        "sha256": "76ab153eb3e60bab94848733aa78f4059f0ea40faad86c511fd22fad096aa229"
+      },
+      "t10-10": {
+        "text": "十時十分",
+        "sha256": "8194a9c99146ab1595797d4e233f8c3bcb9d07f7f70663a11c09707b8b3dfbfb"
+      },
+      "t10-20": {
+        "text": "十時二十分",
+        "sha256": "0debdd32cb4430bb4b4b9821fd625f7be6ebc25cf635f78c57f047e49ac5c802"
+      },
+      "t10-25": {
+        "text": "十時二十五分",
+        "sha256": "e29018116e2488fc9628fc5eea8a18a03e12660662cfc782285fe7ca312c5745"
+      },
+      "t10-35": {
+        "text": "十時三十五分",
+        "sha256": "c861af6ec55c3437a8dc2b6eaca49d8042ebac136532ab783f15e0a85dcb66eb"
+      },
+      "t10-40": {
+        "text": "十時四十分",
+        "sha256": "9d8cf4652861a0decde033c4b50a0e489e23464a22bf08a04942a0e429a30cde"
+      },
+      "t10-50": {
+        "text": "十時五十分",
+        "sha256": "0cfcbb6ecbc418d4e6e637e4b1707355863f24b396a78101f0db71447168c840"
+      },
+      "t10-55": {
+        "text": "十時五十五分",
+        "sha256": "ddd73ac67f914a1f2f4affe065449f25bc7550c0c51b45002edc6de054b031d3"
+      },
+      "t11-05": {
+        "text": "十一時零五分",
+        "sha256": "4ff41b9307d8eb5e61ff7fee263b5b47b93ca7664b33a576fe11bfdede6c8f0a"
+      },
+      "t11-10": {
+        "text": "十一時十分",
+        "sha256": "45df3a1cb3b8274e7cd3175c82d6207e8d567c003edab3d3d87a421e76a2c678"
+      },
+      "t11-20": {
+        "text": "十一時二十分",
+        "sha256": "cdcf7ba7c87618115b57808ccc1875d3d4ca3c570f3f44817e2a2de182e46608"
+      },
+      "t11-25": {
+        "text": "十一時二十五分",
+        "sha256": "b87f88537dd5863f34b362d4b791036985f8921587d0b1fa65f95a3669731137"
+      },
+      "t11-35": {
+        "text": "十一時三十五分",
+        "sha256": "83cdfaedc6bd5faff9fd222be853c981ca049a5b21fba5dca2dc6a0d5c66891b"
+      },
+      "t11-40": {
+        "text": "十一時四十分",
+        "sha256": "d6e6898786915768b0d83994ef2dd7e4e5d47e00fa22e3653e497ced70fe512f"
+      },
+      "t11-50": {
+        "text": "十一時五十分",
+        "sha256": "e349d796c89a3d08c4cbb6306e4a76fe3f67589955691fe8be9574f65e4237d9"
+      },
+      "t11-55": {
+        "text": "十一時五十五分",
+        "sha256": "b8988449f0f55594df89090bd0fde09d0ef6dd2fefb0194c2db5f38c9c0b0f37"
+      },
+      "t12-05": {
+        "text": "十二時零五分",
+        "sha256": "f4f30c89865781329b5e31acf021890de7916056107cb01b70fdcf8023f71218"
+      },
+      "t12-10": {
+        "text": "十二時十分",
+        "sha256": "0f4863715597d2ecea938424dcabc226e703d9a891374bb925a14d9be365dee3"
+      },
+      "t12-20": {
+        "text": "十二時二十分",
+        "sha256": "5055dd6d738c2742d242b991d37a04c8e66a9991df64371660e6271fa81168e6"
+      },
+      "t12-25": {
+        "text": "十二時二十五分",
+        "sha256": "16599990520874384dee4bf630ac33df0ca78575955bd44075eaaaa26f307801"
+      },
+      "t12-35": {
+        "text": "十二時三十五分",
+        "sha256": "7c34af06641f3b19f6ca942452676858365286159b1681c29bf30c35f7be6aaa"
+      },
+      "t12-40": {
+        "text": "十二時四十分",
+        "sha256": "04ffdc4590995a4e4dfbaaaa36df3e11d653add39cd42015b286442b6c372e31"
+      },
+      "t12-50": {
+        "text": "十二時五十分",
+        "sha256": "5e28cfec8a357ce9f31d23291ec144711ba86c33d32fe0591ebe6ee4bda8e5e4"
+      },
+      "t12-55": {
+        "text": "十二時五十五分",
+        "sha256": "bdf022b25a1960d51d6d18a429fbf8080e699b0d960c9494f81a61253ab229dc"
       }
     }
   }

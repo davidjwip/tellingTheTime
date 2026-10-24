@@ -288,7 +288,7 @@ describe('what a tap does', () => {
     expect(mounted.session()).toBe(before);
   });
 
-  it('repeats the question when the speaker button is pressed, never the answer', () => {
+  it('says the time on the clock when the speaker button is pressed', () => {
     const said: string[] = [];
     const speaker = {
       say: (key: string | undefined) => {
@@ -299,12 +299,16 @@ describe('what a tap does', () => {
       setMuted: () => undefined,
     } as unknown as import('../src/audio').Speaker;
 
-    mountPlay(app, overlayRoot, level('t2.4'), { speaker });
+    const mounted = mountPlay(app, overlayRoot, level('t2.4'), { speaker });
     said.length = 0; // ignore whatever the screen said on arrival
     tap('[data-action="say"]');
-    expect(said).toEqual(['prompt-read']);
-    // a time phrase would hand the child the answer
-    expect(said.some((key) => key.includes('oclock') || key.includes('qpast'))).toBe(false);
+    // the level exists to teach how this time is said, so the button says the time itself
+    const onScreen = currentItem(mounted.session());
+    expect(said).toHaveLength(1);
+    expect(said[0]).toMatch(/^oclock-\d+$/);
+    expect(said[0]).not.toBe('prompt-read');
+    // and it names the time the child is looking at, not some other one
+    expect(onScreen?.time?.minute).toBe(0);
   });
 
   it('keeps the tapped values marked when the screen is redrawn', () => {

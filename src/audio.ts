@@ -72,6 +72,9 @@ export const CLIPS = (manifest.clips ?? {}) as Record<Locale, Record<string, Cli
  * These keys are used by `set` tasks ("make three o'clock"), which have no screen yet, and by the
  * five-minute tiers. They are recorded now so the voice exists when the screens do.
  */
+/** The times a tier 5 clock can show, beyond the quarter hours. */
+export const FIVE_MINUTE_MINUTES: ReadonlySet<number> = new Set([5, 10, 20, 25, 35, 40, 50, 55]);
+
 export function chronoKeyFor(time: { hour: number; minute: number }): string | undefined {
   const hour = time.hour % 12 === 0 ? 12 : time.hour % 12;
   switch (time.minute) {
@@ -83,8 +86,14 @@ export function chronoKeyFor(time: { hour: number; minute: number }): string | u
       return `half-${hour}`;
     case 45:
       return `qto-${hour}`;
-    default:
-      return undefined; // five-minute and exact-minute levels arrive with their own recordings
+    default: {
+      // The eight five-minute times are keyed by the time itself: "twenty-five to five" is filed
+      // under 4 and read as 5, so a semantic key would be a trap.
+      if (FIVE_MINUTE_MINUTES.has(time.minute)) {
+        return `t${hour}-${String(time.minute).padStart(2, '0')}`;
+      }
+      return undefined; // an exact-minute level would need its own recordings
+    }
   }
 }
 

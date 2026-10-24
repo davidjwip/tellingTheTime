@@ -219,7 +219,12 @@ export function renderInstructions(locale: Locale = 'en'): HTMLElement {
   // Each sample shows the words it will say, in the register currently chosen: otherwise the
   // language buttons look like they change nothing on this screen.
   const sayRow = el('div', 'say-row');
-  for (const [key, label] of [['oclock-3', '3:00'], ['qpast-3', '3:15'], ['qto-3', '3:45']] as const) {
+  for (const [key, label] of [
+    ['oclock-3', '3:00'],
+    ['qpast-3', '3:15'],
+    ['qto-3', '3:45'],
+    ['t4-10', '4:10'],
+  ] as const) {
     const words = phraseFor(key)?.[locale] ?? '';
     const button = el('button', 'action-btn small say-btn', `🔊 ${label} · ${words}`);
     button.dataset.say = key;

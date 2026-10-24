@@ -100,7 +100,12 @@ describe('which clip a clock face needs', () => {
   });
 
   it('says nothing for a time it has no recording of', () => {
-    expect(chronoKeyFor({ hour: 3, minute: 5 })).toBeUndefined();
+    // the five-minute grid is keyed by the time itself: "twenty-five to five" is filed under 4
+    expect(chronoKeyFor({ hour: 4, minute: 10 })).toBe('t4-10');
+    expect(chronoKeyFor({ hour: 4, minute: 5 })).toBe('t4-05');
+    expect(chronoKeyFor({ hour: 4, minute: 55 })).toBe('t4-55');
+    expect(chronoKeyFor({ hour: 12, minute: 35 })).toBe('t12-35');
+    // a minute that is not a multiple of five still has no recording
     expect(chronoKeyFor({ hour: 3, minute: 7 })).toBeUndefined();
   });
 
