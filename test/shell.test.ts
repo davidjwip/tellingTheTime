@@ -3,6 +3,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { LEVELS } from '../src/levels';
 import { createShell } from '../src/shell';
 
+import type { Speaker } from '../src/audio';
+
 class MemoryStore {
   private data = new Map<string, string>();
   getItem(key: string): string | null {
@@ -54,9 +56,66 @@ describe('the shell decides what a click means', () => {
     expect(app.querySelector('.picker')).not.toBeNull();
   });
 
-  it('opens a level from the shelf and remembers it', () => {
+  it('opens a tier from the shelf as a tier round, and remembers its door', () => {
     shell().start(null);
-    click('[data-level="t0.4"]');
+    const door = app.querySelector<HTMLElement>('section[data-tier="0"] [data-tier-entry]');
+    expect(door, 'tier 0 should have a door').not.toBeNull();
+    door?.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 100, clientY: 300 }));
+
+    // the door is labelled by its tier, and the round behind it draws from the whole tier
+    expect(app.querySelector('.picker')).toBeNull();
+    expect(app.querySelector('.problem-area')).not.toBeNull();
+    expect(saved().lastLevel).toBe(door?.dataset.level);
+  });
+
+  it('hands the round the app speaker when there is one', () => {
+    const spoken: string[] = [];
+    const speaker = {
+      say: (key: string) => {
+        spoken.push(key);
+        return Promise.resolve();
+      },
+      setLocale: () => undefined,
+    } as unknown as Speaker;
+
+    const fresh = createShell({ app, overlayRoot, store, levels: LEVELS, speaker });
+    fresh.start('t0.1');
+    expect(app.querySelector('.problem-area')).not.toBeNull();
+  });
+
+  it('returns to the shelf from a tier round', () => {
+    shell().start(null);
+    app.querySelector<HTMLElement>('section[data-tier="2"] [data-tier-entry]')
+      ?.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 100, clientY: 300 }));
+    click('[data-action="level"]');
+    expect(app.querySelector('.picker')).not.toBeNull();
+  });
+
+  it('does nothing for a door whose tier has no playable bank', () => {
+    shell().start(null);
+    const section = document.createElement('section');
+    section.dataset.tier = '1'; // tier 1 has levels, none of them playable
+    const door = document.createElement('button');
+    door.dataset.tierEntry = 'true';
+    door.dataset.level = 't1.1';
+    section.append(door);
+    app.querySelector('.picker')?.append(section);
+    door.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 60, clientY: 60 }));
+    expect(app.querySelector('.picker')).not.toBeNull();
+  });
+
+  it('treats a door outside a tier section as a plain level', () => {
+    shell().start(null);
+    const stray = document.createElement('button');
+    stray.dataset.tierEntry = 'true';
+    stray.dataset.level = 't0.4';
+    app.querySelector('.picker')?.append(stray);
+    stray.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 60, clientY: 60 }));
+    expect(app.textContent).toContain('Days of the week');
+  });
+
+  it('keeps a ?level= deep link on one level, whatever the shelf looks like', () => {
+    shell().start('t0.4');
     expect(app.textContent).toContain('Days of the week');
     expect(saved().lastLevel).toBe('t0.4');
   });

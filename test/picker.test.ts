@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { LEVELS } from '../src/levels';
-import { firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from '../src/picker';
+import { bankForTier, firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from '../src/picker';
 import { DEFAULT_PROGRESS } from '../src/progress';
 
 import type { Level } from '../src/types';
@@ -177,6 +177,20 @@ describe('the shelf', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const ids = entries(screen).map((n) => n.dataset.level);
     expect(ids).toEqual(['t0.1', 't2.1', 't3.2', 't4.2']);
+  });
+
+  it('builds a tier bank from that tier plus every playable tier below it', () => {
+    const bank = bankForTier(LEVELS, DEFAULT_PROGRESS, 3);
+    expect(bank).not.toBeNull();
+    expect(bank?.tier).toBe(3);
+    expect(bank?.levels.every((l) => l.tier === 3)).toBe(true);
+    expect(bank?.review.every((l) => l.tier < 3)).toBe(true);
+    // tier 1 has nothing playable today, so it must not appear in the revision pool
+    expect(bank?.review.some((l) => l.tier === 1)).toBe(false);
+  });
+
+  it('has no bank for a tier that cannot be played', () => {
+    expect(bankForTier(LEVELS, DEFAULT_PROGRESS, 1)).toBeNull();
   });
 
   it('prints the exercises under the tier, because a title never opens on an iPad', () => {
