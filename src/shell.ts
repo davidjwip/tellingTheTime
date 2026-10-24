@@ -10,7 +10,8 @@
  */
 
 import { mountPlay } from './play';
-import { firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from './picker';
+import { mountTierPlay } from './play';
+import { bankForTier, firstPlayable, levelFromClick, renderPicker, resolveStartLevel, shelve } from './picker';
 import { loadProgress, markCleared, rememberLevel, saveProgress, setName } from './progress';
 
 import type { Mounted } from './play';
@@ -48,6 +49,41 @@ export function createShell(deps: ShellDeps): Shell {
     overlayRoot.replaceChildren();
   };
 
+  /**
+   * The badge lands on whatever door the shelf is showing: a single level, or the tier door a tier
+   * round was opened from. One function for both, so the two paths cannot drift apart.
+   */
+  const noteCleared = (): void => {
+    // a round cannot be mounted without a level, so this is safe rather than defensive
+    progress = markCleared(progress, currentLevel!.id);
+    saveProgress(store, progress);
+  };
+
+  /**
+   * A tier door: the round is drawn from the whole tier, with lower tiers mixed in as revision.
+   */
+  const playTier = (tier: number): void => {
+    const bank = bankForTier(levels, progress, tier);
+    if (!bank) return;
+
+    // bankForTier returns null rather than an empty bank, so the first level is guaranteed
+    const entry = bank.levels[0]!;
+    currentLevel = entry;
+    progress = rememberLevel(progress, entry.id);
+    saveProgress(store, progress);
+
+    mounted?.dispose();
+    const host = document.createElement('div');
+    app.replaceChildren(host);
+
+    mounted = mountTierPlay(host, overlayRoot, bank, {
+      ...(speaker ? { speaker } : {}),
+      locale: progress.locale,
+      onChangeLevel: () => showPicker(),
+      onRoundEnd: noteCleared,
+    });
+  };
+
   const play = (level: Level): void => {
     currentLevel = level;
     progress = rememberLevel(progress, level.id);
@@ -64,10 +100,7 @@ export function createShell(deps: ShellDeps): Shell {
       ...(speaker ? { speaker } : {}),
       locale: progress.locale,
       onChangeLevel: () => showPicker(),
-      onRoundEnd: () => {
-        progress = markCleared(progress, level.id);
-        saveProgress(store, progress);
-      },
+      onRoundEnd: noteCleared,
     });
   };
 
@@ -76,6 +109,14 @@ export function createShell(deps: ShellDeps): Shell {
 
     // Scoped to the shelf: the play screen's container also carries data-level, and a bare
     // closest() there turned every tap inside a round into "open this level again".
+    // A tier door and a specific level both carry data-level, so the door is checked first.
+    const door = target?.closest<HTMLElement>('.picker [data-tier-entry]');
+    const doorTier = door?.closest<HTMLElement>('[data-tier]')?.dataset.tier;
+    if (door && doorTier !== undefined) {
+      playTier(Number(doorTier));
+      return;
+    }
+
     const chosen = levelFromClick(target);
     if (chosen) {
       const level = levels.find((candidate) => candidate.id === chosen);

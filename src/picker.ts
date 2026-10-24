@@ -10,6 +10,8 @@
 
 import { canPresent } from './engine';
 
+import type { TierBank } from './engine';
+
 import { NAME_MAX } from './progress';
 
 import type { Level, Task } from './types';
@@ -116,6 +118,27 @@ export function levelFromClick(target: Element | null): string | null {
  */
 export function firstPlayable(levels: readonly Level[], progress: Progress): Level | null {
   return levels.find((level) => shelve([level], progress)[0]?.available) ?? null;
+}
+
+/**
+ * The bank a tier door opens: every playable level in that tier, plus every playable level below it as
+ * revision. The engine draws from this; it is built here because "which levels are playable" is the
+ * shelf's question, not the engine's.
+ */
+export function bankForTier(
+  levels: readonly Level[],
+  progress: Progress,
+  tier: number,
+): TierBank | null {
+  const playable = (inTier: (l: Level) => boolean): Level[] =>
+    levels
+      .filter((l) => inTier(l) && shelve([l], progress)[0]?.available === true)
+      .map((l) => l);
+
+  const own = playable((l) => l.tier === tier);
+  if (own.length === 0) return null;
+  const review = playable((l) => l.tier < tier);
+  return { tier, levels: own, review };
 }
 
 export function renderPicker(shelved: readonly Shelved[], progress: Progress): HTMLElement {
