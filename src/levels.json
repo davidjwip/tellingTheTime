@@ -901,6 +901,124 @@
           30
         ]
       }
+    },
+    {
+      "id": "t5.1",
+      "tier": 5,
+      "title": {
+        "en": "The fives round the rim"
+      },
+      "round": [
+        {
+          "task": "read",
+          "items": 10
+        }
+      ],
+      "content": {
+        "kind": "clock"
+      },
+      "hours": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "minutes": [
+        5,
+        10,
+        20,
+        25,
+        35,
+        40,
+        50,
+        55
+      ],
+      "face": {
+        "hands": "both",
+        "minuteHandParked": false,
+        "numerals": true,
+        "minuteMarks": true,
+        "minuteLabels": true,
+        "pastToShade": false,
+        "showDigital": false
+      },
+      "knobs": {
+        "rep": "both",
+        "task": "read"
+      },
+      "badge": {
+        "time": [
+          4,
+          20
+        ]
+      }
+    },
+    {
+      "id": "t5.2",
+      "tier": 5,
+      "title": {
+        "en": "Five past, ten past"
+      },
+      "round": [
+        {
+          "task": "read",
+          "items": 10
+        }
+      ],
+      "content": {
+        "kind": "clock"
+      },
+      "hours": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12
+      ],
+      "minutes": [
+        5,
+        10,
+        20,
+        25,
+        35,
+        40,
+        50,
+        55
+      ],
+      "face": {
+        "hands": "both",
+        "minuteHandParked": false,
+        "numerals": true,
+        "minuteMarks": true,
+        "minuteLabels": false,
+        "pastToShade": false,
+        "showDigital": false
+      },
+      "knobs": {
+        "rep": "both",
+        "task": "read"
+      },
+      "badge": {
+        "time": [
+          4,
+          20
+        ]
+      }
     }
   ]
 }

@@ -38,6 +38,7 @@ const TIERS: Array<[number, string]> = [
   [2, "O'clock"],
   [3, 'Half past'],
   [4, 'Quarter past and to'],
+  [5, 'Five minutes'],
 ];
 
 /** Tier names, exported so tests and the instructions panel cannot drift from the shelf. */
@@ -50,6 +51,7 @@ const TIER_BLURB: Record<number, string> = {
   2: "O'clock: the four anchor times, then all twelve, then making a time with the hands.",
   3: 'Half past: spotting it, reading it, and making it — then telling o\'clock from half past.',
   4: 'Quarter past and quarter to, and all four quarters together.',
+  5: 'The minutes round the rim: the hand on the 1 is five minutes, on the 2 is ten — count in fives, then read the time without the ring.',
 };
 
 export interface Shelved {
