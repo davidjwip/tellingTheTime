@@ -90,8 +90,13 @@ export function audioUrl(key: string, locale: Locale): string {
 }
 
 /** What to say for an item. Reading gets the question; the rest get a nudge. */
-export function promptKeyFor(item: { task: string }): string {
-  return item.task === 'read' ? 'prompt-read' : 'prompt-tap';
+/**
+ * The one prompt worth speaking. A read item's question is the face, so the app asks it aloud; every
+ * other task is answered by touching the screen, and a generic "have a go" ten times a round teaches
+ * a child to stop listening.
+ */
+export function promptKeyFor(item: { task: string }): string | undefined {
+  return item.task === 'read' ? 'prompt-read' : undefined;
 }
 
 export class Speaker {

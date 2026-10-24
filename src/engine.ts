@@ -15,9 +15,11 @@
 import { chooseFor } from './choose';
 import { clockTimes } from './levels';
 import { orderFor } from './order';
+import { tapSpec } from './tap';
 
 import type { Choice } from './choose';
 import type { Card, Order } from './order';
+import type { TapSpec } from './tap';
 import type { Content, Level, Task } from './types';
 
 export interface ClockTime {
@@ -28,6 +30,8 @@ export interface ClockTime {
 /** One thing the child is shown. What `time` means depends on the task. */
 export interface Item {
   task: Task;
+  /** Present for a `tap` item: the lap it asks for, and the ring it must be tapped on. */
+  tap?: TapSpec;
   /** Present for read/set on a clock level. */
   time?: ClockTime;
   /** The choices for a `choose` item, emoji and word included. */
@@ -88,7 +92,7 @@ export type Rng = () => number;
  * makes that second check, so a clock-choice or clock-order level does not appear playable with no
  * cards to show.
  */
-export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read', 'choose', 'order']);
+export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read', 'choose', 'order', 'tap']);
 
 /** Right answers needed to finish a round. */
 export const GOAL_CORRECT = 10;
@@ -127,6 +131,7 @@ export function canPresent(level: Level, task: Task): boolean {
   if (!SUPPORTED_TASKS.has(task)) return false;
   if (task === 'choose') return chooseFor(level.content) !== undefined;
   if (task === 'order') return orderFor(level.content) !== undefined;
+  if (task === 'tap') return tapSpec(level.content) !== null;
   return true;
 }
 
@@ -217,6 +222,14 @@ export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer
         const choice = draw.nextChoice(level.content);
         const key = `${step.task}:${choice.answer}:${stepIndex}.${i}`;
         queue.push(itemFor(step.task, undefined, key, undefined, choice));
+        continue;
+      }
+
+      if (step.task === 'tap') {
+        const spec = tapSpec(level.content);
+        if (!spec) continue;
+        // one lap is one item: the child takes a whole turn of the dial, not one number
+        queue.push({ task: 'tap', tap: spec, key: `tap:${stepIndex}.${i}` });
         continue;
       }
 

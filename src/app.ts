@@ -34,6 +34,7 @@ export function promptFor(item: Item, task: Task): string {
   if (task === 'read') return 'What time is it?';
   if (task === 'set') return 'Make this time';
   if (task === 'choose') return 'Which one?';
+  if (task === 'tap') return 'Tap them in order';
   return 'Have a go';
 }
 
@@ -132,8 +133,17 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   // screen on purpose: a ✓/✗ pair would ask the adult to re-mark something the app already knows.
   const choosing = item?.answer !== undefined;
   const ordering = item?.order !== undefined;
+  const tapping = item?.tap !== undefined;
 
-  if (ordering && item) {
+  if (tapping && item) {
+    panel.append(el('div', 'prompt', promptFor(item, item.task)));
+    const frame = el('div', 'clock-frame tap-frame');
+    if (level.face) frame.append(renderFace(item.time ?? { hour: 12, minute: 0 }, level.face));
+    panel.append(frame);
+    panel.append(
+      el('p', 'tap-hint', `Tap ${item.tap?.sequence[0]} to ${item.tap?.sequence[item.tap.sequence.length - 1]}, one at a time`),
+    );
+  } else if (ordering && item) {
     panel.append(renderOrder(item, options.placed ?? [], options.lastVerdict));
   } else if (choosing && item) {
     panel.append(renderChoose(item, options.lastVerdict));

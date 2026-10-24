@@ -9,6 +9,9 @@
 
 import { renderCelebration, renderPlay, renderSummary } from './app';
 import { promptKeyFor } from './audio';
+import { lapValue, startLap, tapValue } from './tap';
+
+import type { Lap } from './tap';
 import {
   createSession,
   createTierSession,
@@ -92,6 +95,9 @@ function mountRound(
   let choiceLocked = false;
   let lastChoiceId: string | undefined;
   let placed: string[] = [];
+  /** The lap in progress and the item it belongs to, so a new question starts a fresh dial. */
+  let lap: Lap | undefined;
+  let lapKey: string | undefined;
 
   const speakPrompt = (): void => {
     const item = currentItem(session);
@@ -100,7 +106,20 @@ function mountRound(
     void options.speaker?.say(promptKeyFor(item));
   };
 
+  const syncLap = (): void => {
+    const item = currentItem(session);
+    if (!item?.tap) {
+      lap = undefined;
+      lapKey = undefined;
+      return;
+    }
+    if (item.key === lapKey) return;
+    lapKey = item.key;
+    lap = startLap(item.tap.sequence);
+  };
+
   const draw = (speak = true): void => {
+    syncLap();
     const finished = isFinished(session) && !celebrating;
     if (finished && !reported) {
       reported = true;
@@ -196,6 +215,28 @@ function mountRound(
         window.location.search = `?level=${next.id}`;
       });
       go(level);
+      return;
+    }
+
+    // A tap lap: the child touches the dial itself. A touch on the wrong ring is not a wrong answer,
+    // it is a mis-aimed finger, so it does nothing at all.
+    const tapItem = currentItem(session);
+    if (tapItem?.tap) {
+      const numerals = target?.closest<HTMLElement>('[data-numeral]');
+      const labels = target?.closest<HTMLElement>('[data-minute-label]');
+      const hit = tapItem.tap.target === 'numerals' ? numerals : labels;
+      if (!hit) return;
+
+      const raw = hit.dataset.numeral ?? hit.textContent ?? '';
+      const value = Number(raw);
+      const result = tapValue(lap ?? startLap(tapItem.tap.sequence), value);
+      lap = result.lap;
+      if (result.correct) hit.dataset.done = 'true';
+      if (result.complete) {
+        lap = undefined;
+        lapKey = undefined;
+        onVerdict('correct');
+      }
       return;
     }
 
