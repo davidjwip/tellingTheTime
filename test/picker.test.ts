@@ -178,8 +178,35 @@ describe('the language control in the stylesheet', () => {
     const css = readFileSync('src/styles.css', 'utf8');
     const block = css.match(/\.level-btn \{[^}]*\}/)?.[0];
     expect(block, '.level-btn must have rules of its own').toBeDefined();
-    expect(block).toContain('border-radius: 50px');
+    // a rounded end is a rounded end: 50px, 999px and 50% all do the job
+    const radius = block?.match(/border-radius:\s*([^;]+);/)?.[1]?.trim() ?? '';
+    const px = Number.parseFloat(radius);
+    const rounded = radius.endsWith('%') ? px >= 40 : px >= 40;
+    expect(rounded, `border-radius was ${radius}`).toBe(true);
     expect(block).not.toContain('width: 100%');
+  });
+
+  it('gives the name field the toolbar treatment the label implies', () => {
+    const css = readFileSync('src/styles.css', 'utf8');
+    const block = css.match(/\.picker \.name-input \{[^}]*\}/)?.[0];
+    expect(block, '.name-input had no rules at all').toBeDefined();
+    const minHeight = Number.parseFloat(block?.match(/min-height:\s*(\d+)px/)?.[1] ?? '0');
+    expect(minHeight, 'a field a thumb has to hit is at least 44px').toBeGreaterThanOrEqual(44);
+  });
+
+  it('keeps Instructions quiet, so it does not shout over the levels', () => {
+    const css = readFileSync('src/styles.css', 'utf8');
+    const block = css.match(/\[data-action='instructions'\] \{[^}]*\}/)?.[0];
+    expect(block, 'Instructions must be styled as a setting').toBeDefined();
+    expect(block?.toLowerCase()).not.toContain('#ff6b6b');
+  });
+
+  it('reserves solid green for Start, so "press the green one" has one answer', () => {
+    const css = readFileSync('src/styles.css', 'utf8');
+    const chosen = css.match(/\.operator-active,[^{]*\{[^}]*\}/)?.[0] ?? '';
+    const background = chosen.match(/background-color:\s*([^;]+);/)?.[1]?.trim();
+    // the chosen language is green, but a soft green: Start is the only solid accent on the screen
+    expect(background).toBe('#d3f2ee');
   });
 });
 
