@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import { chronoKeyFor } from '../src/audio';
 import { chooseFor, choiceFor, renderChoose, WORDS } from '../src/choose';
 import { buildQueue, createSession, seededRng } from '../src/engine';
 import { LEVELS } from '../src/levels';
@@ -200,6 +201,25 @@ describe('choosing between two clocks', () => {
       return;
     }
     throw new Error('never drew a quarter to');
+  });
+
+  it('says the question out loud, because a child who cannot read it must still be asked', () => {
+    const choice = choiceFor(LEVELS.find((l) => l.id === 't3.1')!)!;
+    expect(choice.say).toMatch(/^(oclock|qpast|half|qto)-[0-9]+$/);
+    // and the words on screen say the same time as the clip
+    const answer = choice.dials!.find((dial) => `${dial.hour}:${dial.minute}` === choice.answer)!;
+    expect(choice.say).toBe(chronoKeyFor(answer));
+  });
+
+  it('always builds a choice, however stubborn the previous answer', () => {
+    // hours [3], minutes [0, 30]: with a previous of 3:0 half the draws collide, and the loop must
+    // still hand the caller a choice rather than an undefined the engine's `!` would trust
+    const fixed = { ...LEVELS.find((l) => l.id === 't3.1')!, hours: [3] };
+    for (let draw = 0; draw < 40; draw += 1) {
+      const choice = choiceFor(fixed, '3:0');
+      expect(choice, `draw ${draw}`).toBeDefined();
+      expect(choice!.answer).not.toBe('3:0');
+    }
   });
 
   it('refuses a level with only one allowed minute, and the five-minute grid', () => {
