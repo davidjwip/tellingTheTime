@@ -31,17 +31,16 @@ describe('which levels can be played today', () => {
     expect(shelved?.items).toBe(10);
   });
 
-  it('drops the questions the app cannot ask yet, and says how many are left', () => {
+  it('counts every question it can ask, sets included', () => {
     const [shelved] = shelve([level('t2.2')], DEFAULT_PROGRESS); // six reads, four sets
-    expect(shelved?.items).toBe(6);
+    expect(shelved?.items).toBe(10);
     expect(shelved?.available).toBe(true);
   });
 
-  it('marks a level unavailable when too little is left to be worth a round', () => {
-    const [shelved] = shelve([level('t2.3')], DEFAULT_PROGRESS); // three reads, seven sets
-    expect(shelved?.items).toBe(3);
+  it('marks a level unavailable when no screen can ask its questions at all', () => {
+    const [shelved] = shelve([level('t1.4')], DEFAULT_PROGRESS); // build the face: no screen yet
     expect(shelved?.available).toBe(false);
-    expect(shelved?.reason).toMatch(/dragg/i);
+    expect(shelved?.reason).toMatch(/build/i);
   });
 
   it('names what the unanswerable questions need, so the shelf is a to-do list', () => {
@@ -106,9 +105,9 @@ describe('where a visit starts', () => {
     expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't3.4')?.id).toBe('t3.4');
   });
 
-  it('refuses a level that cannot be played, however it was asked for', () => {
+  it('refuses a level no screen can ask, however it was asked for', () => {
     // both are untrusted input, and both used to start a round of nothing
-    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't2.3')).toBeNull();
+    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't1.4')).toBeNull();
     expect(resolveStartLevel(LEVELS, { ...DEFAULT_PROGRESS, lastLevel: 't1.4' }, null)).toBeNull();
   });
 
@@ -261,6 +260,12 @@ describe('the shelf', () => {
     expect(bank?.levels.map((l) => l.id)).toEqual(['t5.1', 't5.2']);
     expect(bank?.review.length).toBeGreaterThan(0);
     expect(bank?.review.every((l) => l.tier < 5)).toBe(true);
+  });
+
+  it('offers the two make-it levels now that hands can be dragged', () => {
+    for (const id of ['t2.3', 't3.3']) {
+      expect(shelve([level(id)], DEFAULT_PROGRESS)[0]?.available, id).toBe(true);
+    }
   });
 
   it('has no bank for a tier that cannot be played', () => {

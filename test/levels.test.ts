@@ -66,7 +66,7 @@ describe('AC-06 — the committed level data passes every rule', () => {
     expect(five[1]?.face?.minuteLabels).toBe(false);
   });
 
-  it('gives every T2–T4 round ten items, as the spec promises', () => {
+  it('gives every T2–T4 round ten items, now that set steps are counted', () => {
     for (const level of LEVELS.filter((l) => l.tier >= 2 && l.tier <= 4)) {
       expect(itemsPerRound(level)).toBe(10);
     }
