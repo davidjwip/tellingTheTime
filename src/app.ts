@@ -153,6 +153,12 @@ export const TAP_DISC_RADIUS = 9;
  * Empty places are drawn, not implied — a four-year-old needs to see where a numeral can go, and a
  * target he can aim at is the difference between building a face and guessing at one.
  */
+/** A point on the dial at an angle in degrees clockwise from the top, on the 100-unit viewBox. */
+function pointOnDial(angle: number, radius = 36): { x: number; y: number } {
+  const radians = (angle * Math.PI) / 180;
+  return { x: 50 + Math.sin(radians) * radius, y: 50 - Math.cos(radians) * radius };
+}
+
 export function renderBuild(placements: readonly { numeral: number; angle: number }[] = []): HTMLElement {
   const wrapper = el('div', 'build');
   const placed = new Map(placements.map((placement) => [placement.numeral, placement.angle]));
@@ -173,35 +179,35 @@ export function renderBuild(placements: readonly { numeral: number; angle: numbe
   dial.setAttribute('stroke-width', '2.5');
   svg.append(dial);
 
+  // The guide for every numeral stays where that numeral belongs, whether or not it is placed.
   for (let numeral = 1; numeral <= 12; numeral += 1) {
-    const angle = idealAngle(numeral);
-    const rad = (angle * Math.PI) / 180;
-    const x = 50 + Math.sin(rad) * 36;
-    const y = 50 - Math.cos(rad) * 36;
-
+    const { x, y } = pointOnDial(idealAngle(numeral));
     const slot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
     slot.setAttribute('cx', String(x));
     slot.setAttribute('cy', String(y));
     slot.setAttribute('r', '7');
-    slot.setAttribute('fill', placed.has(numeral) ? '#ffffff' : 'none');
+    slot.setAttribute('fill', 'none');
     slot.setAttribute('stroke', '#9ca3af');
     slot.setAttribute('stroke-width', '1.5');
-    slot.setAttribute('stroke-dasharray', placed.has(numeral) ? '0' : '3 3');
+    slot.setAttribute('stroke-dasharray', '3 3');
     slot.dataset.slot = String(numeral);
     svg.append(slot);
+  }
 
-    if (placed.has(numeral)) {
-      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-      text.setAttribute('x', String(x));
-      text.setAttribute('y', String(y));
-      text.setAttribute('text-anchor', 'middle');
-      text.setAttribute('dominant-baseline', 'central');
-      text.setAttribute('font-size', '9');
-      text.setAttribute('fill', '#1f2937');
-      text.dataset.placedNumeral = String(numeral);
-      text.textContent = String(numeral);
-      svg.append(text);
-    }
+  // A placed numeral is drawn WHERE THE CHILD PUT IT. Drawing it on its ideal place made the face
+  // lie: a perfect-looking clock could be judged wrong, with nothing on screen to explain why.
+  for (const [numeral, angle] of placed) {
+    const { x, y } = pointOnDial(angle);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', String(x));
+    text.setAttribute('y', String(y));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'central');
+    text.setAttribute('font-size', '9');
+    text.setAttribute('fill', '#1f2937');
+    text.dataset.placedNumeral = String(numeral);
+    text.textContent = String(numeral);
+    svg.append(text);
   }
 
   wrapper.append(svg);
@@ -216,7 +222,9 @@ export function renderBuild(placements: readonly { numeral: number; angle: numbe
     tray.append(button);
   }
   wrapper.append(tray);
-  wrapper.append(el('p', 'build-hint', `Drop each numeral within ${BUILD_TOLERANCE_DEGREES}° of its place.`));
+  wrapper.append(
+    el('p', 'build-hint', `Put each numeral near its place — within ${BUILD_TOLERANCE_DEGREES}°.`),
+  );
   return wrapper;
 }
 

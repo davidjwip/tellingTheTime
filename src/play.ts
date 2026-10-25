@@ -9,7 +9,7 @@
 
 import { renderCelebration, renderPlay, renderSummary } from './app';
 import { chronoKeyFor, promptKeyFor } from './audio';
-import { judgeBuild, slotAt } from './build';
+import { judgeBuild } from './build';
 import type { Placement } from './build';
 import { dialAngle, judgePlacement, settledHourAngle, snapHour, snapMinute, toDialPoint } from './setHands';
 import { lapValue, startLap, tapValue } from './tap';
@@ -152,6 +152,12 @@ function mountRound(
   };
 
   const pointOf = (event: PointerEvent | MouseEvent): Point => ({ x: event.clientX, y: event.clientY });
+
+  /** Where a numeral at this angle sits, in the dial's own 100-unit coordinates. */
+  const dialPoint = (angle: number): Point => {
+    const radians = (angle * Math.PI) / 180;
+    return { x: 50 + Math.sin(radians) * 36, y: 50 - Math.cos(radians) * 36 };
+  };
 
   const pointerAngle = (event: PointerEvent | MouseEvent): number => {
     // the dial is on screen for every tap and set item; the cast says so once instead of guarding
@@ -471,19 +477,46 @@ function mountRound(
         return;
       }
       const onDial = target.closest('[data-build-dial]');
-      if (onDial && selectedNumeral !== null) {
+      if (onDial) {
         const rect = (onDial as SVGSVGElement).getBoundingClientRect();
-        const angle = dialAngle(toDialPoint({ x: event.clientX, y: event.clientY }, rect));
-        // the numeral goes to the nearest place: a finger cannot be asked for a degree, and a
-        // numeral wedged between two places is not something anyone can build with
-        const slot = slotAt(angle);
-        placements = [
-          ...placements.filter((p) => p.numeral !== selectedNumeral),
-          { numeral: selectedNumeral, angle: (slot % 12) * 30 },
-        ];
-        selectedNumeral = null;
-        draw(false);
-        event.preventDefault();
+        const point = toDialPoint({ x: event.clientX, y: event.clientY }, rect);
+        const radius = Math.hypot(point.x - 50, point.y - 50);
+        // outside the dial there is no place to put anything; a press on the page is not a drop
+        if (radius > 48) return;
+
+        // A numeral already on the face can be taken back off it. Without this, a child who puts
+        // three numerals in the wrong places has an unfixable face and no idea why.
+        const nearest = placements.reduce<Placement | undefined>((best, placement) => {
+          const { x, y } = dialPoint(placement.angle);
+          const distance = Math.hypot(point.x - x, point.y - y);
+          if (distance > 12) return best;
+          if (!best) return placement;
+          const bestDistance = Math.hypot(
+            point.x - dialPoint(best.angle).x,
+            point.y - dialPoint(best.angle).y,
+          );
+          return distance < bestDistance ? placement : best;
+        }, undefined);
+
+        if (nearest) {
+          placements = placements.filter((placement) => placement !== nearest);
+          selectedNumeral = null;
+          draw(false);
+          event.preventDefault();
+          return;
+        }
+
+        if (selectedNumeral !== null) {
+          // where the finger let go is where the numeral goes; the judge uses the same angle, so the
+          // picture and the verdict can never disagree
+          placements = [
+            ...placements.filter((p) => p.numeral !== selectedNumeral),
+            { numeral: selectedNumeral, angle: dialAngle(point) },
+          ];
+          selectedNumeral = null;
+          draw(false);
+          event.preventDefault();
+        }
         return;
       }
     }
