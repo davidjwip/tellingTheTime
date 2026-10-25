@@ -607,7 +607,7 @@ describe('making the time by hand', () => {
   });
 
   it('moves both hands where the level draws both, and judges both', () => {
-    const mounted = mountPlay(app, overlayRoot, level('t4.2')); // quarter past: both hands, minutes [15]
+    const mounted = mountPlay(app, overlayRoot, level('t4.2')); // both hands are drawn here // quarter past: both hands, minutes [15]
     advanceToSet(mounted);
     const target = currentItem(mounted.session())?.time;
     if (!target) throw new Error('no target');
@@ -643,6 +643,86 @@ describe('making the time by hand', () => {
 
     expect(app.querySelector('[data-hand="hour"]')?.getAttribute('transform')).toBe(before);
     expect(mounted.session().answered).toBe(0);
+  });
+
+  it('accepts a quarter-to placement, which the geared hour hand used to break', () => {
+    // The bug this pins: on a level that draws both hands, a :45 placement puts the hour hand at
+    // 142.5 degrees for four o'clock. Reading the hour back off THAT angle rounds up to 5 - so every
+    // quarter-to item was unwinnable and the only winning move was to drag to the previous hour.
+    const mounted = mountPlay(app, overlayRoot, level('t4.3')); // quarter to: both hands, minutes [45]
+    advanceToSet(mounted);
+    const target = currentItem(mounted.session())?.time;
+    if (!target) throw new Error('no target');
+    expect(target.minute).toBe(45);
+
+    const hourPoint = {
+      x: 50 + Math.sin((target.hour % 12) * (Math.PI / 6)) * 40,
+      y: 50 - Math.cos((target.hour % 12) * (Math.PI / 6)) * 40,
+    };
+    drag('hour', hourPoint.x, hourPoint.y);
+    drag('minute', 50, 90); // the 9: forty-five minutes
+    tap('[data-action="done"]');
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+  });
+
+  it('lets go of the hand when the gesture is cancelled', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t4.2'));
+    advanceToSet(mounted);
+    const grab = app.querySelector('[data-grab="hour"]')!;
+    grab.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 7, clientX: 50, clientY: 50 }));
+    grab.dispatchEvent(new PointerEvent('pointercancel', { bubbles: true, pointerId: 7 }));
+    const after = app.querySelector('[data-hand="hour"]')?.getAttribute('transform');
+    const answered = mounted.session().answered;
+
+    // a finger that was never put down on this dial must not drag anything
+    app.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerId: 7, clientX: 90, clientY: 50 }));
+    expect(app.querySelector('[data-hand="hour"]')?.getAttribute('transform')).toBe(after);
+    expect(mounted.session().answered).toBe(answered);
+  });
+
+  it('ignores a second finger while one is already holding a hand', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t4.2'));
+    advanceToSet(mounted);
+    const grab = app.querySelector('[data-grab="hour"]')!;
+    grab.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 1, clientX: 50, clientY: 50 }));
+    // a second finger lands on the minute hand; it must not take over
+    const minute = app.querySelector('[data-grab="minute"]')!;
+    minute.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 2, clientX: 90, clientY: 50 }));
+    app.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, pointerId: 2, clientX: 90, clientY: 50 }));
+
+    // the minute hand never moved, so only the hour has been touched
+    expect(app.querySelector('[data-action="done"]')?.getAttribute('data-ready')).toBe('false');
+  });
+
+  it('will not let Done answer anything before a hand has moved', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t2.3'));
+    advanceToSet(mounted);
+    const done = app.querySelector<HTMLButtonElement>('[data-action="done"]')!;
+    expect(done.disabled).toBe(true);
+
+    const before = mounted.session().answered;
+    done.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    // no verdict was recorded: the count did not move, so there is no free answer at 12:00
+    expect(mounted.session().answered).toBe(before);
+  });
+
+  it('answers once when Done is tapped twice in a row', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t2.3'));
+    advanceToSet(mounted);
+    const target = currentItem(mounted.session())?.time;
+    if (!target) throw new Error('no target');
+    const hourPoint = {
+      x: 50 + Math.sin((target.hour % 12) * (Math.PI / 6)) * 40,
+      y: 50 - Math.cos((target.hour % 12) * (Math.PI / 6)) * 40,
+    };
+    drag('hour', hourPoint.x, hourPoint.y);
+
+    const answered = mounted.session().answered;
+    tap('[data-action="done"]');
+    tap('[data-action="done"]');
+    // one press, one verdict: the second would otherwise land on the next item's Done
+    expect(mounted.session().answered).toBe(answered + 1);
   });
 
   it('marks a wrong placement as a miss, which returns later', () => {

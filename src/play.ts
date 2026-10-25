@@ -103,9 +103,16 @@ function mountRound(
   let lapKey: string | undefined;
   /** Which hand a finger is holding, and where the two hands currently point. */
   let grabbing: 'hour' | 'minute' | null = null;
+  /** Where the hands are drawn — the hour hand geared to the minutes, as a clock works. */
   let setAngles = { hour: 0, minute: 0 };
+  /** What the child actually chose. Judging must read this, never the geared angle: at half past the
+   *  geared hour sits between two numerals and rounds to the next one, which made every half-past and
+   *  quarter-to item unwinnable. */
+  let setChosen = { hour: 12, minute: 0 };
   let setMoved = { hour: false, minute: false };
   let setKey: string | undefined;
+  let activePointer: number | null = null;
+  let doneLockUntil = 0;
 
   const speakPrompt = (): void => {
     const item = currentItem(session);
@@ -120,8 +127,10 @@ function mountRound(
     if (item?.task !== 'set' || item.key === setKey) return;
     setKey = item.key;
     setAngles = { hour: 0, minute: 0 };
+    setChosen = { hour: 12, minute: 0 };
     setMoved = { hour: false, minute: false };
     grabbing = null;
+    activePointer = null;
   };
 
   const pointOf = (event: PointerEvent | MouseEvent): Point => ({ x: event.clientX, y: event.clientY });
@@ -149,10 +158,14 @@ function mountRound(
   const allowedMinutes = (): readonly number[] => activeLevel().minutes ?? [0];
 
   const setReady = (): void => {
-    const done = app.querySelector<HTMLElement>('[data-action="done"]');
+    const done = app.querySelector<HTMLButtonElement>('[data-action="done"]');
+    if (!done) return;
     const drawn = setHandsDrawn();
     const ready = drawn === 'both' ? setMoved.hour && setMoved.minute : setMoved.hour;
-    if (done) done.dataset.ready = String(ready);
+    // a real disabled control, not an attribute nothing reads: pressing Done before moving anything
+    // used to record a free verdict at 12:00
+    done.disabled = !ready;
+    done.dataset.ready = String(ready);
   };
 
   const syncLap = (): void => {
@@ -256,15 +269,19 @@ function mountRound(
     // The header's Level button belongs to the play screen, so it has to do something: go back to
     // the shelf. It was enabled and inert, which this codebase calls a lie.
     if (action === 'done') {
+      const button = target.closest<HTMLButtonElement>('[data-action="done"]');
+      if (!button || button.disabled) return;
+      // the verdict re-renders the screen, so a second tap within the guard lands on the NEXT item's
+      // Done and answers a question the child has never seen
+      if (Date.now() < doneLockUntil) return;
+      doneLockUntil = Date.now() + CHOICE_TAP_GUARD_MS;
+
       const item = currentItem(session) as Item & { time: ClockTime };
-      const allowed = levels?.find((l) => l.id === item.levelId)?.minutes ?? level.minutes ?? [0];
-      const placed = {
-        hour: snapHour(setAngles.hour),
-        minute: snapMinute(setAngles.minute, allowed),
-      };
+      // the hands the child chose, not the angles they are drawn at: at half past the geared hour
+      // sits between two numerals and would round up to the next hour
       const correct = judgePlacement(
         { hour: item.time.hour, minute: item.time.minute },
-        placed,
+        setChosen,
         setHandsDrawn(),
       );
       onVerdict(correct ? 'correct' : 'wrong');
@@ -402,16 +419,26 @@ function mountRound(
     draw();
   };
   app.addEventListener('pointerdown', (event) => {
-    const target = (event.target ?? app) as HTMLElement;
+    // one finger at a time: a second one landing mid-drag must not steal the hand
+    if (activePointer !== null) return;
+    const target = event.target as HTMLElement;
     const grab = target.closest<HTMLElement>('[data-grab]');
     if (!grab || currentItem(session)?.task !== 'set') return;
     grabbing = grab.dataset.grab === 'hour' ? 'hour' : 'minute';
+    activePointer = event.pointerId;
     grab.setPointerCapture?.(event.pointerId);
     event.preventDefault();
   });
 
+  // iOS can cancel a gesture at any moment; without this the hand stays held and follows the next
+  // unrelated touch
+  app.addEventListener('pointercancel', () => {
+    grabbing = null;
+    activePointer = null;
+  });
+
   app.addEventListener('pointermove', (event) => {
-    if (!grabbing || currentItem(session)?.task !== 'set') return;
+    if (!grabbing || event.pointerId !== activePointer || currentItem(session)?.task !== 'set') return;
     const angle = pointerAngle(event);
     const hand = grabbing;
     setAngles = { ...setAngles, [hand]: angle };
@@ -420,22 +447,26 @@ function mountRound(
     setReady();
   });
 
-  app.addEventListener('pointerup', () => {
-    if (!grabbing) return;
+  app.addEventListener('pointerup', (event) => {
+    if (!grabbing || event.pointerId !== activePointer) return;
     const hand = grabbing;
     grabbing = null;
-    const item = currentItem(session);
+    activePointer = null;
     const allowed = allowedMinutes();
+
     if (hand === 'minute') {
       // the minute hand settles on the grid this level asks for
       const minute = snapMinute(setAngles.minute, allowed);
+      setChosen = { ...setChosen, minute };
       setAngles = { ...setAngles, minute: (minute * 6) % 360 };
       paintHand('minute', setAngles.minute);
+      // and the hour hand follows, so the clock keeps telling the truth while it is being set
+      setAngles = { ...setAngles, hour: settledHourAngle(setChosen.hour, minute) };
+      paintHand('hour', setAngles.hour);
     } else {
-      // and the hour hand settles where the minutes put it, never on a numeral at half past
       const hour = snapHour(setAngles.hour);
-      const minute = snapMinute(setAngles.minute, allowed);
-      setAngles = { ...setAngles, hour: settledHourAngle(hour, minute) };
+      setChosen = { ...setChosen, hour };
+      setAngles = { ...setAngles, hour: settledHourAngle(hour, setChosen.minute) };
       paintHand('hour', setAngles.hour);
     }
     setReady();

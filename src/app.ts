@@ -183,9 +183,12 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
     }
     panel.append(frame);
 
-    const done = el('button', 'action-btn primary', 'Done');
+    const done = el('button', 'action-btn primary', 'Done') as HTMLButtonElement;
     done.dataset.action = 'done';
     done.dataset.ready = 'false';
+    // disabled until a hand has moved: an enabled control that does nothing is the pattern this
+    // project has removed twice, and here it would also record a free verdict at 12:00
+    done.disabled = true;
     panel.append(done);
   } else if (tapping && item) {
     panel.append(el('div', 'prompt', promptFor(item, item.task)));
