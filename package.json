@@ -14,8 +14,9 @@
     "typecheck": "tsc -p tsconfig.json",
     "validate:levels": "vite-node scripts/validate-levels.ts",
     "gate:tests-first": "vite-node scripts/check-test-first.ts",
+    "gate:branch-base": "vite-node scripts/check-branch-base.ts",
     "hooks:install": "git config core.hooksPath .githooks",
-    "verify": "npm run typecheck && npm run validate:levels && npm run test:coverage && npm run gate:tests-first"
+    "verify": "npm run typecheck && npm run validate:levels && npm run test:coverage && npm run gate:tests-first && npm run gate:branch-base"
   },
   "engines": {
     "node": ">=20"
