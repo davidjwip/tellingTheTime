@@ -501,6 +501,18 @@ describe('tapping the dial', () => {
     expect(discs.map((d) => d.dataset.hit)).toContain('7');
   });
 
+  it('sizes each target for a finger, and no bigger than its neighbours allow', () => {
+    mountPlay(app, overlayRoot, level('t1.1'));
+    const discs = [...app.querySelectorAll<SVGElement>('[data-hit]')];
+    const radii = discs.map((disc) => Number(disc.getAttribute('r')));
+    expect(Math.min(...radii)).toBeGreaterThanOrEqual(9);
+
+    // numeral neighbours are 2*36*sin(15deg) apart; a disc wider than half that would swallow its
+    // neighbour's centre and make the ring untappable in the wrong direction
+    const spacing = 2 * 36 * Math.sin(Math.PI / 12);
+    expect(Math.max(...radii) * 2).toBeLessThan(spacing);
+  });
+
   it('answers from the disc, not only from the glyph', () => {
     mountPlay(app, overlayRoot, level('t1.1'));
     const disc = app.querySelector<SVGElement>('[data-hit="1"]');

@@ -574,6 +574,8 @@ footer {
 
 @media (max-width: 480px) {
   h1 { font-size: 1.6rem; }
+  /* The clock is the thing being touched: give it the width, not the margins. */
+  .clock-frame { width: min(360px, 86vw); }
   .header-actions { gap: 6px; }
   .header-actions .action-btn.small { padding: 6px 12px; font-size: 0.85rem; }
   .step { width: 100%; max-width: 42px; aspect-ratio: 1; height: auto; font-size: 0.85rem; }

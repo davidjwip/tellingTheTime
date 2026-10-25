@@ -174,6 +174,14 @@ describe('the language control in the stylesheet', () => {
     }
   });
 
+  it('gives the clock more width on a phone, where the targets are smallest', () => {
+    const css = readFileSync('src/styles.css', 'utf8');
+    const small = css.match(/@media \(max-width: 480px\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
+    expect(small).toContain('.clock-frame');
+    const width = small.match(/\.clock-frame \{ width: min\((\d+)px/)?.[1];
+    expect(Number(width)).toBeGreaterThanOrEqual(340);
+  });
+
   it('makes a level a pill, not a bar across the window', () => {
     const css = readFileSync('src/styles.css', 'utf8');
     const block = css.match(/\.level-btn \{[^}]*\}/)?.[0];
