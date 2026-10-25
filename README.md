@@ -68,7 +68,7 @@ so at half past the minute hand is hidden and the only thing on screen is the on
 
 | Tier | Name | Levels | Content | Face |
 | --- | --- | --- | --- | --- |
-| T0 | Before the clock | 0.1–0.4 | day order, durations, weekdays | no clock |
+| T0 | Before the clock | 0.1–0.5 | day order, durations, weekdays (0.5 without their numbers) | no clock |
 | T1 | The face is a circle | 1.1–1.4 | 1–12, the wrap, the 5s | numerals only, no hands |
 | T2 | One hand: o'clock | 2.1–2.4 | o'clock ×12 | **hour hand only** |
 | T3 | One hand: half past | 3.1–3.4 | + half past ×12 | **hour hand only** |
