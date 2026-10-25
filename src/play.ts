@@ -97,6 +97,7 @@ function mountRound(
   let orderLockAt = { x: 0, y: 0 };
   let choiceLocked = false;
   let lastChoiceId: string | undefined;
+  let choiceLockAt = { x: 0, y: 0 };
   let placed: string[] = [];
   /** The lap in progress and the item it belongs to, so a new question starts a fresh dial. */
   let lap: Lap | undefined;
@@ -394,11 +395,19 @@ function mountRound(
       // A double tap used to answer the next question: the first tap re-renders the screen under
       // the second one. Ignore a repeat tap on the card just chosen until the child has had time to
       // see the change. A tap on a different card is a fresh answer, not a bounce.
-      if (choiceLocked && choice === lastChoiceId) return;
+      // Two dials sit in the same two places, so an identity check alone lets a bounce answer the
+      // OTHER one. The order guard already learned this; a tap in the same spot is a bounce.
+      const point = { x: (event as MouseEvent).clientX, y: (event as MouseEvent).clientY };
+      const bounced =
+        choiceLocked &&
+        (choice === lastChoiceId ||
+          (Math.abs(point.x - choiceLockAt.x) < 48 && Math.abs(point.y - choiceLockAt.y) < 48));
+      if (bounced) return;
       const item = currentItem(session);
       if (item?.answer !== undefined) {
         choiceLocked = true;
         lastChoiceId = choice;
+        choiceLockAt = { x: point.x, y: point.y };
         setTimeout(() => {
           choiceLocked = false;
         }, CHOICE_TAP_GUARD_MS);
