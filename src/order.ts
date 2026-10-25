@@ -95,8 +95,15 @@ export function orderFor(
     content.kind === 'dayCards' ? DAY_CARDS : content.kind === 'weekTiles' ? WEEK_CARDS : undefined;
   if (!table) return undefined;
 
-  const answer = table.map((card) => card.id);
-  const cards = deal(table, answer, previous, rng);
+  // A week level may hide the day numbers: with "Monday 1" printed on the card, ordering is reading;
+  // without them it is knowing the week. Same cards, same answer, one fewer crutch.
+  const shown =
+    content.kind === 'weekTiles' && content.numbered === false
+      ? table.map(({ number: _dropped, ...rest }) => rest)
+      : table;
+
+  const answer = shown.map((card) => card.id);
+  const cards = deal(shown, answer, previous, rng);
   return { cards: cards.map((card) => ({ ...card })), answer: [...answer] };
 }
 
