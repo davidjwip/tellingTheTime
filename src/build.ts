@@ -27,12 +27,6 @@ function gap(a: number, b: number): number {
   return raw > 180 ? 360 - raw : raw;
 }
 
-/** Which numeral a drop at this angle belongs to, by nearest place. */
-export function slotAt(angle: number): number {
-  const slot = Math.round(((angle % 360) + 360) % 360 / 30) % 12;
-  return slot === 0 ? 12 : slot;
-}
-
 export interface BuildResult {
   /** How many numerals are on the face at all. */
   placed: number;
