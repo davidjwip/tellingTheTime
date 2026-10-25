@@ -50,7 +50,7 @@ per child on the device and will end up in test names.
 
 | Tier | Name | Levels | Content | Representation | Task |
 | --- | --- | --- | --- | --- | --- |
-| **T0** | Before the clock | 0.1–0.4 | day sequence, durations, days of week | none | order / choose |
+| **T0** | Before the clock | 0.1–0.5 | day sequence, durations, days of week (0.5 unnumbered) | none | order / choose |
 | **T1** | The face is a circle | 1.1–1.4 | 1–12, the wrap, the 5s | numerals only, no hands | tap / build |
 | **T2** | One hand: o'clock | 2.1–2.4 | o'clock ×12 | **hour hand only** | read / set |
 | **T3** | One hand: half past | 3.1–3.4 | + half past ×12 | **hour hand only** | read / set |
