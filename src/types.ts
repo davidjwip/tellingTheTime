@@ -13,7 +13,7 @@ export type Content =
   | { kind: 'dayCards'; count: number }
   | { kind: 'dayStrip' }
   | { kind: 'durationPair' }
-  | { kind: 'weekTiles'; count: number }
+  | { kind: 'weekTiles'; count: number; numbered?: boolean }
   | { kind: 'numberOrder'; from: number; to: number }
   | { kind: 'wrap' }
   | { kind: 'fivesRing'; to: number }

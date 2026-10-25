@@ -1019,6 +1019,34 @@
           20
         ]
       }
+    },
+    {
+      "id": "t0.5",
+      "tier": 0,
+      "title": {
+        "en": "Days of the week, no numbers"
+      },
+      "round": [
+        {
+          "task": "order",
+          "items": 4
+        }
+      ],
+      "content": {
+        "kind": "weekTiles",
+        "count": 7,
+        "numbered": false
+      },
+      "knobs": {
+        "rep": "none",
+        "task": "order"
+      },
+      "badge": {
+        "time": [
+          12,
+          0
+        ]
+      }
     }
   ]
 }
