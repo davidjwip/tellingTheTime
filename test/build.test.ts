@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { idealAngle, judgeBuild, slotAt } from '../src/build';
+import { idealAngle, judgeBuild } from '../src/build';
 
 describe('where a numeral belongs', () => {
   it('puts 12 at the top and counts clockwise', () => {
@@ -9,16 +9,6 @@ describe('where a numeral belongs', () => {
     expect(idealAngle(3)).toBe(90);
     expect(idealAngle(6)).toBe(180);
     expect(idealAngle(11)).toBe(330);
-  });
-});
-
-describe('which slot a drop belongs to', () => {
-  it('snaps to the nearest numeral, across the top', () => {
-    expect(slotAt(0)).toBe(12);
-    expect(slotAt(5)).toBe(12); // nearer 12 than 1
-    expect(slotAt(20)).toBe(1);
-    expect(slotAt(345)).toBe(12); // the wrap: 345 is 15 short of 360
-    expect(slotAt(359)).toBe(12);
   });
 });
 

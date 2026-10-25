@@ -446,6 +446,73 @@ describe('what a tap does', () => {
     expect(mounted.session().results.at(-1)?.correct).toBe(true);
   });
 
+  it('draws a numeral where it was dropped, so the face never lies about the build', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t1.4'));
+    const dial = app.querySelector<SVGSVGElement>('[data-build-dial]')!;
+    dial.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0 }) as DOMRect;
+
+    // twelve, dropped twenty degrees clockwise of its place
+    app
+      .querySelector<HTMLElement>('[data-tray="12"]')!
+      .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 5 }));
+    const radians = (20 * Math.PI) / 180;
+    dial.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        pointerId: 6,
+        clientX: 50 + Math.sin(radians) * 36,
+        clientY: 50 - Math.cos(radians) * 36,
+      }),
+    );
+
+    // it is drawn where the finger put it, not tidied onto the twelve
+    const placed = app.querySelector('[data-placed-numeral="12"]')!;
+    expect(Number(placed.getAttribute('x'))).toBeCloseTo(50 + Math.sin(radians) * 36, 1);
+    // and the judge agrees with the picture: twenty degrees is outside the twelve-degree tolerance
+    expect(mounted.build()).toMatchObject({ placed: 1, good: 0, pass: false });
+  });
+
+  it('picks a placed numeral back up, because three mistakes should not be permanent', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t1.4'));
+    const dial = app.querySelector<SVGSVGElement>('[data-build-dial]')!;
+    dial.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0 }) as DOMRect;
+
+    // the screen is redrawn after every drop, so the dial is re-queried every time
+    const pressDial = (clientX: number, clientY: number, pointerId: number): void => {
+      const live = app.querySelector<SVGSVGElement>('[data-build-dial]')!;
+      live.getBoundingClientRect = () =>
+        ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0 }) as DOMRect;
+      live.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId, clientX, clientY }));
+    };
+
+    app
+      .querySelector<HTMLElement>('[data-tray="3"]')!
+      .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 7 }));
+    // dropped on the six's place: visibly wrong, and fixable
+    pressDial(50, 86, 8);
+    expect(mounted.build().placed).toBe(1);
+
+    // press it again to take it off the face
+    pressDial(50, 86, 9);
+    expect(mounted.build().placed).toBe(0);
+    expect(app.querySelector('[data-tray="3"]')).not.toBeNull();
+  });
+
+  it('ignores a press outside the dial', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t1.4'));
+    app
+      .querySelector<HTMLElement>('[data-tray="5"]')!
+      .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 11 }));
+    const live = app.querySelector<SVGSVGElement>('[data-build-dial]')!;
+    live.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0 }) as DOMRect;
+    // the corner of the svg square, well outside the dial
+    live.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 12, clientX: 3, clientY: 4 }));
+    expect(mounted.build().placed).toBe(0);
+  });
+
   it('draws the week without numbers on the cards', () => {
     mountPlay(app, overlayRoot, level('t0.5'));
     expect(app.querySelectorAll('[data-card]').length).toBe(7);
