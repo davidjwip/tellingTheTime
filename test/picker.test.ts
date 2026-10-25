@@ -37,16 +37,21 @@ describe('which levels can be played today', () => {
     expect(shelved?.available).toBe(true);
   });
 
+  it('opens the build level now that a face can be built', () => {
+    expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
+  });
+
   it('marks a level unavailable when no screen can ask its questions at all', () => {
-    const [shelved] = shelve([level('t1.4')], DEFAULT_PROGRESS); // build the face: no screen yet
+    const [shelved] = shelve([level('t1.2')], DEFAULT_PROGRESS); // the wrap, in words: no screen yet
     expect(shelved?.available).toBe(false);
-    expect(shelved?.reason).toMatch(/build/i);
+    expect(shelved?.reason).toMatch(/choos/i);
   });
 
   it('names what the unanswerable questions need, so the shelf is a to-do list', () => {
     expect(shelve([level('t1.1')], DEFAULT_PROGRESS)[0]?.available).toBe(true); // the dial can be tapped now
     expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
-    expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/build/i);
+    // and the build level has stopped waiting
+    expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
 
     // an order step with no order table still says what it is waiting for
     const noOrderTable: Level = {
@@ -128,8 +133,8 @@ describe('where a visit starts', () => {
 
   it('refuses a level no screen can ask, however it was asked for', () => {
     // both are untrusted input, and both used to start a round of nothing
-    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't1.4')).toBeNull();
-    expect(resolveStartLevel(LEVELS, { ...DEFAULT_PROGRESS, lastLevel: 't1.4' }, null)).toBeNull();
+    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't1.2')).toBeNull();
+    expect(resolveStartLevel(LEVELS, { ...DEFAULT_PROGRESS, lastLevel: 't1.2' }, null)).toBeNull();
   });
 
   it('refuses a level that does not exist', () => {
@@ -177,7 +182,7 @@ describe('which click means a level', () => {
 
 describe('where Start goes', () => {
   it('falls back to the first playable level when the remembered one is shelved', () => {
-    const remembered = { ...DEFAULT_PROGRESS, lastLevel: 't1.4' }; // needs a screen that does not exist
+    const remembered = { ...DEFAULT_PROGRESS, lastLevel: 't1.2' }; // needs a screen that does not exist
     expect(firstPlayable(LEVELS, remembered)?.id).toBe('t0.1');
   });
 });

@@ -52,12 +52,14 @@ describe('building questions', () => {
       'read', 'read', 'read', 'read', 'read', 'read',
       'set', 'set', 'set', 'set',
     ]);
-    // a build step has no screen at all, so that level still produces nothing
-    expect(buildQueue(level('t1.4'), seededRng(3))).toEqual([]);
+    // t1.4 has a screen now: three faces to build
+    expect(buildQueue(level('t1.4'), seededRng(3)).map((i) => i.task)).toEqual(['build', 'build', 'build']);
+    // t1.2 asks about the wrap in words, and has no screen yet
+    expect(buildQueue(level('t1.2'), seededRng(3))).toEqual([]);
   });
 
   it('asks nothing on a level whose every question needs a screen that does not exist', () => {
-    expect(buildQueue(level('t1.4'), seededRng(3))).toEqual([]);
+    expect(buildQueue(level('t1.2'), seededRng(3))).toEqual([]);
   });
 
   it('never shows the same time within two positions (AC-09)', () => {
@@ -121,6 +123,20 @@ describe('choose questions carry their cards and answer', () => {
         expect(answers[i], `${id} position ${i}`).not.toBe(answers[i - 1]);
       }
     }
+  });
+});
+
+describe('a level that asks for a whole face', () => {
+  it('is presentable only when it asks for numerals to place', () => {
+    const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
+    expect(canPresent(byId('t1.4'), 'build')).toBe(true);
+    expect(canPresent(byId('t1.1'), 'build')).toBe(false); // numerals to tap, not to place
+  });
+
+  it('fills a build round with build items', () => {
+    const queue = buildQueue(LEVELS.find((l) => l.id === 't1.4')!);
+    expect(queue).toHaveLength(3);
+    expect(queue.every((item) => item.task === 'build')).toBe(true);
   });
 });
 
@@ -364,7 +380,7 @@ describe('a level whose questions are a lap of the dial', () => {
 
 describe('a level with nothing to ask', () => {
   it('has no questions, and answering one changes nothing', () => {
-    const session = createSession(level('t1.4'), seededRng(1)); // build the face: no screen yet
+    const session = createSession(level('t1.2'), seededRng(1)); // the wrap, in words: no screen yet
     expect(session.queue).toEqual([]);
     expect(currentItem(session)).toBeUndefined();
     expect(recordVerdict(session, true)).toBe(session);

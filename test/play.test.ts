@@ -404,6 +404,48 @@ describe('what a tap does', () => {
     expect(mounted.session().results.at(-1)?.correct).toBe(false);
   });
 
+  it('builds the face by putting numerals in their slots', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t1.4'));
+    const item = currentItem(mounted.session())!;
+    expect(item.task).toBe('build');
+
+    // every numeral starts in the tray, and the dial shows twelve empty slots
+    expect(app.querySelectorAll('[data-tray]')).toHaveLength(12);
+    expect(app.querySelectorAll('[data-slot]')).toHaveLength(12);
+
+    const done = app.querySelector<HTMLButtonElement>('[data-action="done"]')!;
+    expect(done.disabled).toBe(true);
+
+    // pick a numeral out of the tray, then put it down on the dial
+    const placeNumeral = (numeral: number, angle: number): void => {
+      const dial = app.querySelector<SVGSVGElement>('[data-build-dial]')!;
+      dial.getBoundingClientRect = () =>
+        ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0 }) as DOMRect;
+      app
+        .querySelector<HTMLElement>(`[data-tray="${numeral}"]`)!
+        .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 3 }));
+      const radians = (angle * Math.PI) / 180;
+      dial.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 4,
+          clientX: 50 + Math.sin(radians) * 36,
+          clientY: 50 - Math.cos(radians) * 36,
+        }),
+      );
+    };
+
+    // a numeral picked up from the tray and dropped on a place in the dial lands in that slot
+    for (let numeral = 1; numeral <= 12; numeral += 1) {
+      placeNumeral(numeral, (numeral % 12) * 30);
+    }
+    expect(mounted.build()?.placed).toBe(12);
+    expect(app.querySelector<HTMLButtonElement>('[data-action="done"]')!.disabled).toBe(false);
+
+    tap('[data-action="done"]');
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+  });
+
   it('draws the week without numbers on the cards', () => {
     mountPlay(app, overlayRoot, level('t0.5'));
     expect(app.querySelectorAll('[data-card]').length).toBe(7);
