@@ -7,6 +7,7 @@
  * apart between the question table and the screen.
  */
 
+import { chronoKeyFor } from './audio';
 import { el, feedbackArea } from './dom';
 import { renderFace } from './clockFace';
 
@@ -55,6 +56,7 @@ const MINUTE_WORDS: Record<number, string> = {
 };
 
 /** How a clock is said: `3:45` is quarter to *four*. */
+
 export function phraseFor(time: ClockTime): string | undefined {
   const minutes = MINUTE_WORDS[time.minute];
   if (minutes === undefined) return undefined;
@@ -75,6 +77,8 @@ export interface Choice {
   question: string;
   /** Present for a clock choice: two faces that differ only in the minutes. */
   dials?: ClockTime[];
+  /** The clip that says this question out loud, where the question is a time. */
+  say?: string;
 }
 
 const DAY_CARDS: Card[] = [
@@ -219,26 +223,40 @@ export function choiceFor(
   const hours = level.hours ?? [];
   if (hours.length === 0) return undefined;
 
-  for (let attempt = 0; attempt < 8; attempt += 1) {
-    const hour = hours[Math.floor(rng() * hours.length)] as number;
-    const answerMinute = minutes[Math.floor(rng() * minutes.length)] as number;
-    const key = `${hour}:${answerMinute}`;
-    if (key === previous) continue;
+  // Lazily: the loop may hit `previous` eight times in a row on a level with hours [3] and
+  // minutes [0, 30]. The caller is promised a choice or a refusal, never an undefined that a `!`
+  // would then trust.
+  let hour = hours[Math.floor(rng() * hours.length)] as number;
+  let answerMinute = minutes[Math.floor(rng() * minutes.length)] as number;
+  for (let attempt = 0; attempt < 8 && `${hour}:${answerMinute}` === previous; attempt += 1) {
+    hour = hours[Math.floor(rng() * hours.length)] as number;
+    answerMinute = minutes[Math.floor(rng() * minutes.length)] as number;
+  }
+  if (`${hour}:${answerMinute}` === previous) {
+    // every draw landed on the same answer: take the other minute, which always exists here
+    answerMinute = (minutes.find((minute) => minute !== answerMinute) ?? answerMinute) as number;
+  }
 
+  {
+    const key = `${hour}:${answerMinute}`;
     const others = minutes.filter((minute) => minute !== answerMinute);
     const distractorMinute = others[Math.floor(rng() * others.length)] as number;
     const answer = { hour, minute: answerMinute };
     const distractor = { hour, minute: distractorMinute };
     const dials = rng() < 0.5 ? [answer, distractor] : [distractor, answer];
 
-    return {
+    const choice: Choice = {
       cards: [],
       answer: key,
       question: `Which one is ${phraseFor(answer)}?`,
       dials,
     };
+    // the audio for the question is the time itself: a child who cannot read the prompt must still
+    // be asked something, and "half past three" is the question
+    const say = chronoKeyFor(answer);
+    if (say) choice.say = say;
+    return choice;
   }
-  return undefined;
 }
 
 export function renderChoose(

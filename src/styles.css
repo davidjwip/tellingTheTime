@@ -759,7 +759,7 @@ section.tier:last-of-type .tier-entry[data-tip='true']::after {
   max-width: 46%;
   min-width: 140px;
   padding: 8px;
-  border: 3px solid var(--ink, #1f2937);
+  border: 3px solid #1f2937;
   border-radius: 16px;
   background: #fff;
   cursor: pointer;

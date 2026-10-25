@@ -38,6 +38,8 @@ export interface Item {
   cards?: Card[];
   /** The two faces of a clock choice. Their presence is what makes a choose screen a dial one. */
   dials?: ClockTime[];
+  /** The clip that says the question out loud, for a question that is a time. */
+  say?: string;
   /** Id of the card that answers a `choose` item. Its presence is what makes a screen a choose one. */
   answer?: string;
   /** The correct id sequence for an `order` item. Its presence is what makes a screen an order one. */
@@ -203,6 +205,7 @@ function itemFor(
     item.answer = choice.answer;
     item.question = choice.question;
     if (choice.dials) item.dials = choice.dials;
+    if (choice.say) item.say = choice.say;
   }
   if (order) {
     item.cards = order.cards;

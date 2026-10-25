@@ -107,7 +107,9 @@ export function audioUrl(key: string, locale: Locale): string {
  * other task is answered by touching the screen, and a generic "have a go" ten times a round teaches
  * a child to stop listening.
  */
-export function promptKeyFor(item: { task: string }): string | undefined {
+export function promptKeyFor(item: { task: string; say?: string }): string | undefined {
+  // a clock choice asks the time in words, so the question and the answer are the same clip
+  if (item.say) return item.say;
   return item.task === 'read' ? 'prompt-read' : undefined;
 }
 
