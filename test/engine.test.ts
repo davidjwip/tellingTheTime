@@ -124,6 +124,16 @@ describe('choose questions carry their cards and answer', () => {
   });
 });
 
+describe('which clock levels can ask a choose question', () => {
+  it('needs two allowed minutes, and words for them', () => {
+    const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
+    expect(canPresent(byId('t3.1'), 'choose')).toBe(true);
+    expect(canPresent(byId('t4.1'), 'choose')).toBe(true);
+    expect(canPresent(byId('t3.2'), 'choose')).toBe(false); // one minute: nothing to choose between
+    expect(canPresent(byId('t5.1'), 'choose')).toBe(false); // five-minute wording is a later amendment
+  });
+});
+
 describe('the round is a goal, not a length', () => {
   it('ends when ten right answers have been given', () => {
     const session = answerRight(createSession(level('t2.2'), seededRng(4)), GOAL_CORRECT);
