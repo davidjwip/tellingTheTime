@@ -95,6 +95,16 @@ describe('which levels can be played today', () => {
   });
 });
 
+describe('the stylesheet never asks for a property it does not define', () => {
+  it('has no undefined custom properties', () => {
+    // a `var(--ink, ...)` here referenced a token this stylesheet never declares; the fallback hid it
+    const css = readFileSync('src/styles.css', 'utf8');
+    const declared = new Set([...css.matchAll(/^\s*(--[a-z-]+):/gm)].map((m) => m[1]));
+    const used = [...css.matchAll(/var\((--[a-z-]+)/g)].map((m) => m[1] as string);
+    expect(used.filter((name) => !declared.has(name))).toEqual([]);
+  });
+});
+
 describe('the two clocks the choice screen unblocks', () => {
   it('opens both doors', () => {
     const progress = { name: '', lastLevel: undefined, cleared: [], locale: 'en' } as never;

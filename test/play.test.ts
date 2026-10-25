@@ -362,6 +362,29 @@ describe('what a tap does', () => {
 
   });
 
+  it('asks the clock question out loud when it appears', () => {
+    const said: string[] = [];
+    mountPlay(app, overlayRoot, level('t3.1'), {
+      speaker: {
+        say: (key: string | undefined) => {
+          if (key) said.push(key);
+        },
+      } as never,
+    });
+    expect(said).toHaveLength(1);
+    expect(said[0]).toMatch(/^(oclock|qpast|half|qto)-[0-9]+$/);
+  });
+
+  it('ignores a bounce that lands on the other dial', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t3.1'));
+    const before = mounted.session().answered;
+    const [first, second] = [...app.querySelectorAll<HTMLElement>('[data-choice]')];
+    // same place, second press: the layout did not move, so this is a bounce, not an answer
+    first!.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 80, clientY: 300 }));
+    second!.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 82, clientY: 302 }));
+    expect(mounted.session().answered).toBe(before + 1);
+  });
+
   it('marks the dial the child points at', () => {
     const mounted = mountPlay(app, overlayRoot, level('t3.1'));
     const item = currentItem(mounted.session())!;
