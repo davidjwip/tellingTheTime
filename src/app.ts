@@ -231,7 +231,7 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   } else if (ordering && item) {
     panel.append(renderOrder(item, options.placed ?? [], options.lastVerdict));
   } else if (choosing && item) {
-    panel.append(renderChoose(item, options.lastVerdict));
+    panel.append(renderChoose(item, options.lastVerdict, level.face));
   } else {
     panel.append(el('div', 'prompt', item ? promptFor(item, item.task) : 'Done'));
 

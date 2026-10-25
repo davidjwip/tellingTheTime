@@ -12,7 +12,7 @@
  *   - the adult can end the round at any point, and the summary never says the child failed
  */
 
-import { chooseFor } from './choose';
+import { choiceFor } from './choose';
 import { clockTimes } from './levels';
 import { orderFor } from './order';
 import { tapSpec } from './tap';
@@ -36,6 +36,8 @@ export interface Item {
   time?: ClockTime;
   /** The choices for a `choose` item, emoji and word included. */
   cards?: Card[];
+  /** The two faces of a clock choice. Their presence is what makes a choose screen a dial one. */
+  dials?: ClockTime[];
   /** Id of the card that answers a `choose` item. Its presence is what makes a screen a choose one. */
   answer?: string;
   /** The correct id sequence for an `order` item. Its presence is what makes a screen an order one. */
@@ -129,7 +131,7 @@ const sameTime = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =
 /** Whether a level's data gives this task something it can actually put on screen. */
 export function canPresent(level: Level, task: Task): boolean {
   if (!SUPPORTED_TASKS.has(task)) return false;
-  if (task === 'choose') return chooseFor(level.content) !== undefined;
+  if (task === 'choose') return choiceFor(level) !== undefined;
   if (task === 'order') return orderFor(level.content) !== undefined;
   if (task === 'tap') return tapSpec(level.content) !== null;
   // A hand can only be dragged if the face draws it. At o'clock that is the hour hand alone: the
@@ -148,7 +150,7 @@ export function canPresent(level: Level, task: Task): boolean {
  */
 export interface Drawer {
   nextTime: () => ClockTime | undefined;
-  nextChoice: (content: Content) => Choice;
+  nextChoice: (level: Level) => Choice;
   nextOrder: (content: Content) => Order | undefined;
 }
 
@@ -172,8 +174,8 @@ export function makeDrawer(level: Level, rng: Rng): Drawer {
       if (recent.length > NO_REPEAT_WINDOW) recent.shift();
       return chosen;
     },
-    nextChoice: (content) => {
-      const choice = chooseFor(content, previousChoice, rng)!;
+    nextChoice: (level) => {
+      const choice = choiceFor(level, previousChoice, rng)!;
       previousChoice = choice.answer;
       return choice;
     },
@@ -200,6 +202,7 @@ function itemFor(
     item.cards = choice.cards;
     item.answer = choice.answer;
     item.question = choice.question;
+    if (choice.dials) item.dials = choice.dials;
   }
   if (order) {
     item.cards = order.cards;
@@ -222,7 +225,7 @@ export function buildQueue(level: Level, rng: Rng = Math.random, drawer?: Drawer
     if (!canPresent(level, step.task)) return; // no screen for it yet
     for (let i = 0; i < step.items; i += 1) {
       if (step.task === 'choose') {
-        const choice = draw.nextChoice(level.content);
+        const choice = draw.nextChoice(level);
         const key = `${step.task}:${choice.answer}:${stepIndex}.${i}`;
         queue.push(itemFor(step.task, undefined, key, undefined, choice));
         continue;
@@ -332,7 +335,7 @@ export function createSession(level: Level, rng: Rng = Math.random): Session {
     // rather than restarting each time the planned questions run out.
     extras += 1;
     if (step === 'choose') {
-      const choice = drawer.nextChoice(level.content);
+      const choice = drawer.nextChoice(level);
       return itemFor(step, undefined, `${step}:extra:${extras}`, true, choice);
     }
     if (step === 'order') {
@@ -405,7 +408,7 @@ function makeLevelSource(level: Level, rng: Rng): LevelSource {
     extras += 1;
     const key = `${level.id}:extra:${extras}`;
     if (step === 'choose') {
-      return itemFor(step, undefined, key, true, drawer.nextChoice(level.content));
+      return itemFor(step, undefined, key, true, drawer.nextChoice(level));
     }
     if (step === 'order') {
       return itemFor(step, undefined, key, true, undefined, drawer.nextOrder(level.content));
