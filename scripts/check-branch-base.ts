@@ -1,14 +1,18 @@
 import { execFileSync } from 'node:child_process';
 
-import { baseVerdict } from './branch-base-rule';
-
-function countBehind(): number {
-  const raw = execFileSync('git', ['rev-list', '--count', 'HEAD..origin/main'], { encoding: 'utf8' });
-  return Number.parseInt(raw.trim(), 10);
-}
+import { SKIP_ENV, baseVerdict, measureBehind, skipRequested } from './branch-base-rule';
 
 function main(): void {
-  const verdict = baseVerdict(countBehind());
+  if (skipRequested(process.env[SKIP_ENV])) {
+    console.log(`branch-base: skipped because ${SKIP_ENV}=1`);
+    return;
+  }
+
+  const behind = measureBehind((args) =>
+    execFileSync('git', args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }),
+  );
+
+  const verdict = behind === undefined ? baseVerdict(Number.NaN) : baseVerdict(behind);
   if (verdict.ok) {
     console.log(`branch-base: ${verdict.message}`);
     return;
