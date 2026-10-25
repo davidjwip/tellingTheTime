@@ -96,7 +96,14 @@ export type Rng = () => number;
  * makes that second check, so a clock-choice or clock-order level does not appear playable with no
  * cards to show.
  */
-export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>(['read', 'choose', 'order', 'tap', 'set']);
+export const SUPPORTED_TASKS: ReadonlySet<Task> = new Set<Task>([
+  'read',
+  'choose',
+  'order',
+  'tap',
+  'set',
+  'build',
+]);
 
 /** Right answers needed to finish a round. */
 export const GOAL_CORRECT = 10;
@@ -136,6 +143,8 @@ export function canPresent(level: Level, task: Task): boolean {
   if (task === 'choose') return choiceFor(level) !== undefined;
   if (task === 'order') return orderFor(level.content) !== undefined;
   if (task === 'tap') return tapSpec(level.content) !== null;
+  // building is placing numerals, so only a level that leaves them loose can ask
+  if (task === 'build') return level.content.kind === 'buildFace';
   // A hand can only be dragged if the face draws it. At o'clock that is the hour hand alone: the
   // minute hand does not appear until t2.4, and a four-year-old moves one thing at a time.
   if (task === 'set') return level.face?.hands === 'hour' || level.face?.hands === 'both';

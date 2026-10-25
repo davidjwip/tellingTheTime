@@ -7,6 +7,7 @@
  * (test/artefacts.ts).
  */
 
+import { BUILD_TOLERANCE_DEGREES, idealAngle } from './build';
 import { renderChoose } from './choose';
 import { renderFace } from './clockFace';
 import { el, feedbackArea } from './dom';
@@ -19,6 +20,8 @@ import type { Level, Task } from './types';
 import type { Locale } from './audio';
 
 export interface PlayOptions {
+  /** Numerals already placed on a build screen, so a redraw does not move them. */
+  placements?: readonly { numeral: number; angle: number }[];
   mascot?: string;
   locale?: Locale;
   /** Values the child has already tapped in the current lap, so a redraw keeps them marked. */
@@ -144,6 +147,79 @@ function goalTrack(session: Session, mascot: string): HTMLElement {
  */
 export const TAP_DISC_RADIUS = 9;
 
+/**
+ * The face being built: twelve empty places on the dial, and the numerals still waiting in the tray.
+ *
+ * Empty places are drawn, not implied — a four-year-old needs to see where a numeral can go, and a
+ * target he can aim at is the difference between building a face and guessing at one.
+ */
+export function renderBuild(placements: readonly { numeral: number; angle: number }[] = []): HTMLElement {
+  const wrapper = el('div', 'build');
+  const placed = new Map(placements.map((placement) => [placement.numeral, placement.angle]));
+
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('viewBox', '0 0 100 100');
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', 'A clock face with the numerals to be placed');
+  svg.dataset.buildDial = 'true';
+  svg.classList.add('build-dial');
+
+  const dial = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+  dial.setAttribute('cx', '50');
+  dial.setAttribute('cy', '50');
+  dial.setAttribute('r', '46');
+  dial.setAttribute('fill', 'none');
+  dial.setAttribute('stroke', '#1f2937');
+  dial.setAttribute('stroke-width', '2.5');
+  svg.append(dial);
+
+  for (let numeral = 1; numeral <= 12; numeral += 1) {
+    const angle = idealAngle(numeral);
+    const rad = (angle * Math.PI) / 180;
+    const x = 50 + Math.sin(rad) * 36;
+    const y = 50 - Math.cos(rad) * 36;
+
+    const slot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    slot.setAttribute('cx', String(x));
+    slot.setAttribute('cy', String(y));
+    slot.setAttribute('r', '7');
+    slot.setAttribute('fill', placed.has(numeral) ? '#ffffff' : 'none');
+    slot.setAttribute('stroke', '#9ca3af');
+    slot.setAttribute('stroke-width', '1.5');
+    slot.setAttribute('stroke-dasharray', placed.has(numeral) ? '0' : '3 3');
+    slot.dataset.slot = String(numeral);
+    svg.append(slot);
+
+    if (placed.has(numeral)) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', String(x));
+      text.setAttribute('y', String(y));
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('dominant-baseline', 'central');
+      text.setAttribute('font-size', '9');
+      text.setAttribute('fill', '#1f2937');
+      text.dataset.placedNumeral = String(numeral);
+      text.textContent = String(numeral);
+      svg.append(text);
+    }
+  }
+
+  wrapper.append(svg);
+
+  const tray = el('div', 'build-tray');
+  for (let numeral = 1; numeral <= 12; numeral += 1) {
+    if (placed.has(numeral)) continue;
+    const button = el('button', 'build-numeral');
+    button.type = 'button';
+    button.dataset.tray = String(numeral);
+    button.textContent = String(numeral);
+    tray.append(button);
+  }
+  wrapper.append(tray);
+  wrapper.append(el('p', 'build-hint', `Drop each numeral within ${BUILD_TOLERANCE_DEGREES}° of its place.`));
+  return wrapper;
+}
+
 export function renderPlay(level: Level, session: Session, options: PlayOptions = {}): HTMLElement {
   const container = el('div', 'container');
   container.dataset.level = level.id;
@@ -160,6 +236,7 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const ordering = item?.order !== undefined;
   const tapping = item?.tap !== undefined;
   const setting = item?.task === 'set';
+  const building = item?.task === 'build';
 
   if (setting && item && level.face) {
     panel.append(el('div', 'prompt', promptFor(item, item.task)));
@@ -177,8 +254,7 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
       grab.setAttribute('stroke', 'transparent');
       grab.setAttribute('stroke-width', '16');
       grab.setAttribute('stroke-linecap', 'round');
-      grab.setAttribute('data-grab', hand.getAttribute('data-hand') ?? '');
-      grab.setAttribute('data-angle', hand.getAttribute('transform')?.match(/rotate\(([-\d.]+)/)?.[1] ?? '0');
+      grab.setAttribute('data-grab', hand.getAttribute('data-hand') as string);
       frame.append(grab);
     }
     panel.append(frame);
@@ -189,6 +265,15 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
     // disabled until a hand has moved: an enabled control that does nothing is the pattern this
     // project has removed twice, and here it would also record a free verdict at 12:00
     done.disabled = true;
+    panel.append(done);
+  } else if (building && item) {
+    const placedSoFar = options.placements ?? [];
+    panel.append(el('div', 'prompt', promptFor(item, item.task)));
+    panel.append(renderBuild(placedSoFar));
+    const done = el('button', 'action-btn primary', 'Done') as HTMLButtonElement;
+    done.dataset.action = 'done';
+    // the face is built when every numeral is on it; one missing is not a built face
+    done.disabled = placedSoFar.length < 12;
     panel.append(done);
   } else if (tapping && item) {
     panel.append(el('div', 'prompt', promptFor(item, item.task)));
