@@ -135,6 +135,15 @@ function goalTrack(session: Session, mascot: string): HTMLElement {
 }
 
 /** The whole play screen for one moment in a session. */
+/**
+ * Radius of an invisible tap target, in the face's 100-unit viewBox.
+ *
+ * Set by the neighbours, not by taste: hour numerals sit 18.6 units apart on a ring of radius 36 and
+ * the 5-minute labels 22.3 apart at radius 43, so 9 is the largest disc whose centre still belongs to
+ * its own number. Dave's fingers missed at 7 on a phone; at 7 the target was 36px on a 375px screen.
+ */
+export const TAP_DISC_RADIUS = 9;
+
 export function renderPlay(level: Level, session: Session, options: PlayOptions = {}): HTMLElement {
   const container = el('div', 'container');
   container.dataset.level = level.id;
@@ -173,7 +182,10 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
         const disc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         disc.setAttribute('cx', glyph.getAttribute('x') ?? '0');
         disc.setAttribute('cy', glyph.getAttribute('y') ?? '0');
-        disc.setAttribute('r', item.tap.target === 'numerals' ? '7' : '5');
+        // The largest disc that still owns its own glyph: neighbours on the numeral ring are
+        // 2*36*sin(15 degrees) = 18.6 units apart, so 9 leaves a sliver between them and no
+        // overlaps at the centres. On a 375px phone that is a 47px target, not the 36px it was.
+        disc.setAttribute('r', String(TAP_DISC_RADIUS));
         disc.setAttribute('class', 'tap-disc');
         disc.setAttribute('data-hit', String(value));
         disc.setAttribute('data-ring', item.tap.target);
