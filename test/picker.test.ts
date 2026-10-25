@@ -83,14 +83,25 @@ describe('which levels can be played today', () => {
     expect(week?.reason).toBeUndefined();
   });
 
-  it('still says the choosing levels with no cards need choosing', () => {
+  it('still says the one choosing level with no screen needs choosing', () => {
+    // t3.1 now has a screen: two dials. t1.2 asks about the wrap in words and has none.
     expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
-    expect(shelve([level('t3.1')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
+    expect(shelve([level('t3.1')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
   });
 
   it('knows which levels have already been cleared', () => {
     const [shelved] = shelve([level('t2.4')], { ...DEFAULT_PROGRESS, cleared: ['t2.4'] });
     expect(shelved?.cleared).toBe(true);
+  });
+});
+
+describe('the two clocks the choice screen unblocks', () => {
+  it('opens both doors', () => {
+    const progress = { name: '', lastLevel: undefined, cleared: [], locale: 'en' } as never;
+    const rows = shelve(LEVELS, progress);
+    for (const id of ['t3.1', 't4.1']) {
+      expect(rows.find((row) => row.level.id === id)?.available, id).toBe(true);
+    }
   });
 });
 
@@ -242,7 +253,7 @@ describe('the shelf', () => {
   it('gives each playable tier one entry carrying its first playable level', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const ids = entries(screen).map((n) => n.dataset.level);
-    expect(ids).toEqual(['t0.1', 't1.1', 't2.1', 't3.2', 't4.2', 't5.1']);
+    expect(ids).toEqual(['t0.1', 't1.1', 't2.1', 't3.1', 't4.1', 't5.1']);
   });
 
   it('builds a tier bank from that tier plus every playable tier below it', () => {

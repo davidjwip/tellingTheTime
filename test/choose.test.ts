@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { chooseFor, renderChoose } from '../src/choose';
+import { chooseFor, choiceFor, renderChoose, WORDS } from '../src/choose';
 import { buildQueue, createSession, seededRng } from '../src/engine';
 import { LEVELS } from '../src/levels';
 
@@ -154,6 +154,57 @@ describe('what to put on the cards', () => {
   it('has no chooser for content whose cards were not specified', () => {
     expect(chooseFor({ kind: 'wrap' })).toBeUndefined();
     expect(chooseFor({ kind: 'clock' })).toBeUndefined();
+  });
+});
+
+describe('choosing between two clocks', () => {
+  it('draws both faces when the item carries dials', () => {
+    const choice = choiceFor(LEVELS.find((l) => l.id === 't3.1')!)!;
+    const item = { task: 'choose', dials: choice.dials, answer: choice.answer, question: choice.question } as Item;
+    const screen = renderChoose(item, undefined, LEVELS.find((l) => l.id === 't3.1')!.face);
+    expect(screen.querySelectorAll('[data-choice]')).toHaveLength(2);
+    expect(screen.querySelectorAll('svg')).toHaveLength(2);
+    // the words are in the prompt, not on the dials
+    expect(screen.querySelector('.prompt')?.textContent).toBe(choice.question);
+  });
+
+  const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
+
+  it('shows two faces of the same hour, differing only in the minutes', () => {
+    const choice = choiceFor(byId('t3.1'));
+    expect(choice).toBeDefined();
+    expect(choice!.dials).toHaveLength(2);
+    const [a, b] = choice!.dials! as [{ hour: number; minute: number }, { hour: number; minute: number }];
+    expect(a.hour).toBe(b.hour);
+    expect(new Set([a.minute, b.minute])).toEqual(new Set([0, 30]));
+  });
+
+  it('asks the time in words, never in digits', () => {
+    const choice = choiceFor(byId('t3.1'))!;
+    expect(choice.question).toMatch(/^Which one is .+\?$/);
+    expect(choice.question).not.toMatch(/[0-9]/);
+    // and the answer is the dial that matches what the question asked
+    const answerTime = choice.dials!.find((dial) => `${dial.hour}:${dial.minute}` === choice.answer)!;
+    expect([0, 30]).toContain(answerTime.minute);
+    expect(answerTime.minute === 30).toBe(choice.question.includes('half past'));
+  });
+
+  it('names a quarter-to by the hour after it', () => {
+    // 3:45 is "quarter to four" - the hour said out loud is the one it is heading towards
+    for (let tries = 0; tries < 40; tries += 1) {
+      const choice = choiceFor(byId('t4.1'))!;
+      const answer = choice.dials!.find((dial) => `${dial.hour}:${dial.minute}` === choice.answer)!;
+      if (answer.minute !== 45) continue;
+      const next = (answer.hour % 12) + 1;
+      expect(choice.question).toContain(WORDS[next]);
+      return;
+    }
+    throw new Error('never drew a quarter to');
+  });
+
+  it('refuses a level with only one allowed minute, and the five-minute grid', () => {
+    expect(choiceFor(byId('t3.2'))).toBeUndefined();
+    expect(choiceFor(byId('t5.1'))).toBeUndefined();
   });
 });
 

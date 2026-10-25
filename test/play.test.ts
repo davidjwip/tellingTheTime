@@ -362,6 +362,25 @@ describe('what a tap does', () => {
 
   });
 
+  it('marks the dial the child points at', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t3.1'));
+    const item = currentItem(mounted.session())!;
+    expect(item.task).toBe('choose');
+    const answer = app.querySelector<HTMLElement>(`[data-choice="${item.answer}"]`)!;
+    answer.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+  });
+
+  it('treats the other dial as a miss', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t3.1'));
+    const item = currentItem(mounted.session())!;
+    const other = [...app.querySelectorAll<HTMLElement>('[data-choice]')].find(
+      (button) => button.dataset.choice !== item.answer,
+    )!;
+    other.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(mounted.session().results.at(-1)?.correct).toBe(false);
+  });
+
   it('draws the week without numbers on the cards', () => {
     mountPlay(app, overlayRoot, level('t0.5'));
     expect(app.querySelectorAll('[data-card]').length).toBe(7);
