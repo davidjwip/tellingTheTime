@@ -744,3 +744,36 @@ section.tier:last-of-type .tier-entry[data-tip='true']::after {
   touch-action: none;
   cursor: grab;
 }
+
+/* two clocks to choose between: side by side, each at least a finger wide */
+.choice-dials {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.choice-dial {
+  flex: 1 1 0;
+  max-width: 46%;
+  min-width: 140px;
+  padding: 8px;
+  border: 3px solid var(--ink, #1f2937);
+  border-radius: 16px;
+  background: #fff;
+  cursor: pointer;
+}
+
+.choice-dial svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.choice-dial:hover,
+.choice-dial:focus-visible {
+  background: #fff3a3;
+  outline: 3px solid #ff6b6b;
+  outline-offset: 2px;
+}
