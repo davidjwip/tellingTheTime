@@ -9,6 +9,8 @@
 
 import { renderCelebration, renderPlay, renderSummary } from './app';
 import { chronoKeyFor, promptKeyFor } from './audio';
+import { judgeBuild, slotAt } from './build';
+import type { Placement } from './build';
 import { dialAngle, judgePlacement, settledHourAngle, snapHour, snapMinute, toDialPoint } from './setHands';
 import { lapValue, startLap, tapValue } from './tap';
 
@@ -35,6 +37,8 @@ export interface Mounted {
   celebrating(): boolean;
   /** Change language in place. Remounting to do it threw away the round and the placed cards. */
   setLocale(locale: Locale): void;
+  /** The numerals on the face right now, and whether that counts as built. */
+  build: () => ReturnType<typeof judgeBuild>;
   /** Remove the overlay listener; the overlay does not go with the round. */
   dispose: () => void;
 }
@@ -113,6 +117,10 @@ function mountRound(
   let setMoved = { hour: false, minute: false };
   let setKey: string | undefined;
   let activePointer: number | null = null;
+  /** The numerals placed on the face being built, and the one picked up from the tray. */
+  let placements: Placement[] = [];
+  let selectedNumeral: number | null = null;
+  let buildKey: string | undefined;
   let doneLockUntil = 0;
 
   const speakPrompt = (): void => {
@@ -120,6 +128,15 @@ function mountRound(
     if (!item || item.key === spoken) return;
     spoken = item.key;
     void options.speaker?.say(promptKeyFor(item));
+  };
+
+  /** A new build item starts with an empty face and a full tray. */
+  const syncBuild = (): void => {
+    const item = currentItem(session);
+    if (item?.task !== 'build' || item.key === buildKey) return;
+    buildKey = item.key;
+    placements = [];
+    selectedNumeral = null;
   };
 
   /** A new set item starts with both hands at twelve and nothing moved. */
@@ -183,6 +200,7 @@ function mountRound(
 
   const draw = (speak = true): void => {
     syncLap();
+    syncBuild();
     syncSet();
     const finished = isFinished(session) && !celebrating;
     // In a tier round the item's own level decides the face; a single-level round always shows its
@@ -192,6 +210,7 @@ function mountRound(
       finished
         ? renderSummary(session, isCleared(session))
         : renderPlay(shown, session, {
+            placements,
             ...options,
             ...(lastVerdict ? { lastVerdict } : {}),
             placed,
@@ -272,6 +291,14 @@ function mountRound(
     if (action === 'done') {
       const button = target.closest<HTMLButtonElement>('[data-action="done"]');
       if (!button || button.disabled) return;
+
+      if (currentItem(session)?.task === 'build') {
+        if (Date.now() < doneLockUntil) return;
+        doneLockUntil = Date.now() + CHOICE_TAP_GUARD_MS;
+        const built = judgeBuild(placements);
+        onVerdict(built.pass ? 'correct' : 'wrong');
+        return;
+      }
       // the verdict re-renders the screen, so a second tap within the guard lands on the NEXT item's
       // Done and answers a question the child has never seen
       if (Date.now() < doneLockUntil) return;
@@ -431,6 +458,35 @@ function mountRound(
     // one finger at a time: a second one landing mid-drag must not steal the hand
     if (activePointer !== null) return;
     const target = event.target as HTMLElement;
+
+    // Building: pick a numeral out of the tray, then put it down on the dial.
+    if (currentItem(session)?.task === 'build') {
+      const fromTray = target.closest<HTMLElement>('[data-tray]');
+      if (fromTray) {
+        selectedNumeral = Number(fromTray.dataset.tray);
+        for (const button of app.querySelectorAll<HTMLElement>('[data-tray]')) {
+          button.dataset.selected = String(Number(button.dataset.tray) === selectedNumeral);
+        }
+        event.preventDefault();
+        return;
+      }
+      const onDial = target.closest('[data-build-dial]');
+      if (onDial && selectedNumeral !== null) {
+        const rect = (onDial as SVGSVGElement).getBoundingClientRect();
+        const angle = dialAngle(toDialPoint({ x: event.clientX, y: event.clientY }, rect));
+        // the numeral goes to the nearest place: a finger cannot be asked for a degree, and a
+        // numeral wedged between two places is not something anyone can build with
+        const slot = slotAt(angle);
+        placements = [
+          ...placements.filter((p) => p.numeral !== selectedNumeral),
+          { numeral: selectedNumeral, angle: (slot % 12) * 30 },
+        ];
+        selectedNumeral = null;
+        draw(false);
+        event.preventDefault();
+        return;
+      }
+    }
     const grab = target.closest<HTMLElement>('[data-grab]');
     if (!grab || currentItem(session)?.task !== 'set') return;
     grabbing = grab.dataset.grab === 'hour' ? 'hour' : 'minute';
@@ -487,6 +543,7 @@ function mountRound(
 
   return {
     session: () => session,
+    build: () => judgeBuild(placements),
     celebrating: () => celebrating,
     dispose: () => overlayRoot.removeEventListener('click', onOverlayClick),
     setLocale: (next: Locale) => {

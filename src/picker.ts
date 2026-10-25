@@ -63,14 +63,22 @@ export interface Shelved {
   cleared: boolean;
 }
 
+/** What one item of each task costs a child. A build is twelve drags, not one tap. */
+const EFFORT: Partial<Record<string, number>> = { build: 4 };
+
 export function shelve(levels: readonly Level[], progress: Progress): Shelved[] {
   return levels.map((level) => {
-    const items = level.round
-      .filter((step) => canPresent(level, step.task))
-      .reduce((sum, step) => sum + step.items, 0);
+    const presentable = level.round.filter((step) => canPresent(level, step.task));
+    const items = presentable.reduce((sum, step) => sum + step.items, 0);
+    // The floor exists so a round is not over in a breath. Three faces is 36 placements — far more
+    // work than four taps — so the floor counts effort, not raw questions.
+    const effort = presentable.reduce(
+      (sum, step) => sum + step.items * (EFFORT[step.task] ?? 1),
+      0,
+    );
 
     const unbuilt = level.round.find((step) => !canPresent(level, step.task));
-    const available = items >= MIN_ITEMS;
+    const available = effort >= MIN_ITEMS;
 
     const shelved: Shelved = {
       level,
