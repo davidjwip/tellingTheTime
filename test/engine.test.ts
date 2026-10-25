@@ -10,6 +10,7 @@ import {
   isFinished,
   recordVerdict,
   REQUEUE_GAP,
+  canPresent,
   sameQuestion,
   seededRng,
   SUPPORTED_TASKS,
@@ -45,9 +46,14 @@ describe('building questions', () => {
     expect(a).not.toEqual(b);
   });
 
-  it('asks only the questions the app can present: six reads, not the four sets', () => {
+  it('asks the reads and the sets, and still drops what it cannot present', () => {
     const queue = buildQueue(level('t2.2'), seededRng(3));
-    expect(queue.map((i) => i.task)).toEqual(['read', 'read', 'read', 'read', 'read', 'read']);
+    expect(queue.map((i) => i.task)).toEqual([
+      'read', 'read', 'read', 'read', 'read', 'read',
+      'set', 'set', 'set', 'set',
+    ]);
+    // a build step has no screen at all, so that level still produces nothing
+    expect(buildQueue(level('t1.4'), seededRng(3))).toEqual([]);
   });
 
   it('asks nothing on a level whose every question needs a screen that does not exist', () => {
@@ -132,11 +138,10 @@ describe('the round is a goal, not a length', () => {
     expect(trackComplete(session)).toBe(false);
   });
 
-  it('keeps producing questions once the planned six have been used', () => {
-    // six planned questions, but ten right answers are needed: four more are drawn as needed
-    const session = answerRight(createSession(level('t2.2'), seededRng(4)), GOAL_CORRECT);
+  it('draws more questions when the plan is shorter than the goal', () => {
+    // t1.1 plans four laps and the goal is ten right answers, so six have to be drawn as they go
+    const session = answerRight(createSession(level('t1.1'), seededRng(4)), GOAL_CORRECT);
     expect(session.answered).toBe(GOAL_CORRECT);
-    expect(session.queue.length).toBeGreaterThan(6);
     expect(session.queue.filter((i) => i.extra === true).length).toBeGreaterThan(0);
   });
 
@@ -250,6 +255,33 @@ describe('misses are not failures', () => {
     // ten right answers, one of them on a second showing
     expect(firstPassCorrect(session)).toBe(REQUEUE_GAP);
     expect(session.correct).toBe(REQUEUE_GAP + 1);
+  });
+});
+
+describe('a level that asks the child to make the time', () => {
+  it('puts set items back into the rounds that have always had set steps', () => {
+    for (const id of ['t2.1', 't2.2', 't4.2', 't4.3']) {
+      const tasks = buildQueue(level(id), seededRng(4)).map((item) => item.task);
+      expect(tasks, id).toContain('set');
+    }
+  });
+
+  it('gives a set item a target time, and nothing else to mark', () => {
+    const item = buildQueue(level('t2.3'), seededRng(1)).find((i) => i.task === 'set');
+    expect(item?.time).toBeDefined();
+    expect(item?.answer).toBeUndefined();
+    expect(item?.order).toBeUndefined();
+  });
+
+  it('accepts a one-handed set item, because a whole-hour level draws one hand', () => {
+    expect(canPresent(level('t2.3'), 'set')).toBe(true);
+    expect(level('t2.3').face?.hands).toBe('hour');
+  });
+
+  it('refuses a set step on a face with no hands to drag', () => {
+    // t2.3 draws both hands; the same level with hands:none cannot present a set item at all
+    const handsOff = { ...level('t2.3'), face: { ...level('t2.3').face!, hands: 'none' as const } };
+    expect(canPresent(handsOff, 'set')).toBe(false);
   });
 });
 

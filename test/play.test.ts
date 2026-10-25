@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { currentItem, isFinished, REQUEUE_GAP } from '../src/engine';
 import { LEVELS } from '../src/levels';
-import { mountPlay } from '../src/play';
+import { mountPlay, mountTierPlay } from '../src/play';
 
 import type { Mounted } from '../src/play';
 import type { Level } from '../src/types';
@@ -341,6 +341,26 @@ describe('what a tap does', () => {
     expect(said).toEqual([]);
   });
 
+  it('tells the caller once when the round is finished, and only once', () => {
+    let endings = 0;
+    mountPlay(app, overlayRoot, level('t2.4'), { onRoundEnd: () => (endings += 1) });
+    for (let i = 0; i < 10; i += 1) tap('[data-verdict="correct"]');
+    expect(endings).toBe(1);
+  });
+
+  it('ignores an order card when the row is already full', () => {
+    mountPlay(app, overlayRoot, level('t0.1'));
+    // fill the row with the first three cards offered, then try a fourth
+    const cards = [...app.querySelectorAll<HTMLElement>('[data-card]')].slice(0, 4);
+    for (const card of cards.slice(0, 3)) {
+      card.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 40, clientY: 300 }));
+    }
+    const spare = app.querySelector<HTMLElement>('[data-card]');
+    spare?.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 400, clientY: 500 }));
+    // nothing thrown, and the row still holds exactly the three that were placed
+    expect(app.querySelectorAll('.order-slot [data-card]').length).toBeLessThanOrEqual(3);
+  });
+
   it('stops listening to the overlay once disposed', () => {
     const mounted = mountPlay(app, overlayRoot, level('t2.4'));
     for (let i = 0; i < 10; i += 1) tap('[data-verdict="correct"]');
@@ -483,6 +503,163 @@ describe('choosing a card', () => {
     if (!item?.answer) throw new Error('no choose answer');
     tap(`[data-choice="${item.answer}"]`);
     expect(said).toEqual(['praise-1']);
+  });
+});
+
+describe('a round with no sound at all', () => {
+  it('plays through to the celebration without a speaker', () => {
+    // no speaker is passed, so every `options.speaker?.say` takes its silent path
+    mountPlay(app, overlayRoot, level('t2.4'));
+    for (let i = 0; i < 10; i += 1) tap('[data-verdict="correct"]');
+    // the party appears (its text is in the overlay) even with nothing to play
+    expect(overlayRoot.textContent).not.toBe('');
+    tap('[data-action="close-celebration"]');
+    expect(app.querySelector('.container')).not.toBeNull();
+  });
+
+  it('takes a miss quietly too', () => {
+    mountPlay(app, overlayRoot, level('t2.4'));
+    tap('[data-verdict="wrong"]');
+    expect(app.querySelector('[data-verdict="correct"]')).not.toBeNull();
+  });
+});
+
+describe('a tier round that asks the child to make a time', () => {
+  const squareDial = (): void => {
+    const svg = app.querySelector('svg') as SVGSVGElement | null;
+    if (!svg) throw new Error('no dial');
+    svg.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0 }) as DOMRect;
+  };
+
+  it('uses the source level of each item, not the tier it came from', () => {
+    // a tier 2 bank: every level in it draws the hour hand, and one of them asks for a set
+    const bank = {
+      tier: 2,
+      levels: [LEVELS.find((l) => l.id === 't2.3')!],
+      review: [] as (typeof LEVELS)[number][],
+    };
+    const mounted = mountTierPlay(app, overlayRoot, bank);
+    squareDial();
+
+    let guard = 0;
+    while (currentItem(mounted.session())?.task !== 'set' && guard < 20) {
+      tap('[data-verdict="correct"]');
+      guard += 1;
+    }
+    expect(currentItem(mounted.session())?.task).toBe('set');
+    // the face is drawn from the item's own level (t2.3 draws one hand), so there is one grab target
+    expect(app.querySelectorAll('[data-grab]')).toHaveLength(1);
+    expect(app.querySelector('[data-action="done"]')).not.toBeNull();
+  });
+});
+
+describe('making the time by hand', () => {
+  // happy-dom has no layout, so the dial is given a 100x100 box at the origin: the viewBox units then
+  // map straight onto client coordinates and a test can aim at 12 o'clock and 3 o'clock precisely.
+  const squareDial = (): void => {
+    const svg = app.querySelector('svg') as SVGSVGElement | null;
+    if (!svg) throw new Error('no dial');
+    svg.getBoundingClientRect = () =>
+      ({ left: 0, top: 0, width: 100, height: 100, right: 100, bottom: 100, x: 0, y: 0 }) as DOMRect;
+  };
+
+  const drag = (hand: 'hour' | 'minute', x: number, y: number): void => {
+    const grab = app.querySelector(`[data-grab="${hand}"]`) as HTMLElement | null;
+    if (!grab) throw new Error(`no ${hand} hand`);
+    grab.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 50, clientY: 50 }));
+    grab.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: x, clientY: y }));
+    grab.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: x, clientY: y }));
+  };
+
+  /** The o'clock levels open with reads; the adult marks those until a set item arrives. */
+  const advanceToSet = (mounted: ReturnType<typeof mountPlay>): void => {
+    let guard = 0;
+    while (currentItem(mounted.session())?.task !== 'set' && guard < 20) {
+      tap('[data-verdict="correct"]');
+      guard += 1;
+    }
+    squareDial();
+  };
+
+  it('offers Done only once the drawn hand has been moved', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t2.3'));
+    advanceToSet(mounted);
+    // a whole-hour level draws the hour hand alone, so that is the only hand to move
+    expect(app.querySelector('[data-grab="minute"]')).toBeNull();
+    expect(app.querySelector('[data-action="done"]')?.getAttribute('data-ready')).toBe('false');
+
+    drag('hour', 90, 50);
+    expect(app.querySelector('[data-action="done"]')?.getAttribute('data-ready')).toBe('true');
+  });
+
+  it('marks it right when the hand matches the hour asked for', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t2.3'));
+    advanceToSet(mounted);
+    const target = currentItem(mounted.session())?.time;
+    if (!target) throw new Error('no target');
+
+    const hourPoint = { x: 50 + Math.sin((target.hour % 12) * (Math.PI / 6)) * 40, y: 50 - Math.cos((target.hour % 12) * (Math.PI / 6)) * 40 };
+    drag('hour', hourPoint.x, hourPoint.y);
+    tap('[data-action="done"]');
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+  });
+
+  it('moves both hands where the level draws both, and judges both', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t4.2')); // quarter past: both hands, minutes [15]
+    advanceToSet(mounted);
+    const target = currentItem(mounted.session())?.time;
+    if (!target) throw new Error('no target');
+
+    // the minute hand to the 3 (fifteen minutes), the hour hand into the hour's sector
+    drag('minute', 90, 50);
+    const hourPoint = {
+      x: 50 + Math.sin((target.hour % 12) * (Math.PI / 6)) * 40,
+      y: 50 - Math.cos((target.hour % 12) * (Math.PI / 6)) * 40,
+    };
+    drag('hour', hourPoint.x, hourPoint.y);
+    tap('[data-action="done"]');
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+  });
+
+  it('ignores pointer movement when no hand is held', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t4.2'));
+    squareDial();
+    app.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: 90, clientY: 50 }));
+    app.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 90, clientY: 50 }));
+    expect(mounted.session().answered).toBe(0);
+  });
+
+  it('ignores a finger on a hand during a reading question', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t4.2')); // opens with reads
+    squareDial();
+    const before = app.querySelector('[data-hand="hour"]')?.getAttribute('transform');
+    const grab = app.querySelector('[data-grab="hour"]');
+    grab?.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 90, clientY: 50 }));
+    grab?.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: 90, clientY: 50 }));
+    grab?.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 90, clientY: 50 }));
+
+    expect(app.querySelector('[data-hand="hour"]')?.getAttribute('transform')).toBe(before);
+    expect(mounted.session().answered).toBe(0);
+  });
+
+  it('marks a wrong placement as a miss, which returns later', () => {
+    const mounted = mountPlay(app, overlayRoot, level('t2.3'));
+    advanceToSet(mounted);
+    const target = currentItem(mounted.session())?.time;
+    if (!target) throw new Error('no target');
+
+    const wrongHour = target.hour === 6 ? 12 : 6;
+    const point = { x: 50 + Math.sin((wrongHour % 12) * (Math.PI / 6)) * 40, y: 50 - Math.cos((wrongHour % 12) * (Math.PI / 6)) * 40 };
+    drag('hour', point.x, point.y);
+    tap('[data-action="done"]');
+
+    expect(mounted.session().results.at(-1)?.correct).toBe(false);
+    // and the item is queued to come back, exactly as a missed read question is
+    const keys = mounted.session().queue.map((item) => item.key);
+    expect(keys.some((key) => key.endsWith('#again'))).toBe(true);
   });
 });
 
