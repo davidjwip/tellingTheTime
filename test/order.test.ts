@@ -133,6 +133,19 @@ describe('what to put in the pool', () => {
   });
 });
 
+describe('a week that hides its numbers', () => {
+  it('leaves the day numbers off the cards, and keeps the order', () => {
+    const numbered = orderFor({ kind: 'weekTiles', count: 7 }, undefined, seededRng(2));
+    const plain = orderFor({ kind: 'weekTiles', count: 7, numbered: false }, undefined, seededRng(2));
+
+    expect(numbered?.cards.every((card) => card.number !== undefined)).toBe(true);
+    expect(plain?.cards.every((card) => card.number === undefined)).toBe(true);
+    // the answer is the week whatever is printed on the card
+    expect(plain?.answer).toEqual(numbered?.answer);
+    expect(plain?.cards.some((card) => card.word === 'Monday')).toBe(true);
+  });
+});
+
 describe('order items in a round', () => {
   it('gives every t0.1 item its shuffled cards and the correct sequence', () => {
     const queue = buildQueue(level('t0.1'), seededRng(1));

@@ -359,6 +359,15 @@ describe('what a tap does', () => {
     spare?.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: 400, clientY: 500 }));
     // nothing thrown, and the row still holds exactly the three that were placed
     expect(app.querySelectorAll('.order-slot [data-card]').length).toBeLessThanOrEqual(3);
+
+  });
+
+  it('draws the week without numbers on the cards', () => {
+    mountPlay(app, overlayRoot, level('t0.5'));
+    expect(app.querySelectorAll('[data-card]').length).toBe(7);
+    expect(app.querySelectorAll('.order-number').length).toBe(0);
+    // the words stay: the child is ordering the days, not reading digits
+    expect(app.textContent).toContain('Monday');
   });
 
   it('stops listening to the overlay once disposed', () => {

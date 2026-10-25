@@ -45,8 +45,10 @@ describe('AC-06 — the committed level data passes every rule', () => {
   });
 
   it('has the 22 levels the spec tabulates: 4 per tier from T0 to T4, and 2 at T5', () => {
-    expect(LEVELS).toHaveLength(22);
-    for (const tier of [0, 1, 2, 3, 4]) {
+    expect(LEVELS).toHaveLength(23);
+    // T0 carries the unnumbered week as a fifth rung: the same cards, one crutch fewer
+    expect(LEVELS.filter((l) => l.tier === 0)).toHaveLength(5);
+    for (const tier of [1, 2, 3, 4]) {
       expect(LEVELS.filter((l) => l.tier === tier)).toHaveLength(4);
     }
   });
@@ -214,7 +216,7 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
     delete broken[0]!.knobs;
     const out = parseLevelsFile({ levels: broken });
     expect(out.violations.map((v) => v.rule)).toContain(8);
-    expect(out.levels).toHaveLength(21); // the malformed level never reaches the rules
+    expect(out.levels).toHaveLength(22); // the malformed level never reaches the rules
   });
 });
 
