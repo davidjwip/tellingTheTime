@@ -159,8 +159,35 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
   const choosing = item?.answer !== undefined;
   const ordering = item?.order !== undefined;
   const tapping = item?.tap !== undefined;
+  const setting = item?.task === 'set';
 
-  if (tapping && item) {
+  if (setting && item && level.face) {
+    panel.append(el('div', 'prompt', promptFor(item, item.task)));
+    const frame = el('div', 'clock-frame set-frame');
+    // Both hands start at twelve: the child has to move them, so nothing is right by accident.
+    frame.append(renderFace({ hour: 12, minute: 0 }, level.face));
+
+    // A hand is a 4px line; a finger needs a stroke it can catch anywhere along its length.
+    for (const hand of Array.from(frame.querySelectorAll<SVGLineElement>('[data-hand]'))) {
+      const grab = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+      for (const attribute of ['x1', 'y1', 'x2', 'y2', 'transform']) {
+        const value = hand.getAttribute(attribute);
+        if (value !== null) grab.setAttribute(attribute, value);
+      }
+      grab.setAttribute('stroke', 'transparent');
+      grab.setAttribute('stroke-width', '16');
+      grab.setAttribute('stroke-linecap', 'round');
+      grab.setAttribute('data-grab', hand.getAttribute('data-hand') ?? '');
+      grab.setAttribute('data-angle', hand.getAttribute('transform')?.match(/rotate\(([-\d.]+)/)?.[1] ?? '0');
+      frame.append(grab);
+    }
+    panel.append(frame);
+
+    const done = el('button', 'action-btn primary', 'Done');
+    done.dataset.action = 'done';
+    done.dataset.ready = 'false';
+    panel.append(done);
+  } else if (tapping && item) {
     panel.append(el('div', 'prompt', promptFor(item, item.task)));
     const frame = el('div', 'clock-frame tap-frame');
     if (level.face) frame.append(renderFace(item.time ?? { hour: 12, minute: 0 }, level.face));
