@@ -52,7 +52,7 @@ describe('the shell decides what a click means', () => {
     app = document.createElement('div');
     overlayRoot = document.createElement('div');
     document.body.append(app, overlayRoot);
-    shell().start('t1.4'); // needs a screen that does not exist
+    shell().start('t1.2'); // needs a screen that does not exist
     expect(app.querySelector('.picker')).not.toBeNull();
   });
 
@@ -264,7 +264,7 @@ describe('the shell decides what a click means', () => {
   });
 
   it('starts a playable level from the Start button, never a shelved one', () => {
-    store.setItem('clock.v1.progress', JSON.stringify({ lastLevel: 't1.4', locale: 'en' }));
+    store.setItem('clock.v1.progress', JSON.stringify({ lastLevel: 't1.2', locale: 'en' }));
     const fresh = shell();
     fresh.start(null);
     click('[data-action="start"]');
