@@ -204,7 +204,6 @@ describe('choosing between two clocks', () => {
     throw new Error('never drew a quarter to');
   });
 
-  // AC-81
   it('says the question out loud, because a child who cannot read it must still be asked', () => {
     const choice = choiceFor(LEVELS.find((l) => l.id === 't3.1')!)!;
     expect(choice.say).toMatch(/^(oclock|qpast|half|qto)-[0-9]+$/);

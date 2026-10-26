@@ -25,7 +25,7 @@
  },
  {
   "ac": 43,
-  "why": "The profile panel with eight mascots belongs to the reference design. This app has a name field and no mascots, so the criterion is stale and should be withdrawn."
+  "why": "The app draws a single mascot (app.ts) and has no eight-mascot profile panel. The spec's own decision log still records 'Mascots | Keep', so this is a contradiction between two parts of the spec, not a missing test. It needs a spec decision before it needs a test."
  },
  {
   "ac": 45,
