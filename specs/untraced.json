@@ -1,0 +1,42 @@
+[
+ {
+  "ac": 24,
+  "why": "The app never suggests a next level: picker.ts has no 'suggested' state, so there is nothing to test. The criterion asks for behaviour that was never built."
+ },
+ {
+  "ac": 33,
+  "why": "Names `npm run guardrail:scan`, which does not exist in scripts/ or package.json. The no-identifying-data rule is enforced by review and the footer exception, not by a tool."
+ },
+ {
+  "ac": 34,
+  "why": "Nothing proves a full round works offline: the suite runs in happy-dom and never loads the built bundle. This needs the real-browser harness (proposal C), not a unit test."
+ },
+ {
+  "ac": 35,
+  "why": "Individual controls are asserted in picker and play tests, but nothing sweeps every interactive element for the 96 px rule, so a new undersized control passes."
+ },
+ {
+  "ac": 36,
+  "why": "Volume is not persisted and no size control exists; the app has a mute toggle only. Either the criterion is stale or the feature was dropped."
+ },
+ {
+  "ac": 38,
+  "why": "No scan of the built dist/ for third-party URLs. Proving it needs a build in CI and an assertion over the output, not over the source."
+ },
+ {
+  "ac": 43,
+  "why": "The profile panel with eight mascots belongs to the reference design. This app has a name field and no mascots, so the criterion is stale and should be withdrawn."
+ },
+ {
+  "ac": 45,
+  "why": "`.limit-popup` was the reference design's level popup; the shelf replaced it in v1.2 and the styling no longer exists. Stale criterion."
+ },
+ {
+  "ac": 46,
+  "why": "`parity:check` does not exist as a script. The visual contract is enforced only by clockFace's palette test and by review; the screenshot comparisons were never automated."
+ },
+ {
+  "ac": 48,
+  "why": "Streak lives in the session; progress.ts has no bestStreak field, so there is nothing to persist. The criterion asks for a feature the app does not have."
+ }
+]

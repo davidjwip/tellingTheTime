@@ -46,6 +46,7 @@ describe('building questions', () => {
     expect(a).not.toEqual(b);
   });
 
+  // AC-8 AC-73
   it('asks the reads and the sets, and still drops what it cannot present', () => {
     const queue = buildQueue(level('t2.2'), seededRng(3));
     expect(queue.map((i) => i.task)).toEqual([
@@ -74,6 +75,7 @@ describe('building questions', () => {
     expect(buildQueue(noRing, seededRng(3))).toEqual([]);
   });
 
+  // AC-9
   it('never shows the same time within two positions (AC-09)', () => {
     const queue = buildQueue(level('t2.2'), seededRng(21));
     for (let i = 2; i < queue.length; i += 1) {
@@ -162,6 +164,7 @@ describe('the wrap', () => {
 });
 
 describe('which clock levels can ask a choose question', () => {
+  // AC-77
   it('needs two allowed minutes, and words for them', () => {
     const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
     expect(canPresent(byId('t3.1'), 'choose')).toBe(true);
@@ -265,6 +268,7 @@ describe('misses are not failures', () => {
     expect(session.results.filter((r) => !r.correct)).toHaveLength(40);
   });
 
+  // AC-16
   it('brings a missed item back three places later, not next', () => {
     const session = createSession(level('t2.2'), seededRng(9));
     const missed = currentItem(session);

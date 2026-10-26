@@ -16,6 +16,7 @@ describe('whether the face is built', () => {
   const place = (angles: Record<number, number>) =>
     Object.entries(angles).map(([numeral, angle]) => ({ numeral: Number(numeral), angle }));
 
+  // AC-18 AC-79
   it('passes at ten of twelve within twelve degrees', () => {
     const all = place(Object.fromEntries(Array.from({ length: 12 }, (_, i) => [i + 1, idealAngle(i + 1)])));
     expect(judgeBuild(all)).toEqual({ placed: 12, good: 12, pass: true });
@@ -27,6 +28,7 @@ describe('whether the face is built', () => {
     expect(judgeBuild(nine).pass).toBe(false);
   });
 
+  // AC-79
   it('counts a slightly-off drop as good, and a numeral in the wrong slot as not', () => {
     const nearly = place({ 3: idealAngle(3) + 9 }); // 9 degrees off, inside the tolerance
     expect(judgeBuild(nearly).good).toBe(1);

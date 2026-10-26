@@ -69,6 +69,7 @@ describe('the screen a child sees', () => {
     expect(screen.querySelector('.instructions')?.textContent).toContain("O'clock: all twelve");
   });
 
+  // AC-44
   it('offers the reference header controls', () => {
     const screen = renderPlay(level('t2.2'), session('t2.2'));
     const actions = [...screen.querySelectorAll('.header-actions [data-action]')].map((n) =>
@@ -78,6 +79,7 @@ describe('the screen a child sees', () => {
     expect(screen.querySelectorAll('[data-locale]')).toHaveLength(3);
   });
 
+  // AC-57
   it('marks the current language on the toggle', () => {
     const english = renderPlay(level('t2.2'), session('t2.2'));
     expect(english.querySelector('[data-locale="en"]')?.classList.contains('operator-active')).toBe(true);
@@ -113,6 +115,7 @@ describe('the screen a child sees', () => {
     expect(screen.querySelector('[data-hand="minute"]')).toBeNull();
   });
 
+  // AC-13
   it('marks every task with the adult\'s two verdicts', () => {
     const read = renderPlay(level('t2.2'), session('t2.2'));
     expect(read.querySelectorAll('[data-verdict]')).toHaveLength(2);
@@ -141,6 +144,7 @@ describe('the screen a child sees', () => {
     expect(screen.querySelector('[data-hand="hour"]')).not.toBeNull();
   });
 
+  // AC-19 AC-42
   it('shows the last verdict until the next one', () => {
     expect(renderPlay(level('t2.2'), session('t2.2'), { lastVerdict: 'correct' }).querySelector('#feedback')?.textContent)
       .toBe('✓ Got it!');
@@ -158,6 +162,7 @@ describe('the screen a child sees', () => {
     expect(streak?.textContent).toContain('Best: 2');
   });
 
+  // AC-26 AC-40
   it('shows a ten-step track, two rows of five, filling with right answers', () => {
     const screen = renderPlay(level('t2.2'), answerRight(session('t2.2'), 3));
     expect(screen.querySelectorAll('.step')).toHaveLength(10);
@@ -258,6 +263,7 @@ describe('the choose screen', () => {
 });
 
 describe('the end of a round', () => {
+  // AC-17 AC-22
   it('says cleared when it is, and good try when it is not', () => {
     const cleared = renderSummary(answerRight(session('t2.2'), 5), true);
     expect(cleared.querySelector('h1')?.textContent).toBe('Level cleared!');
@@ -275,6 +281,7 @@ describe('the end of a round', () => {
 });
 
 describe('the celebration', () => {
+  // AC-41
   it('has the reference overlay with the count interpolated', () => {
     const overlay = renderCelebration(answerRight(session('t2.2'), 10));
     expect(overlay.dataset.celebration).toBe('true');

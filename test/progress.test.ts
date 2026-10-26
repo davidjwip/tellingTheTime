@@ -30,6 +30,7 @@ beforeEach(() => {
 });
 
 describe('what the app remembers', () => {
+  // AC-32
   it('starts empty rather than undefined', () => {
     expect(loadProgress(store)).toEqual(DEFAULT_PROGRESS);
     expect(DEFAULT_PROGRESS.name).toBe('');
@@ -85,6 +86,7 @@ describe('what the app remembers', () => {
     expect(setName(DEFAULT_PROGRESS, 'x'.repeat(80)).name).toHaveLength(20);
   });
 
+  // AC-23
   it('records a cleared level once, however many times it is cleared', () => {
     const once = markCleared(DEFAULT_PROGRESS, 't2.1');
     const twice = markCleared(once, 't2.1');

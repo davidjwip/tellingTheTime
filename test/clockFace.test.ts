@@ -35,6 +35,7 @@ const rotationOf = (el: Element | null): number => {
 };
 
 describe('AC-04 — an hour-only face renders no minute hand', () => {
+  // AC-4
   it('has no minute hand, no minute marks and no minute labels', () => {
     const svg = renderFace({ hour: 3, minute: 0 }, baseFace({ hands: 'hour' }));
     expect(hand(svg, 'minute')).toBeNull();
@@ -134,6 +135,7 @@ describe('the hands carry the geometry from clock.ts', () => {
     expect(size).toBeGreaterThanOrEqual(Number(numeral?.getAttribute('font-size')) * 0.5);
   });
 
+  // AC-37
   it('draws only colours the parity contract names, so the palette cannot drift', () => {
     const contract = readFileSync('specs/design-parity.md', 'utf8');
     for (const [role, value] of Object.entries(FACE_COLOURS)) {
@@ -190,6 +192,7 @@ describe('the reserved paths, exercised directly', () => {
     }
   });
 
+  // AC-42
   it('names the time for a screen reader', () => {
     const svg = renderFace({ hour: 3, minute: 30 }, baseFace());
     expect(svg.getAttribute('aria-label')).toBe('Clock showing 3:30');

@@ -37,6 +37,7 @@ describe('which levels can be played today', () => {
     expect(shelved?.available).toBe(true);
   });
 
+  // AC-80
   it('opens the build level now that a face can be built', () => {
     expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
   });
@@ -126,6 +127,7 @@ describe('the stylesheet never asks for a property it does not define', () => {
 });
 
 describe('the last door', () => {
+  // AC-25
   it('opens t1.2, so every level in the ladder is playable', () => {
     const rows = shelve(LEVELS, DEFAULT_PROGRESS);
     expect(rows.filter((row) => !row.available)).toEqual([]);
@@ -221,6 +223,7 @@ describe('where Start goes', () => {
 });
 
 describe('the language control in the stylesheet', () => {
+  // AC-55
   it('never paints an option the colour this app uses for a wrong answer', () => {
     // happy-dom gives import.meta.url an http scheme, so resolve from the repo root instead
     const css = readFileSync('src/styles.css', 'utf8');
@@ -232,6 +235,7 @@ describe('the language control in the stylesheet', () => {
     }
   });
 
+  // AC-39
   it('gives the clock more width on a phone, where the targets are smallest', () => {
     const css = readFileSync('src/styles.css', 'utf8');
     const small = css.match(/@media \(max-width: 480px\) \{([\s\S]*?)\n\}/)?.[1] ?? '';
@@ -240,6 +244,7 @@ describe('the language control in the stylesheet', () => {
     expect(Number(width)).toBeGreaterThanOrEqual(340);
   });
 
+  // AC-56
   it('makes a level a pill, not a bar across the window', () => {
     const css = readFileSync('src/styles.css', 'utf8');
     const block = css.match(/\.level-btn \{[^}]*\}/)?.[0];
@@ -267,6 +272,7 @@ describe('the language control in the stylesheet', () => {
     expect(block?.toLowerCase()).not.toContain('#ff6b6b');
   });
 
+  // AC-58
   it('reserves solid green for Start, so "press the green one" has one answer', () => {
     const css = readFileSync('src/styles.css', 'utf8');
     const chosen = css.match(/\.operator-active,[^{]*\{[^}]*\}/)?.[0] ?? '';
@@ -291,6 +297,7 @@ describe('the shelf', () => {
     return found;
   };
 
+  // AC-56
   it('is a screen, not a list: one section per playable tier, in order', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const tiers = [...screen.querySelectorAll('[data-tier]')].map((n) => n.getAttribute('data-tier'));
@@ -298,6 +305,8 @@ describe('the shelf', () => {
     expect(tiers).toEqual(['0', '1', '2', '3', '4', '5']);
   });
 
+  // AC-52
+  // AC-67
   it('gives each playable tier one entry carrying its first playable level', () => {
     const screen = renderPicker(shelved, DEFAULT_PROGRESS);
     const ids = entries(screen).map((n) => n.dataset.level);

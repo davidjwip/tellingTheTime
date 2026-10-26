@@ -51,6 +51,7 @@ describe('where a hand settles', () => {
     expect(snapHour(359)).toBe(12);
   });
 
+  // AC-15
   it('gears the hour hand to the minutes once the child lets go', () => {
     // AC-15: half past three means halfway between 3 and 4, wherever the finger stopped
     expect(settledHourAngle(3, 30)).toBeCloseTo(105);
@@ -60,6 +61,7 @@ describe('where a hand settles', () => {
 });
 
 describe('whether the child got there', () => {
+  // AC-12
   it('judges the hands the child chose, not the pixels', () => {
     expect(judgePlacement({ hour: 3, minute: 30 }, { hour: 3, minute: 30 })).toBe(true);
     expect(judgePlacement({ hour: 3, minute: 30 }, { hour: 4, minute: 30 })).toBe(false);
@@ -72,6 +74,7 @@ describe('whether the child got there', () => {
     expect(judgePlacement({ hour: 4, minute: 0 }, { hour: 3, minute: 0 }, 'hour')).toBe(false);
   });
 
+  // AC-14
   it('still knows AC-14s three degrees, for a rung that does not snap', () => {
     expect(withinTolerance(31, 30)).toBe(true);
     expect(withinTolerance(34, 30)).toBe(false);

@@ -104,6 +104,7 @@ describe('what a tap does', () => {
     expect(mounted.session().results.at(-1)?.correct).toBe(false);
   });
 
+  // AC-20 AC-21
   it('celebrates a full track, and closes back to the round', () => {
     mount('t2.2');
     for (let i = 0; i < 9; i += 1) answerRight();
@@ -169,6 +170,7 @@ describe('what a tap does', () => {
     expect(window.location.search).toContain('level=t2.2');
   });
 
+  // AC-30
   it('says the question when the face changes, and the verdict after a tap', () => {
     const said: string[] = [];
     const speaker = {
@@ -203,6 +205,7 @@ describe('what a tap does', () => {
     expect(said).toEqual(['prompt-read', 'encourage', 'prompt-read']);
   });
 
+  // AC-63
   it('says nothing when there is no question to ask', () => {
     const said: string[] = [];
     const speaker = {
@@ -288,6 +291,7 @@ describe('what a tap does', () => {
     expect(mounted.session()).toBe(before);
   });
 
+  // AC-69
   it('says the time on the clock when the speaker button is pressed', () => {
     const said: string[] = [];
     const speaker = {
@@ -385,6 +389,7 @@ describe('what a tap does', () => {
     expect(mounted.session().answered).toBe(before + 1);
   });
 
+  // AC-76
   it('marks the dial the child points at', () => {
     const mounted = mountPlay(app, overlayRoot, level('t3.1'));
     const item = currentItem(mounted.session())!;
@@ -404,6 +409,7 @@ describe('what a tap does', () => {
     expect(mounted.session().results.at(-1)?.correct).toBe(false);
   });
 
+  // AC-78
   it('builds the face by putting numerals in their slots', () => {
     const mounted = mountPlay(app, overlayRoot, level('t1.4'));
     const item = currentItem(mounted.session())!;
@@ -446,6 +452,7 @@ describe('what a tap does', () => {
     expect(mounted.session().results.at(-1)?.correct).toBe(true);
   });
 
+  // AC-79
   it('draws a numeral where it was dropped, so the face never lies about the build', () => {
     const mounted = mountPlay(app, overlayRoot, level('t1.4'));
     const dial = app.querySelector<SVGSVGElement>('[data-build-dial]')!;
@@ -513,6 +520,7 @@ describe('what a tap does', () => {
     expect(mounted.build().placed).toBe(0);
   });
 
+  // AC-81
   it('asks what comes after twelve, and takes the number the child taps', () => {
     const said: string[] = [];
     const mounted = mountPlay(app, overlayRoot, level('t1.2'), {
@@ -661,6 +669,7 @@ describe('choosing a card', () => {
     }
   });
 
+  // AC-60
   it('says the tap prompt and the verdict, just as a read question says its own', () => {
     const said: string[] = [];
     const speaker = {
@@ -693,6 +702,7 @@ describe('a round with no sound at all', () => {
     expect(app.querySelector('.container')).not.toBeNull();
   });
 
+  // AC-19 AC-28
   it('takes a miss quietly too', () => {
     mountPlay(app, overlayRoot, level('t2.4'));
     tap('[data-verdict="wrong"]');
@@ -758,6 +768,7 @@ describe('making the time by hand', () => {
     squareDial();
   };
 
+  // AC-72
   it('offers Done only once the drawn hand has been moved', () => {
     const mounted = mountPlay(app, overlayRoot, level('t2.3'));
     advanceToSet(mounted);
@@ -769,6 +780,7 @@ describe('making the time by hand', () => {
     expect(app.querySelector('[data-action="done"]')?.getAttribute('data-ready')).toBe('true');
   });
 
+  // AC-71
   it('marks it right when the hand matches the hour asked for', () => {
     const mounted = mountPlay(app, overlayRoot, level('t2.3'));
     advanceToSet(mounted);
