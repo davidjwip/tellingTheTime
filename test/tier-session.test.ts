@@ -28,6 +28,7 @@ const bank = (): TierBank => ({
 });
 
 describe('a tier session', () => {
+  // AC-53
   it('plans ten items and opens on the chosen tier, not on revision', () => {
     const tier = bank();
     const session = createTierSession(tier, seededRng(7));

@@ -57,6 +57,7 @@ describe('drawing a round from a whole tier', () => {
 });
 
 describe('revision from a lower tier', () => {
+  // AC-54
   it('takes one item in four, rounded, from the review bank', () => {
     const tier = bank();
     const count = 40;

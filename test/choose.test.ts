@@ -171,6 +171,7 @@ describe('choosing between two clocks', () => {
 
   const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
 
+  // AC-11 AC-75
   it('shows two faces of the same hour, differing only in the minutes', () => {
     const choice = choiceFor(byId('t3.1'));
     expect(choice).toBeDefined();
@@ -203,6 +204,7 @@ describe('choosing between two clocks', () => {
     throw new Error('never drew a quarter to');
   });
 
+  // AC-81
   it('says the question out loud, because a child who cannot read it must still be asked', () => {
     const choice = choiceFor(LEVELS.find((l) => l.id === 't3.1')!)!;
     expect(choice.say).toMatch(/^(oclock|qpast|half|qto)-[0-9]+$/);
@@ -231,6 +233,7 @@ describe('choosing between two clocks', () => {
 describe('what comes after twelve', () => {
   const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
 
+  // AC-82
   it('offers the next hour on the clock and the hour before it', () => {
     for (let draw = 0; draw < 30; draw += 1) {
       const choice = wrapChoiceFor(byId('t1.2'))!;
@@ -262,6 +265,7 @@ describe('what comes after twelve', () => {
     }
   });
 
+  // AC-83
   it('draws the numerals as buttons, and marks the hour the question starts from', () => {
     const choice = wrapChoiceFor(byId('t1.2'))!;
     const item = {

@@ -57,6 +57,7 @@ describe('the shell decides what a click means', () => {
     expect(app.querySelector('.picker')).not.toBeNull();
   });
 
+  // AC-53
   it('opens a tier from the shelf as a tier round, and remembers its door', () => {
     shell().start(null);
     const door = app.querySelector<HTMLElement>('section[data-tier="0"] [data-tier-entry]');
@@ -84,6 +85,7 @@ describe('the shell decides what a click means', () => {
     expect(app.querySelector('.problem-area')).not.toBeNull();
   });
 
+  // AC-59
   it('opens the parent instructions, and closes them on Close and on Escape', () => {
     shell().start(null);
     click('[data-action="instructions"]');
@@ -172,6 +174,7 @@ describe('the shell decides what a click means', () => {
     }
   });
 
+  // AC-70
   it('reads a sample time out loud from the panel, in whichever register is chosen', () => {
     const said: string[] = [];
     const speaker = {
@@ -247,6 +250,7 @@ describe('the shell decides what a click means', () => {
     expect(app.querySelectorAll('.order-slot [data-card]')).toHaveLength(2);
   });
 
+  // AC-29
   it('keeps the round when the language changes mid-round, and persists the choice', () => {
     shell().start('t0.1');
     click('[data-card]');
@@ -311,6 +315,7 @@ describe('the shell decides what a click means', () => {
     expect(saved().name).toBeUndefined(); // nothing was written at all
   });
 
+  // AC-31
   it('remembers the name the adult types, and ignores other fields', () => {
     shell().start(null);
     const input = app.querySelector('#child-name') as HTMLInputElement;

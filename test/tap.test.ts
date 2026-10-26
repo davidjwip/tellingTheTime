@@ -9,6 +9,7 @@ describe('what a lap asks for', () => {
     expect(spec?.sequence).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
   });
 
+  // AC-61
   it('counts round in fives on the minute ring', () => {
     const spec = tapSpec({ kind: 'fivesRing', to: 60 });
     expect(spec?.target).toBe('labels');

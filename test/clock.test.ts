@@ -27,6 +27,7 @@ function distanceToNearestNumeral(deg: number): number {
 }
 
 describe('AC-01 — hour hand is halfway between numerals at half past', () => {
+  // AC-1 AC-5
   it('puts the hour hand at 105° and the minute hand at 180° for 3:30', () => {
     expect(hourAngle(3, 30)).toBeCloseTo(105, 2);
     expect(minuteAngle(30)).toBeCloseTo(180, 2);
@@ -34,6 +35,7 @@ describe('AC-01 — hour hand is halfway between numerals at half past', () => {
 });
 
 describe('AC-02 — half past twelve puts the hour hand past the 12', () => {
+  // AC-2
   it('is 15° at 12:30, i.e. already past the 12 and not on it', () => {
     expect(hourAngle(12, 30)).toBeCloseTo(15, 2);
     expect(hourAngle(12, 30)).toBeGreaterThan(hourAngle(12, 0));
@@ -45,6 +47,7 @@ describe('AC-03 — the hour angle is continuous, never snapped', () => {
   // implementation with the constants inlined can never fail, so it proves nothing (flagged in
   // review of PR #2). These assert properties a geared hand must satisfy and a snapped or
   // mis-scaled one cannot.
+  // AC-3
   it('is continuous across every hour boundary, wrapping at 360°', () => {
     for (let h = 0; h < 12; h += 1) {
       const lastMinuteOfHour = hourAngle(h, 59);
@@ -59,12 +62,14 @@ describe('AC-03 — the hour angle is continuous, never snapped', () => {
     expect(hourAngle(23, 59)).toBeCloseTo(359.5, 6);
   });
 
+  // AC-3
   it('advances exactly half a degree per minute', () => {
     for (let m = 0; m < 59; m += 1) {
       expect(hourAngle(7, m + 1) - hourAngle(7, m)).toBeCloseTo(0.5, 6);
     }
   });
 
+  // AC-5
   it('is never within 0.4° of a numeral except on the hour', () => {
     for (let h = 0; h < 12; h += 1) {
       expect(distanceToNearestNumeral(hourAngle(h, 0))).toBeCloseTo(0, 6);

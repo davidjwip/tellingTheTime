@@ -134,6 +134,7 @@ describe('what to put in the pool', () => {
 });
 
 describe('a week that hides its numbers', () => {
+  // AC-74
   it('leaves the day numbers off the cards, and keeps the order', () => {
     const numbered = orderFor({ kind: 'weekTiles', count: 7 }, undefined, seededRng(2));
     const plain = orderFor({ kind: 'weekTiles', count: 7, numbered: false }, undefined, seededRng(2));

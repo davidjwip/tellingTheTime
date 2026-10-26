@@ -49,6 +49,7 @@ describe('the phrases', () => {
 });
 
 describe('three registers', () => {
+  // AC-68
   it('has words and a recorded clip in every register for every phrase', () => {
     interface Entry {
       key: string;
@@ -71,6 +72,7 @@ describe('three registers', () => {
     }
   });
 
+  // AC-62
   it('writes the time rather than saying it in the zh register', () => {
     expect(phraseText('qpast-3', 'yue')).toBe('三點三');
     expect(phraseText('qpast-3', 'zh')).toBe('三時十五分');
@@ -79,12 +81,14 @@ describe('three registers', () => {
 });
 
 describe('which clip a clock face needs', () => {
+  // AC-66
   it("names the hour for o'clock, half past and quarters", () => {
     expect(chronoKeyFor({ hour: 3, minute: 0 })).toBe('oclock-3');
     expect(chronoKeyFor({ hour: 3, minute: 30 })).toBe('half-3');
     expect(chronoKeyFor({ hour: 3, minute: 15 })).toBe('qpast-3');
   });
 
+  // AC-47
   it('keeps the hour just passed for quarter to, because Cantonese says 三點九', () => {
     // English reads "quarter to four"; Cantonese says 三點九. The table was reviewed for this, so the
     // key follows the hour passed, not the hour coming
@@ -176,6 +180,7 @@ describe('the speaker', () => {
     return { log, made, make, last: () => made[made.length - 1] };
   };
 
+  // AC-27
   it('plays the clip for the chosen language', () => {
     const r = rig();
     void new Speaker(r.make, 'yue').say('oclock-3');
@@ -234,6 +239,7 @@ describe('the speaker', () => {
     expect(r.log).toEqual(['play:/audio/yue/oclock-3.mp3']);
   });
 
+  // AC-28
   it('ignores a key it has no phrase for, and a blocked play()', () => {
     const played: string[] = [];
     const speaker = new Speaker((url) => ({

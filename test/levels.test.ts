@@ -39,6 +39,7 @@ const rules = (levels: Level[]) => [...new Set(validateLevels(levels).map((v) =>
 const checkedRules = (raw: unknown) => [...new Set(checkLevelsFile(raw).map((v) => v.rule))].sort();
 
 describe('AC-06 — the committed level data passes every rule', () => {
+  // AC-6
   it('reports no violations from the shape check or the eight rules', () => {
     expect(PARSED.violations).toEqual([]);
     expect(validateLevels(LEVELS)).toEqual([]);
@@ -53,6 +54,7 @@ describe('AC-06 — the committed level data passes every rule', () => {
     }
   });
 
+  // AC-65
   it('builds tier 5 as the bridge: one level with the ring, one without', () => {
     const five = LEVELS.filter((l) => l.tier === 5);
     expect(five.map((l) => l.id)).toEqual(['t5.1', 't5.2']);
@@ -76,6 +78,7 @@ describe('AC-06 — the committed level data passes every rule', () => {
 });
 
 describe('AC-07 — each rule rejects a broken fixture', () => {
+  // AC-7
   it('rule 1: a duplicate level id', () => {
     expect(rules(mutated('t0.1', (l) => { l.id = 't0.2'; }))).toContain(1);
   });
@@ -111,6 +114,7 @@ describe('AC-07 — each rule rejects a broken fixture', () => {
     }))).toContain(3);
   });
 
+  // AC-7 AC-64
   it('rule 6: the 5-minute ring is allowed on a two-hand clock at tier 5, and nowhere below', () => {
     // the shipped level carries the ring on a two-hand face, and the file still validates
     const atFive = LEVELS.find((l) => l.id === 't5.1');
