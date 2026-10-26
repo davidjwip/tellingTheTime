@@ -6,6 +6,8 @@
  * round on every tap and wiped the child's work.
  */
 
+import '@fontsource/fredoka/400.css';
+import '@fontsource/fredoka/600.css';
 import './styles.css';
 
 import { Speaker } from './audio';
