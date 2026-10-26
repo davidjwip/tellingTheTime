@@ -42,14 +42,21 @@ describe('which levels can be played today', () => {
   });
 
   it('marks a level unavailable when no screen can ask its questions at all', () => {
-    const [shelved] = shelve([level('t1.2')], DEFAULT_PROGRESS); // the wrap, in words: no screen yet
+    const noRing: Level = {
+      ...level('t1.1'),
+      id: 'test-tap-no-ring',
+      round: [{ task: 'tap', items: 4 }],
+      content: { kind: 'durationPair' },
+    };
+    const [shelved] = shelve([noRing], DEFAULT_PROGRESS); // a tap with no ring to tap
     expect(shelved?.available).toBe(false);
-    expect(shelved?.reason).toMatch(/choos/i);
+    expect(shelved?.reason).toMatch(/tap/i);
   });
 
   it('names what the unanswerable questions need, so the shelf is a to-do list', () => {
     expect(shelve([level('t1.1')], DEFAULT_PROGRESS)[0]?.available).toBe(true); // the dial can be tapped now
-    expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
+    // and the wrap level has stopped waiting: it has a screen with two numerals on it
+    expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
     // and the build level has stopped waiting
     expect(shelve([level('t1.4')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
 
@@ -89,8 +96,16 @@ describe('which levels can be played today', () => {
   });
 
   it('still says the one choosing level with no screen needs choosing', () => {
-    // t3.1 now has a screen: two dials. t1.2 asks about the wrap in words and has none.
-    expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.reason).toMatch(/choos/i);
+    // both choice screens exist now: two dials, and two numerals
+    expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
+    // a tap on content with no ring is what still waits for a screen
+    const noRing: Level = {
+      ...level('t1.1'),
+      id: 'test-tap-no-ring-reason',
+      round: [{ task: 'tap', items: 4 }],
+      content: { kind: 'durationPair' },
+    };
+    expect(shelve([noRing], DEFAULT_PROGRESS)[0]?.reason).toMatch(/tap/i);
     expect(shelve([level('t3.1')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
   });
 
@@ -107,6 +122,13 @@ describe('the stylesheet never asks for a property it does not define', () => {
     const declared = new Set([...css.matchAll(/^\s*(--[a-z-]+):/gm)].map((m) => m[1]));
     const used = [...css.matchAll(/var\((--[a-z-]+)/g)].map((m) => m[1] as string);
     expect(used.filter((name) => !declared.has(name))).toEqual([]);
+  });
+});
+
+describe('the last door', () => {
+  it('opens t1.2, so every level in the ladder is playable', () => {
+    const rows = shelve(LEVELS, DEFAULT_PROGRESS);
+    expect(rows.filter((row) => !row.available)).toEqual([]);
   });
 });
 
@@ -133,8 +155,19 @@ describe('where a visit starts', () => {
 
   it('refuses a level no screen can ask, however it was asked for', () => {
     // both are untrusted input, and both used to start a round of nothing
-    expect(resolveStartLevel(LEVELS, DEFAULT_PROGRESS, 't1.2')).toBeNull();
-    expect(resolveStartLevel(LEVELS, { ...DEFAULT_PROGRESS, lastLevel: 't1.2' }, null)).toBeNull();
+    // nothing in the committed ladder is unaskable any more, so the refusal is proved on a level
+    // that cannot be presented at all
+    const noRing: Level = {
+      ...level('t1.1'),
+      id: 'test-tap-no-ring-start',
+      round: [{ task: 'tap', items: 4 }],
+      content: { kind: 'durationPair' },
+    };
+    const withNoRing = [...LEVELS, noRing];
+    expect(resolveStartLevel(withNoRing, DEFAULT_PROGRESS, 'test-tap-no-ring-start')).toBeNull();
+    expect(
+      resolveStartLevel(withNoRing, { ...DEFAULT_PROGRESS, lastLevel: 'test-tap-no-ring-start' }, null),
+    ).toBeNull();
   });
 
   it('refuses a level that does not exist', () => {

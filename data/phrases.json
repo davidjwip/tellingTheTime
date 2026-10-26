@@ -43,6 +43,78 @@
       "en": "Amazing job!",
       "yue": "好犀利呀！",
       "zh": "太棒了！"
+    },
+    {
+      "key": "after-1",
+      "en": "After one comes...?",
+      "yue": "一之後係咩嚟呀？",
+      "zh": "一之後是甚麼？"
+    },
+    {
+      "key": "after-2",
+      "en": "After two comes...?",
+      "yue": "二之後係咩嚟呀？",
+      "zh": "二之後是甚麼？"
+    },
+    {
+      "key": "after-3",
+      "en": "After three comes...?",
+      "yue": "三之後係咩嚟呀？",
+      "zh": "三之後是甚麼？"
+    },
+    {
+      "key": "after-4",
+      "en": "After four comes...?",
+      "yue": "四之後係咩嚟呀？",
+      "zh": "四之後是甚麼？"
+    },
+    {
+      "key": "after-5",
+      "en": "After five comes...?",
+      "yue": "五之後係咩嚟呀？",
+      "zh": "五之後是甚麼？"
+    },
+    {
+      "key": "after-6",
+      "en": "After six comes...?",
+      "yue": "六之後係咩嚟呀？",
+      "zh": "六之後是甚麼？"
+    },
+    {
+      "key": "after-7",
+      "en": "After seven comes...?",
+      "yue": "七之後係咩嚟呀？",
+      "zh": "七之後是甚麼？"
+    },
+    {
+      "key": "after-8",
+      "en": "After eight comes...?",
+      "yue": "八之後係咩嚟呀？",
+      "zh": "八之後是甚麼？"
+    },
+    {
+      "key": "after-9",
+      "en": "After nine comes...?",
+      "yue": "九之後係咩嚟呀？",
+      "zh": "九之後是甚麼？"
+    },
+    {
+      "key": "after-10",
+      "en": "After ten comes...?",
+      "yue": "十之後係咩嚟呀？",
+      "zh": "十之後是甚麼？"
+    },
+    {
+      "key": "after-11",
+      "en": "After eleven comes...?",
+      "yue": "十一之後係咩嚟呀？",
+      "zh": "十一之後是甚麼？"
+    },
+    {
+      "key": "after-12",
+      "en": "After twelve comes...?",
+      "yue": "十二之後係咩嚟呀？",
+      "zh": "十二之後是甚麼？"
     }
   ],
   "chrono": [
@@ -1512,6 +1584,54 @@
       "t12-55": {
         "text": "five to one",
         "sha256": "2127eb1cef8a0a4e023f745b250ed9832c29bab4b255639dc44156b20e2e99d0"
+      },
+      "after-1": {
+        "text": "After one comes...?",
+        "sha256": "7a75e6f89711b649f10964603f33cbe28c3745be95089971745669b6238f7486"
+      },
+      "after-2": {
+        "text": "After two comes...?",
+        "sha256": "4340ff83d02e18f01ea8b02d720dca8bc290816fea6b1f2605b00e8bf8075b7f"
+      },
+      "after-3": {
+        "text": "After three comes...?",
+        "sha256": "a6c8b5f5f644fa4302be9f285fe56174bd4d26e93c94e60eed359066241379aa"
+      },
+      "after-4": {
+        "text": "After four comes...?",
+        "sha256": "3961712e0220a66cef5b921b1ff9ae5ac97cb42c629de523b19bc7862ddfa13e"
+      },
+      "after-5": {
+        "text": "After five comes...?",
+        "sha256": "5d054931d79cea5ac5774263e5144c8c01463b2d8d7e3551b829496616b643c4"
+      },
+      "after-6": {
+        "text": "After six comes...?",
+        "sha256": "af3c36b1bf4415badc0f45ea00f07c96e7757bc206aac383267386c966c8446a"
+      },
+      "after-7": {
+        "text": "After seven comes...?",
+        "sha256": "1fded560c46c0deb4f3c86c9d082bd2812a68a962c95cfc4fd080d9a8bb83438"
+      },
+      "after-8": {
+        "text": "After eight comes...?",
+        "sha256": "3de183180a72be99c5756aa2b043a5f050b746097498a9ae17b89915e266fce0"
+      },
+      "after-9": {
+        "text": "After nine comes...?",
+        "sha256": "930680ba5fee10553e9f94a0e4cca4f4fc4e663e080ae722fa988e190c4ba451"
+      },
+      "after-10": {
+        "text": "After ten comes...?",
+        "sha256": "be54d647cba1ace7ab31c0e25f0050010fdc0b2968806f5ad43d760c4b8ba099"
+      },
+      "after-11": {
+        "text": "After eleven comes...?",
+        "sha256": "132609fbadafa1aad137acdd488cccf06935a6563c8915275d4a5c1108908f63"
+      },
+      "after-12": {
+        "text": "After twelve comes...?",
+        "sha256": "d6ef26170b2dc1b051535f42117eb688d998694d64d0fccd890d362cbf6690d0"
       }
     },
     "yue": {
@@ -2114,6 +2234,54 @@
       "t12-55": {
         "text": "十二點十一個字",
         "sha256": "0d7a8d0fab999c8a67b0753995801b45a0dd426212713618b847b4d8d0d7d08d"
+      },
+      "after-1": {
+        "text": "一之後係咩嚟呀？",
+        "sha256": "3daa6c6d574882bb98fd128901e5e01bb9e69da745717213b0e0f9301d031fec"
+      },
+      "after-2": {
+        "text": "二之後係咩嚟呀？",
+        "sha256": "5deb0aa9181f33e875a3fc4b8e78f45b99102de7f9526c8eb19e23a1fc9a872b"
+      },
+      "after-3": {
+        "text": "三之後係咩嚟呀？",
+        "sha256": "5f2d043349d428711de200ddc0e852c4f2dfd7b7bcb448a5cc10494bf37e583e"
+      },
+      "after-4": {
+        "text": "四之後係咩嚟呀？",
+        "sha256": "641b2a189d0756706faaf62f9d6e4806d02aaccad0c09c06d65ca54f54b621f5"
+      },
+      "after-5": {
+        "text": "五之後係咩嚟呀？",
+        "sha256": "6770875505ddbbb70704d825b1616865a0cace008eeae9a22dff4c82d36b26ce"
+      },
+      "after-6": {
+        "text": "六之後係咩嚟呀？",
+        "sha256": "6ff0a701b0d773eeffabe1e658c3963c770554c7626b708ba5db2907361b113e"
+      },
+      "after-7": {
+        "text": "七之後係咩嚟呀？",
+        "sha256": "f61b299641df6b9591492f9685fc14b928ea3010754bce3f2b2710cad9d8bcd2"
+      },
+      "after-8": {
+        "text": "八之後係咩嚟呀？",
+        "sha256": "399cc9e16925a169664423fa5a5c4e7e6fe86acdbc188ed7d4ed93ba48ce18c8"
+      },
+      "after-9": {
+        "text": "九之後係咩嚟呀？",
+        "sha256": "67320dd4cd3e36f71ab148d0ec1142289f64fab05f526509c03ec1b15f2c2489"
+      },
+      "after-10": {
+        "text": "十之後係咩嚟呀？",
+        "sha256": "6ea31d7fb4bb9c4e456280c9c0c11dcf3a4a56b85fcec3da4717302157f3d447"
+      },
+      "after-11": {
+        "text": "十一之後係咩嚟呀？",
+        "sha256": "112d5d2542c90e11d35c0085180d9433215227dad74df1de262edcc4a53072cc"
+      },
+      "after-12": {
+        "text": "十二之後係咩嚟呀？",
+        "sha256": "53076951c4d77420094992a7f39740b38dce39ee3750f1df16ea744fa8f1f419"
       }
     },
     "zh": {
@@ -2716,6 +2884,54 @@
       "t12-55": {
         "text": "十二時五十五分",
         "sha256": "bdf022b25a1960d51d6d18a429fbf8080e699b0d960c9494f81a61253ab229dc"
+      },
+      "after-1": {
+        "text": "一之後是甚麼？",
+        "sha256": "bdb594ca6add7dc787dcaa8adaa1b5e3495b7c3e32102142bfe7b41b2eccd292"
+      },
+      "after-2": {
+        "text": "二之後是甚麼？",
+        "sha256": "83e5dcdbac2e5ea63cf262ad159de62e1c1f72a639b166c0a2e33b177a73bcbb"
+      },
+      "after-3": {
+        "text": "三之後是甚麼？",
+        "sha256": "cf55c8afe1efa9d50ed6d8c3d2d1d69bc3448e02fe1a6f0a93dbdced287ba05b"
+      },
+      "after-4": {
+        "text": "四之後是甚麼？",
+        "sha256": "84f47dc97a58b83b2517e71b690605c344e597c8f57c62776e3d3e4d7062eb11"
+      },
+      "after-5": {
+        "text": "五之後是甚麼？",
+        "sha256": "56958e94d0c4ec89c278a268627262f084f0274ef83f7be7bcebab01edac554d"
+      },
+      "after-6": {
+        "text": "六之後是甚麼？",
+        "sha256": "7a27a719b4db518b8d63bf4d39fffcfed22b4d6a54a22dfc327b3dc66bf2234e"
+      },
+      "after-7": {
+        "text": "七之後是甚麼？",
+        "sha256": "9d8746d63cc1c6c92b78945ab1245761f6541ce818ab7c25d91333cbfed1fedf"
+      },
+      "after-8": {
+        "text": "八之後是甚麼？",
+        "sha256": "647068e8538645bad4698c78619c62c219d88b317106458a84f9d8c84ab2b2a5"
+      },
+      "after-9": {
+        "text": "九之後是甚麼？",
+        "sha256": "9ac4320bd67602e487d626e82b1d40265c95f6cf3ca9fe36975906a3fc32e903"
+      },
+      "after-10": {
+        "text": "十之後是甚麼？",
+        "sha256": "cd0c5b7667ff345ba96bb01a4d624eda7feaca1b7b91aa7fd19399558dc39553"
+      },
+      "after-11": {
+        "text": "十一之後是甚麼？",
+        "sha256": "d57883e99c280c8c1326a34cacb85ffbab2f708004499c8c9dba2dca4c0e3bc9"
+      },
+      "after-12": {
+        "text": "十二之後是甚麼？",
+        "sha256": "4b7ff8c7f1464a3470dd7321dac514b5a347a84db7e091ddb98adfb948c55d68"
       }
     }
   }

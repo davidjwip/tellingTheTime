@@ -513,6 +513,22 @@ describe('what a tap does', () => {
     expect(mounted.build().placed).toBe(0);
   });
 
+  it('asks what comes after twelve, and takes the number the child taps', () => {
+    const said: string[] = [];
+    const mounted = mountPlay(app, overlayRoot, level('t1.2'), {
+      speaker: {
+        say: (key: string | undefined) => {
+          if (key) said.push(key);
+        },
+      } as never,
+    });
+    expect(said[0]).toMatch(/^after-([1-9]|1[0-2])$/);
+    const item = currentItem(mounted.session())!;
+    const right = app.querySelector<HTMLElement>(`[data-choice="${item.answer}"]`)!;
+    right.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    expect(mounted.session().results.at(-1)?.correct).toBe(true);
+  });
+
   it('draws the week without numbers on the cards', () => {
     mountPlay(app, overlayRoot, level('t0.5'));
     expect(app.querySelectorAll('[data-card]').length).toBe(7);
