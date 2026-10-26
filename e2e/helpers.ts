@@ -23,3 +23,27 @@ export function pointAt(cx: number, cy: number, r: number, degrees: number): { x
   const radians = (degrees * Math.PI) / 180;
   return { x: cx + Math.sin(radians) * r, y: cy - Math.cos(radians) * r };
 }
+
+/**
+ * A real touch drag, through the browser's own input pipeline.
+ *
+ * Playwright's `touchscreen` only taps, and dispatching `TouchEvent` from page script would bypass the
+ * browser's gesture handling — which is the thing worth testing. CDP's Input domain goes through the
+ * same path a finger does, so `touch-action` and pointer capture behave as they do on a phone.
+ */
+export async function touchDrag(
+  page: import('@playwright/test').Page,
+  from: { x: number; y: number },
+  to: { x: number; y: number },
+  steps = 10,
+): Promise<void> {
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: from.x, y: from.y }] });
+  for (let step = 1; step <= steps; step += 1) {
+    await cdp.send('Input.dispatchTouchEvent', {
+      type: 'touchMove',
+      touchPoints: [{ x: from.x + ((to.x - from.x) * step) / steps, y: from.y + ((to.y - from.y) * step) / steps }],
+    });
+  }
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+}
