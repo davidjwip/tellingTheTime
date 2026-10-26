@@ -12,7 +12,7 @@
  *   - the adult can end the round at any point, and the summary never says the child failed
  */
 
-import { choiceFor } from './choose';
+import { choiceFor, wrapChoiceFor } from './choose';
 import { clockTimes } from './levels';
 import { orderFor } from './order';
 import { tapSpec } from './tap';
@@ -40,6 +40,10 @@ export interface Item {
   dials?: ClockTime[];
   /** The clip that says the question out loud, for a question that is a time. */
   say?: string;
+  /** The numbers to pick between, for a question about the numerals going round. */
+  numbers?: string[];
+  /** The hour a wrap question starts from, so the face can mark it. */
+  from?: number;
   /** Id of the card that answers a `choose` item. Its presence is what makes a screen a choose one. */
   answer?: string;
   /** The correct id sequence for an `order` item. Its presence is what makes a screen an order one. */
@@ -140,7 +144,7 @@ const sameTime = (a: ClockTime | undefined, b: ClockTime | undefined): boolean =
 /** Whether a level's data gives this task something it can actually put on screen. */
 export function canPresent(level: Level, task: Task): boolean {
   if (!SUPPORTED_TASKS.has(task)) return false;
-  if (task === 'choose') return choiceFor(level) !== undefined;
+  if (task === 'choose') return choiceFor(level) !== undefined || wrapChoiceFor(level) !== undefined;
   if (task === 'order') return orderFor(level.content) !== undefined;
   if (task === 'tap') return tapSpec(level.content) !== null;
   // building is placing numerals, so only a level that leaves them loose can ask
@@ -186,7 +190,7 @@ export function makeDrawer(level: Level, rng: Rng): Drawer {
       return chosen;
     },
     nextChoice: (level) => {
-      const choice = choiceFor(level, previousChoice, rng)!;
+      const choice = choiceFor(level, previousChoice, rng) ?? wrapChoiceFor(level, previousChoice, rng)!;
       previousChoice = choice.answer;
       return choice;
     },
@@ -214,6 +218,8 @@ function itemFor(
     item.answer = choice.answer;
     item.question = choice.question;
     if (choice.dials) item.dials = choice.dials;
+    if (choice.numbers) item.numbers = choice.numbers;
+    if (choice.from !== undefined) item.from = choice.from;
     if (choice.say) item.say = choice.say;
   }
   if (order) {

@@ -77,6 +77,10 @@ export interface Choice {
   question: string;
   /** Present for a clock choice: two faces that differ only in the minutes. */
   dials?: ClockTime[];
+  /** Present for a numeral choice: the numbers to pick between. */
+  numbers?: string[];
+  /** The hour the question starts from, drawn highlighted on the face. */
+  from?: number;
   /** The clip that says this question out loud, where the question is a time. */
   say?: string;
 }
@@ -259,6 +263,42 @@ export function choiceFor(
   }
 }
 
+/**
+ * "After twelve comes…?"
+ *
+ * The distractor is the hour BEFORE, never a random number: the mistake this level exists to catch is
+ * counting backwards, or saying thirteen because arithmetic says twelve plus one. Thirteen is kept for
+ * exactly the one question where it is the answer a child would reach for.
+ */
+export function wrapChoiceFor(
+  level: Level,
+  previous?: string,
+  rng: () => number = Math.random,
+): Choice | undefined {
+  if (level.content.kind !== 'wrap') return undefined;
+
+  let from = Math.floor(rng() * 12) + 1;
+  // the answer is the hour after, so a repeat of the previous answer is a repeat of the question
+  for (let attempt = 0; attempt < 8 && String((from % 12) + 1) === previous; attempt += 1) {
+    from = Math.floor(rng() * 12) + 1;
+  }
+  const answer = (from % 12) + 1;
+  if (String(answer) === previous) from = (from % 12) + 1; // step on once, so the answer differs
+  const settled = (from % 12) + 1;
+
+  const distractor = from === 12 ? 13 : from === 1 ? 12 : from - 1;
+  const numbers = rng() < 0.5 ? [String(settled), String(distractor)] : [String(distractor), String(settled)];
+
+  return {
+    cards: [],
+    answer: String(settled),
+    question: `After ${WORDS[from]} comes…?`,
+    numbers,
+    from,
+    say: `after-${from}`,
+  };
+}
+
 export function renderChoose(
   item: Item,
   lastVerdict?: 'correct' | 'wrong',
@@ -266,6 +306,42 @@ export function renderChoose(
 ): HTMLElement {
   const wrapper = el('div', 'choose');
   wrapper.append(el('div', 'prompt', item.question ?? ''));
+
+  if (item.numbers && item.numbers.length > 0) {
+    if (item.from !== undefined) {
+      const frame = el('div', 'clock-frame wrap-frame');
+      // a face with no hands: the question is about the numerals going round, not about a time
+      frame.append(
+        renderFace({ hour: 12, minute: 0 }, {
+          hands: 'none',
+          minuteHandParked: false,
+          numerals: true,
+          minuteMarks: false,
+          minuteLabels: false,
+          pastToShade: false,
+          showDigital: false,
+        }),
+      );
+      // mark the hour the question starts from, so the child can see where the counting begins
+      const marked = frame.querySelector<SVGElement>(`[data-numeral="${item.from}"]`);
+      if (marked) {
+        marked.dataset.from = String(item.from);
+        marked.classList.add('from-numeral');
+      }
+      wrapper.append(frame);
+    }
+
+    const row = el('div', 'choice-numbers');
+    for (const number of item.numbers) {
+      const button = el('button', 'choice-number');
+      button.type = 'button';
+      button.dataset.choice = number;
+      button.textContent = number;
+      row.append(button);
+    }
+    wrapper.append(row, feedbackArea(lastVerdict));
+    return wrapper;
+  }
 
   if (item.dials && item.dials.length > 0) {
     const row = el('div', 'choice-dials');
