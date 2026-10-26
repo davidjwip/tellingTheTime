@@ -95,7 +95,7 @@ describe('which levels can be played today', () => {
     expect(week?.reason).toBeUndefined();
   });
 
-  it('still says the one choosing level with no screen needs choosing', () => {
+  it('opens the choice levels, and still names what a missing screen is waiting for', () => {
     // both choice screens exist now: two dials, and two numerals
     expect(shelve([level('t1.2')], DEFAULT_PROGRESS)[0]?.available).toBe(true);
     // a tap on content with no ring is what still waits for a screen
