@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { chronoKeyFor } from '../src/audio';
-import { chooseFor, choiceFor, renderChoose, WORDS } from '../src/choose';
+import { chooseFor, choiceFor, renderChoose, WORDS, wrapChoiceFor } from '../src/choose';
 import { buildQueue, createSession, seededRng } from '../src/engine';
 import { LEVELS } from '../src/levels';
 
@@ -225,6 +225,56 @@ describe('choosing between two clocks', () => {
   it('refuses a level with only one allowed minute, and the five-minute grid', () => {
     expect(choiceFor(byId('t3.2'))).toBeUndefined();
     expect(choiceFor(byId('t5.1'))).toBeUndefined();
+  });
+});
+
+describe('what comes after twelve', () => {
+  const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
+
+  it('offers the next hour on the clock and the hour before it', () => {
+    for (let draw = 0; draw < 30; draw += 1) {
+      const choice = wrapChoiceFor(byId('t1.2'))!;
+      expect(choice.numbers).toHaveLength(2);
+      const options = choice.numbers!.map(Number);
+      const answer = Number(choice.answer);
+      const from = Number(/after-(\d+)/.exec(choice.say ?? '')?.[1]);
+      expect(from).toBeGreaterThanOrEqual(1);
+      expect(from).toBeLessThanOrEqual(12);
+
+      // the clock's answer, not arithmetic's
+      expect(answer).toBe((from % 12) + 1);
+      expect(options).toContain(answer);
+      const other = options.find((option: number) => option !== answer)!;
+      if (from === 12) {
+        expect(other).toBe(13); // thirteen is the sensible-looking wrong answer, and it is wrong
+      } else {
+        expect(other).toBe(from === 1 ? 12 : from - 1); // the hour before, not after
+      }
+    }
+  });
+
+  it('asks the question out loud, and never repeats the last answer', () => {
+    const first = wrapChoiceFor(byId('t1.2'))!;
+    expect(first.question).toBe(`After ${WORDS[Number(first.say!.split('-')[1])]} comes…?`);
+    for (let draw = 0; draw < 20; draw += 1) {
+      const next = wrapChoiceFor(byId('t1.2'), first.answer)!;
+      expect(next.answer).not.toBe(first.answer);
+    }
+  });
+
+  it('draws the numerals as buttons, and marks the hour the question starts from', () => {
+    const choice = wrapChoiceFor(byId('t1.2'))!;
+    const item = {
+      task: 'choose',
+      numbers: choice.numbers,
+      answer: choice.answer,
+      question: choice.question,
+      from: choice.from,
+    } as Item;
+    const screen = renderChoose(item, undefined, byId('t1.2').face);
+    expect(screen.querySelectorAll('[data-choice]')).toHaveLength(2);
+    expect(screen.querySelectorAll('svg')).toHaveLength(1);
+    expect(screen.querySelector(`[data-from="${choice.from}"]`)).not.toBeNull();
   });
 });
 

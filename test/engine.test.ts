@@ -54,12 +54,24 @@ describe('building questions', () => {
     ]);
     // t1.4 has a screen now: three faces to build
     expect(buildQueue(level('t1.4'), seededRng(3)).map((i) => i.task)).toEqual(['build', 'build', 'build']);
-    // t1.2 asks about the wrap in words, and has no screen yet
-    expect(buildQueue(level('t1.2'), seededRng(3))).toEqual([]);
+    // every real level has a screen now; a tap on content with no ring is what still has none
+    const noRing: Level = {
+      ...level('t1.1'),
+      id: 'test-tap-no-ring',
+      round: [{ task: 'tap', items: 4 }],
+      content: { kind: 'durationPair' },
+    };
+    expect(buildQueue(noRing, seededRng(3))).toEqual([]);
   });
 
   it('asks nothing on a level whose every question needs a screen that does not exist', () => {
-    expect(buildQueue(level('t1.2'), seededRng(3))).toEqual([]);
+    const noRing: Level = {
+      ...level('t1.1'),
+      id: 'test-tap-no-ring-2',
+      round: [{ task: 'tap', items: 4 }],
+      content: { kind: 'durationPair' },
+    };
+    expect(buildQueue(noRing, seededRng(3))).toEqual([]);
   });
 
   it('never shows the same time within two positions (AC-09)', () => {
@@ -137,6 +149,15 @@ describe('a level that asks for a whole face', () => {
     const queue = buildQueue(LEVELS.find((l) => l.id === 't1.4')!);
     expect(queue).toHaveLength(3);
     expect(queue.every((item) => item.task === 'build')).toBe(true);
+  });
+});
+
+describe('the wrap', () => {
+  it('is a question the two-numeral screen can ask', () => {
+    const byId = (id: string) => LEVELS.find((l) => l.id === id)!;
+    expect(canPresent(byId('t1.2'), 'choose')).toBe(true);
+    expect(buildQueue(byId('t1.2'))).toHaveLength(10);
+    expect(buildQueue(byId('t1.2')).every((item) => item.task === 'choose')).toBe(true);
   });
 });
 
@@ -380,7 +401,13 @@ describe('a level whose questions are a lap of the dial', () => {
 
 describe('a level with nothing to ask', () => {
   it('has no questions, and answering one changes nothing', () => {
-    const session = createSession(level('t1.2'), seededRng(1)); // the wrap, in words: no screen yet
+    const noRing: Level = {
+      ...level('t1.1'),
+      id: 'test-tap-no-ring-3',
+      round: [{ task: 'tap', items: 4 }],
+      content: { kind: 'durationPair' },
+    };
+    const session = createSession(noRing, seededRng(1)); // a tap with no ring to tap
     expect(session.queue).toEqual([]);
     expect(currentItem(session)).toBeUndefined();
     expect(recordVerdict(session, true)).toBe(session);
