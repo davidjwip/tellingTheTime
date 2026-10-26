@@ -38,6 +38,10 @@ jobs:
   # (pointer capture, touch-action, an origin the app should not be talking to).
   browser:
     runs-on: ubuntu-latest
+    # Playwright's own image, with the browser already in it. `playwright install --with-deps`
+    # took over ten minutes on a runner and hung in apt; the image has it built for CI.
+    container:
+      image: mcr.microsoft.com/playwright:v1.64.1-jammy
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -45,7 +49,6 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
       - run: npm run e2e
       - uses: actions/upload-artifact@v4
         if: failure()
