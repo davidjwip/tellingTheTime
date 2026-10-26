@@ -16,17 +16,23 @@
     "gate:tests-first": "vite-node scripts/check-test-first.ts",
     "gate:branch-base": "vite-node scripts/check-branch-base.ts",
     "hooks:install": "git config core.hooksPath .githooks",
-    "verify": "npm run typecheck && npm run validate:levels && npm run test:coverage && npm run gate:tests-first && npm run gate:branch-base"
+    "verify": "npm run typecheck && npm run validate:levels && npm run test:coverage && npm run gate:tests-first && npm run gate:branch-base",
+    "e2e": "playwright test",
+    "e2e:install": "playwright install --with-deps chromium"
   },
   "engines": {
     "node": ">=20"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.5",
     "@vitest/coverage-v8": "^1.6.1",
     "happy-dom": "^21.0.4",
     "typescript": "^5.6.3",
     "vite": "^5.4.11",
     "vitest": "^1.6.1"
+  },
+  "dependencies": {
+    "@fontsource/fredoka": "^5.3.0"
   }
 }

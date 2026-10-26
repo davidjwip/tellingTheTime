@@ -19,7 +19,11 @@ const DEBTS = 'specs/untraced.json';
 
 const declaredAcs = (): number[] => {
   const spec = readFileSync(SPEC, 'utf8');
-  const bold = [...spec.matchAll(/\*\*AC-(\d+)\*\*/g)].map((m) => Number(m[1]));
+  // only the criterion line declares one: a later bold mention ("**AC-43** asked for…") must not
+  // resurrect a criterion that has been withdrawn
+  const bold = [...spec.matchAll(/^\*\*AC-(\d+)\*\*\s+(?:\*\((?:new|rev)\)\*\s+)?Given/gm)].map(
+    (m) => Number(m[1]),
+  );
   const headed = [...spec.matchAll(/^### AC-(\d+)/gm)].map((m) => Number(m[1]));
   return [...new Set([...bold, ...headed])].sort((a, b) => a - b);
 };
@@ -32,10 +36,15 @@ interface Credit {
 
 const credits = (): Credit[] => {
   const found: Credit[] = [];
-  for (const file of readdirSync('test').filter((name) => name.endsWith('.test.ts'))) {
-    const lines = readFileSync(`test/${file}`, 'utf8').split('\n');
+  const suites = [
+    ...readdirSync('test').filter((name) => name.endsWith('.test.ts')).map((name) => `test/${name}`),
+    ...readdirSync('e2e').filter((name) => name.endsWith('.spec.ts')).map((name) => `e2e/${name}`),
+  ];
+  for (const path of suites) {
+    const file = path;
+    const lines = readFileSync(path, 'utf8').split('\n');
     lines.forEach((line, index) => {
-      const opened = /^\s+it\((['"`])(.*?)\1/.exec(line);
+      const opened = /^\s*(?:it|test)\((['"`])(.*?)\1/.exec(line);
       if (!opened) return;
       const title = opened[2] ?? '';
       const titled = [...title.matchAll(/AC-(\d+)/g)].map((m) => Number(m[1] ?? 0));
@@ -43,7 +52,7 @@ const credits = (): Credit[] => {
         .slice(Math.max(0, index - 3), index)
         .flatMap((near) => [...near.matchAll(/AC-(\d+)/g)].map((m) => Number(m[1] ?? 0)));
       for (const ac of new Set([...titled, ...above])) {
-        found.push({ ac, file: `test/${file}`, test: title });
+        found.push({ ac, file, test: title });
       }
     });
   }

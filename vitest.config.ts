@@ -4,6 +4,8 @@ export default defineConfig({
   test: {
     // the face renderer builds real DOM, and AC-04 is a claim about the DOM
     environment: 'happy-dom',
+    // the browser specs in e2e/ are Playwright's dialect, not Vitest's
+    include: ['test/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json-summary'],

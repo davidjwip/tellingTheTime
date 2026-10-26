@@ -860,3 +860,9 @@ section.tier:last-of-type .tier-entry[data-tip='true']::after {
   fill: #b91c1c;
   font-weight: 700;
 }
+
+/* the language segments were 38 px wide on a phone: narrower than a thumb */
+.operator-toggle button {
+  min-width: 44px;
+  min-height: 44px;
+}

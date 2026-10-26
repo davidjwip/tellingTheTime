@@ -4,3 +4,7 @@ coverage/
 *.local
 .DS_Store
 artefacts/*.actual
+
+# browser test output
+test-results/
+playwright-report/

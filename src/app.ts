@@ -253,7 +253,10 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
     frame.append(renderFace({ hour: 12, minute: 0 }, level.face));
 
     // A hand is a 4px line; a finger needs a stroke it can catch anywhere along its length.
-    for (const hand of Array.from(frame.querySelectorAll<SVGLineElement>('[data-hand]'))) {
+    // These MUST go inside the <svg>: an SVG element appended to the surrounding <div> is never
+    // rendered and never hit, so on a real screen the hand could only be caught on its own 4px line.
+    const dial = frame.querySelector('svg')!;
+    for (const hand of Array.from(dial.querySelectorAll<SVGLineElement>('[data-hand]'))) {
       const grab = document.createElementNS('http://www.w3.org/2000/svg', 'line');
       for (const attribute of ['x1', 'y1', 'x2', 'y2', 'transform']) {
         const value = hand.getAttribute(attribute);
@@ -263,7 +266,7 @@ export function renderPlay(level: Level, session: Session, options: PlayOptions 
       grab.setAttribute('stroke-width', '16');
       grab.setAttribute('stroke-linecap', 'round');
       grab.setAttribute('data-grab', hand.getAttribute('data-hand') as string);
-      frame.append(grab);
+      dial.append(grab);
     }
     panel.append(frame);
 

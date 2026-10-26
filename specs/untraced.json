@@ -8,28 +8,8 @@
   "why": "Names `npm run guardrail:scan`, which does not exist in scripts/ or package.json. The no-identifying-data rule is enforced by review and the footer exception, not by a tool."
  },
  {
-  "ac": 34,
-  "why": "Nothing proves a full round works offline: the suite runs in happy-dom and never loads the built bundle. This needs the real-browser harness (proposal C), not a unit test."
- },
- {
-  "ac": 35,
-  "why": "Individual controls are asserted in picker and play tests, but nothing sweeps every interactive element for the 96 px rule, so a new undersized control passes."
- },
- {
   "ac": 36,
   "why": "Volume is not persisted and no size control exists; the app has a mute toggle only. Either the criterion is stale or the feature was dropped."
- },
- {
-  "ac": 38,
-  "why": "No scan of the built dist/ for third-party URLs. Proving it needs a build in CI and an assertion over the output, not over the source."
- },
- {
-  "ac": 43,
-  "why": "The app draws a single mascot (app.ts) and has no eight-mascot profile panel. The spec's own decision log still records 'Mascots | Keep', so this is a contradiction between two parts of the spec, not a missing test. It needs a spec decision before it needs a test."
- },
- {
-  "ac": 45,
-  "why": "`.limit-popup` was the reference design's level popup; the shelf replaced it in v1.2 and the styling no longer exists. Stale criterion."
  },
  {
   "ac": 46,

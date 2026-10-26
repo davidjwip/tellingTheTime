@@ -32,3 +32,24 @@ jobs:
       # ONE list of checks, shared with .githooks/pre-push through `npm run verify`, so the two
       # cannot drift the first time somebody adds a check to one of them
       - run: npm run verify
+
+  # The real-browser specs. Separate job on purpose: they need a browser download, they test the
+  # BUILT bundle rather than the sources, and a failure here means something the fake DOM cannot see
+  # (pointer capture, touch-action, an origin the app should not be talking to).
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
