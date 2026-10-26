@@ -26,9 +26,15 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: 'npm run build && npx vite preview --port 4173 --strictPort',
+    // --host 127.0.0.1 is explicit on purpose: `vite preview` defaults to "localhost", and inside a
+    // container that can resolve to ::1 while Playwright polls 127.0.0.1. The CI run timed out with
+    // the server apparently healthy, which is exactly that shape.
+    command: 'npm run build && npx vite preview --host 127.0.0.1 --port 4173 --strictPort',
     url: 'http://127.0.0.1:4173',
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
+    // piped, so a build that fails inside CI says why instead of going quiet
+    stdout: 'pipe',
+    stderr: 'pipe',
   },
 });
