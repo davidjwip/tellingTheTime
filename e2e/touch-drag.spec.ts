@@ -1,11 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-// Playwright's touchscreen has no drag primitive, and a synthetic touch drag would prove only that
-// our own handler runs. The desktop pointer path drives the same code with real events, so the drag
-// is proven there; the phone project proves the layout and the tap.
-test.skip(({ isMobile }) => isMobile === true, 'touch drags are covered by the desktop project');
-
-import { advanceTo, dialGeometry, pointAt } from './helpers';
+import { advanceTo, dialGeometry, pointAt, touchDrag } from './helpers';
 
 /**
  * AC-71, in a real browser.
@@ -15,7 +10,10 @@ import { advanceTo, dialGeometry, pointAt } from './helpers';
  * difference.
  */
 // AC-71
-test('a hand follows a real finger, and the page does not scroll under it', async ({ page }) => {
+const onPhone = (name: string): boolean => name === 'phone';
+
+test('a hand follows the mouse', async ({ page }, info) => {
+  test.skip(onPhone(info.project.name), 'the mouse path is the desktop project; touch is covered below');
   await page.goto('/?level=t4.3');
   await advanceTo(page, '[data-grab="hour"]');
 
@@ -24,7 +22,6 @@ test('a hand follows a real finger, and the page does not scroll under it', asyn
 
   const start = pointAt(cx, cy, r * 0.55, 0); // on the shaft, not the numeral it points at
   const end = pointAt(cx, cy, r, 300);
-  const scrollBefore = await page.evaluate(() => window.scrollY);
   await page.mouse.move(start.x, start.y);
   await page.mouse.down();
   await page.mouse.move(end.x, end.y, { steps: 12 });
@@ -41,14 +38,45 @@ test('a hand follows a real finger, and the page does not scroll under it', asyn
   await page.mouse.move(minuteEnd.x, minuteEnd.y, { steps: 10 });
   await page.mouse.up();
 
-  // the drag must not have been claimed by the page as a scroll: the dial owns the gesture
-  expect(await page.evaluate(() => window.scrollY)).toBe(scrollBefore);
-
   // and Done becomes pressable only because something was moved
   await expect(page.locator('[data-action="done"]')).toBeEnabled();
 });
 
-test('the minute hand can be moved too, on a level that draws it', async ({ page }) => {
+test('a real touch drag moves a hand without scrolling the page', async ({ page }, info) => {
+  // the dispatch below only produces pointer events in a touch-capable context
+  test.skip(!onPhone(info.project.name), 'touch needs the phone project');
+  await page.goto('/?level=t4.3');
+  await advanceTo(page, '[data-grab="hour"]');
+  await page.evaluate(() => window.scrollTo(0, 0));
+
+  const { cx, cy, r } = await dialGeometry(page);
+  const before = {
+    hour: await page.locator('[data-hand="hour"]').getAttribute('transform'),
+    minute: await page.locator('[data-hand="minute"]').getAttribute('transform'),
+  };
+
+  // both hands point at twelve, so either may be the one caught; what matters is that a hand moves
+  await touchDrag(page, pointAt(cx, cy, r * 0.55, 0), pointAt(cx, cy, r * 0.55, 300));
+
+  const after = {
+    hour: await page.locator('[data-hand="hour"]').getAttribute('transform'),
+    minute: await page.locator('[data-hand="minute"]').getAttribute('transform'),
+  };
+  expect(before.hour !== after.hour || before.minute !== after.minute, 'no hand followed the touch').toBe(
+    true,
+  );
+  // The dial must claim the gesture. Proving that by watching the page scroll was vacuous: at this
+  // viewport the screen fits, so nothing scrolls with or without the rule. What can be asserted is
+  // the promise itself - and separately, that the hand moved, which is the behaviour it protects.
+  const claimed = await page.evaluate(() => {
+    const dial = document.querySelector('.set-frame svg') as SVGElement | null;
+    return dial ? getComputedStyle(dial).touchAction : 'no dial';
+  });
+  expect(claimed, 'the dial does not claim the touch gesture').toBe('none');
+});
+
+test('the minute hand can be moved too, on a level that draws it', async ({ page }, info) => {
+  test.skip(onPhone(info.project.name), 'the mouse path is the desktop project');
   await page.goto('/?level=t4.2');
   await advanceTo(page, '[data-grab="minute"]');
 
