@@ -71,6 +71,10 @@ jobs:
       image: mcr.microsoft.com/playwright:v1.64.1-jammy
     steps:
       - uses: actions/checkout@v4
+      # The mutation gate reads `git status` and refuses to run when it cannot. Inside a container the
+      # workspace is owned by another uid, so git calls it a dubious repository and the gate fails
+      # closed - correct behaviour, wrong environment. This is the standard fix.
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - uses: actions/setup-node@v4
         with:
           node-version: 22
