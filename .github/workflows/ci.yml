@@ -12,6 +12,8 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    # a hung job blocks the gate silently; a timeout fails it loudly
+    timeout-minutes: 15
     steps:
       # full history: the test-first gate reads the commit graph, and a shallow clone would make
       # it silently pass by seeing no commits at all
@@ -38,6 +40,7 @@ jobs:
   # (pointer capture, touch-action, an origin the app should not be talking to).
   browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     # Playwright's own image, with the browser already in it. `playwright install --with-deps`
     # took over ten minutes on a runner and hung in apt; the image has it built for CI.
     container:
@@ -56,3 +59,17 @@ jobs:
           name: playwright-report
           path: playwright-report
           retention-days: 7
+
+  # Break the code on purpose; require the suite to notice. Each mutation is a bug this project has
+  # actually shipped, so a survivor means the tests have stopped defending something real.
+  mutants:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run mutants
