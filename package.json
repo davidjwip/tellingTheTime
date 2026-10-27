@@ -18,7 +18,8 @@
     "hooks:install": "git config core.hooksPath .githooks",
     "verify": "npm run typecheck && npm run validate:levels && npm run test:coverage && npm run gate:tests-first && npm run gate:branch-base",
     "e2e": "playwright test",
-    "e2e:install": "playwright install --with-deps chromium"
+    "e2e:install": "playwright install --with-deps chromium",
+    "mutants": "node scripts/mutants-smoke.mjs"
   },
   "engines": {
     "node": ">=20"
