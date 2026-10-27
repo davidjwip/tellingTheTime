@@ -269,7 +269,7 @@ describe('misses are not failures', () => {
   });
 
   // AC-16
-  it('brings a missed item back three places later, not next', () => {
+  it('brings a missed item back at three places, a number B2 states', () => {
     const session = createSession(level('t2.2'), seededRng(9));
     const missed = currentItem(session);
     const after = recordVerdict(session, false);
