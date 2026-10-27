@@ -33,6 +33,19 @@ new behaviour, so a change that adds a rule still starts in `specs/`, not in `sr
 - A spec is approved only when Dave says so in the thread. "The agent thinks it's clear" is not
   approval, and silence is not approval.
 
+## Editing safely, and the bar a change must clear
+
+- **Edits: `python3 scripts/apply_patch.py FILE OLD_FILE NEW_FILE`.** It refuses a dirty tree (a
+  `git checkout <sha> -- <path>` on uncommitted work has already cost this repo an hour of work) and
+  prints the surrounding lines when an anchor misses instead of failing silently. `--context FILE
+  "text"` shows what is really in the file before you write the anchor.
+- **The review bar is `docs/review-rules.md`.** Six rules, each naming the failure it prevents: an
+  assertion must be able to fail, coverage is a domain rather than a number, numbers in a PR body must
+  be reproducible by one command, a pointer-dependent UI change needs a browser assertion, prose about
+  code must be checkable, nothing edits a dirty tree with a git shortcut.
+- **`npm run mutants`** applies five known bugs in turn and fails if the suite lets one through. If it
+  reports `STALE`, the mutation edits text that moved — update the mutation rather than deleting it.
+
 ## Read these first, in this order
 
 1. `research/02-progression-ladder.md` — the teaching order. Nothing on screen may contradict it.

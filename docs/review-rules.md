@@ -13,7 +13,9 @@ assertions in this repo's history passed with their protection deleted: a scroll
 short to scroll, and a `test.skip` claiming Playwright cannot drag by touch (it can, through CDP).
 
 Reject: assertions on a value that is constant in the test's own setup, and `expect(x).toBe(x)` in any
-disguise.
+disguise. The subtle version is a test that **reads the constant it is testing** — the first run of
+`npm run mutants` found one: a B2 test sliced the queue by `REQUEUE_GAP`, so lowering the gap to zero
+moved the expectation with the bug and the test still passed.
 
 ## 2. Coverage is a domain, not a number
 

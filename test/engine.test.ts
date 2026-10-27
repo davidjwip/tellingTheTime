@@ -274,9 +274,12 @@ describe('misses are not failures', () => {
     const missed = currentItem(session);
     const after = recordVerdict(session, false);
 
-    const next = after.queue.slice(after.answered, after.answered + REQUEUE_GAP).map((i) => i.key);
+    // B2 states three places. Write the number here rather than reading REQUEUE_GAP from the code:
+    // a test that reads the constant it is testing moves with the mutation and proves nothing.
+    expect(REQUEUE_GAP).toBe(3);
+    const next = after.queue.slice(after.answered, after.answered + 3).map((i) => i.key);
     expect(next).not.toContain(`${missed?.key}#again`);
-    expect(after.queue[after.answered + REQUEUE_GAP]?.key).toBe(`${missed?.key}#again`);
+    expect(after.queue[after.answered + 3]?.key).toBe(`${missed?.key}#again`);
   });
 
   it('lets the same item come back as often as it is missed', () => {
