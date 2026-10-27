@@ -43,8 +43,12 @@ new behaviour, so a change that adds a rule still starts in `specs/`, not in `sr
   assertion must be able to fail, coverage is a domain rather than a number, numbers in a PR body must
   be reproducible by one command, a pointer-dependent UI change needs a browser assertion, prose about
   code must be checkable, nothing edits a dirty tree with a git shortcut.
-- **`npm run mutants`** applies five known bugs in turn and fails if the suite lets one through. If it
-  reports `STALE`, the mutation edits text that moved — update the mutation rather than deleting it.
+- **`npm run mutants`** applies six known bugs in turn and fails if the suite lets one through. If it
+  reports `STALE`, the mutation edits text that moved — update the mutation rather than deleting it. One
+  mutation is a browser mutation, so the gate covers the class happy-dom cannot see. **This only blocks a
+  merge if branch protection requires the job**; without a ruleset it is advice that reports itself.
+- `apply_patch.py --allow-dirty` is for a run of edits you are about to commit. It warns loudly; if you
+  needed it, say so in the PR.
 
 ## Read these first, in this order
 
