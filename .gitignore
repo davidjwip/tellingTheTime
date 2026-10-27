@@ -8,3 +8,6 @@ artefacts/*.actual
 # browser test output
 test-results/
 playwright-report/
+
+# mutation-runner journal (a crash writes here, and the next run restores from it)
+.mutants/

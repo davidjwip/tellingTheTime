@@ -9,21 +9,40 @@
  *
  *     npm run mutants
  *
- * Restoration is not "remember the file we are editing": that failed the first time this ran under a
- * signal. Every mutated file is snapshotted up front and put back by an idempotent `restoreAll()` on
- * every exit path - normal, thrown, or signal. At the end the runner asserts the tree is clean again,
- * so a restore bug fails the gate instead of being discovered by the next commit.
+ * Restoration, and why it has three layers:
+ *
+ *   1. a journal in `.mutants/` (gitignored) holds a backup of every file about to be mutated. It is
+ *      written before the file changes and deleted after it is put back, so even SIGKILL or a power
+ *      cut leaves enough on disk to put the tree right.
+ *   2. the next run restores from that journal before doing anything else, and says so.
+ *   3. the runner refuses to start on a dirty tree, and asserts the tree is clean when it finishes -
+ *      a restore bug fails the gate instead of being discovered by the next commit.
+ *
+ * The child test run is asynchronous on purpose: with execFileSync the event loop blocks, so a SIGTERM
+ * waits for the child and the "interrupted" message arrives seconds later than the interruption.
  *
  * Exit codes: 0 every mutation was killed, 1 one survived, 2 a mutation no longer applies (the code
  * moved, so the mutation must be updated), 3 the tree could not be proved clean, 4 the tree is dirty,
  * 5 the runner left something behind.
  */
 
-import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import {
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  renameSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs';
+import path from 'node:path';
 
 const VITEST = 'vitest';
 const PLAYWRIGHT = 'playwright';
+
+const JOURNAL_DIR = '.mutants';
+const JOURNAL = path.join(JOURNAL_DIR, 'journal.json');
 
 const MUTATIONS = [
   {
@@ -85,115 +104,169 @@ const MUTATIONS = [
   },
 ];
 
-/** Runs a command and keeps BOTH streams whichever way it ends. */
-const run = (command, args) => {
-  try {
-    const stdout = execFileSync(command, args, {
-      stdio: 'pipe',
-      encoding: 'utf8',
+/** Run a command and keep BOTH streams whichever way it ends. Asynchronous, so signals are prompt. */
+const run = (command, args) =>
+  new Promise((resolve) => {
+    const child = spawn(command, args, {
+      stdio: ['ignore', 'pipe', 'pipe'],
       // CI=1 makes Playwright start its own server, so it builds the MUTATED sources rather than
       // reusing a server already serving the last good build.
       env: { ...process.env, CI: '1' },
     });
-    return { ok: true, output: stdout ?? '' };
-  } catch (error) {
-    return { ok: false, output: `${error.stdout ?? ''}${error.stderr ?? ''}` };
+    let output = '';
+    child.stdout.on('data', (chunk) => {
+      output += chunk;
+    });
+    child.stderr.on('data', (chunk) => {
+      output += chunk;
+    });
+    child.on('error', (error) => resolve({ ok: false, output: `${output}${error.message}` }));
+    child.on('close', (code) => resolve({ ok: code === 0, output }));
+  });
+
+/** Fail closed: a tree we cannot measure is a tree we do not edit. */
+const treeStatus = async () => {
+  const result = await run('git', ['status', '--porcelain']);
+  if (!result.ok) return { known: false, dirty: [] };
+  return { known: true, dirty: result.output.split('\n').filter((line) => line.trim()) };
+};
+
+const readJournal = () => {
+  if (!existsSync(JOURNAL)) return null;
+  try {
+    return JSON.parse(readFileSync(JOURNAL, 'utf8'));
+  } catch {
+    return null;
   }
 };
 
-/** Fail closed: a tree we cannot measure is a tree we do not edit. */
-const treeIsClean = () => {
-  const result = run('git', ['status', '--porcelain']);
-  if (!result.ok) {
-    console.error('refusing to mutate: could not read `git status`, so cleanliness is unknown');
-    console.error(result.output.split('\n').slice(0, 5).join('\n'));
-    return false;
+/** Put back anything a previous run left mutated, before this run can be confused by it. */
+const recoverFromJournal = () => {
+  const journal = readJournal();
+  if (!journal) return false;
+  for (const entry of journal.entries ?? []) {
+    if (existsSync(entry.backup)) writeFileSync(entry.file, readFileSync(entry.backup));
+    console.log(`recovered ${entry.file} from an interrupted run (${journal.started})`);
   }
-  if (result.output.trim()) {
-    console.error('refusing to mutate: the tree has uncommitted changes');
-    console.error(result.output.split('\n').slice(0, 10).join('\n'));
-    return false;
-  }
+  clearJournal();
   return true;
 };
 
-if (!treeIsClean()) process.exit(4);
-
-const SNAPSHOTS = new Map(MUTATIONS.map((mutation) => [mutation.file, readFileSync(mutation.file, 'utf8')]));
-
-let restored = false;
-const restoreAll = () => {
-  if (restored) return;
-  restored = true;
-  for (const [file, original] of SNAPSHOTS) {
-    try {
-      if (readFileSync(file, 'utf8') !== original) writeFileSync(file, original);
-    } catch (error) {
-      console.error(`could not restore ${file}: ${error.message}`);
+const clearJournal = () => {
+  rmSync(JOURNAL, { force: true });
+  if (existsSync(JOURNAL_DIR)) {
+    for (const file of readdirSync(JOURNAL_DIR)) {
+      if (file.endsWith('.bak')) rmSync(path.join(JOURNAL_DIR, file), { force: true });
     }
   }
 };
 
-process.on('exit', restoreAll);
-for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
-  process.on(signal, () => {
-    restoreAll();
-    console.error(`\ninterrupted by ${signal}; every mutated file was restored`);
-    process.exit(130);
-  });
-}
+const writeJournal = (entries) => {
+  mkdirSync(JOURNAL_DIR, { recursive: true });
+  const temporary = `${JOURNAL}.tmp`;
+  writeFileSync(temporary, JSON.stringify({ started: new Date().toISOString(), entries }, null, 1));
+  renameSync(temporary, JOURNAL);
+};
 
-let survived = 0;
-let stale = 0;
+const main = async () => {
+  recoverFromJournal();
 
-for (const mutation of MUTATIONS) {
-  const original = SNAPSHOTS.get(mutation.file);
-  const occurrences = original.split(mutation.find).length - 1;
-
-  if (occurrences === 0) {
-    console.error(`STALE  ${mutation.name}`);
-    console.error(`       ${mutation.file} no longer contains the text this mutation edits.`);
-    console.error('       Update the mutation: the behaviour it guards may have moved or gone.');
-    stale += 1;
-    continue;
+  const before = await treeStatus();
+  if (!before.known) {
+    console.error('refusing to mutate: could not read `git status`, so cleanliness is unknown');
+    process.exit(3);
   }
-  if (occurrences > 1) {
-    console.error(`STALE  ${mutation.name}`);
-    console.error(`       the anchor appears ${occurrences} times in ${mutation.file}; make it specific.`);
-    stale += 1;
-    continue;
+  if (before.dirty.length) {
+    console.error('refusing to mutate: the tree has uncommitted changes');
+    console.error(before.dirty.slice(0, 10).join('\n'));
+    process.exit(4);
   }
 
-  try {
-    writeFileSync(mutation.file, original.replace(mutation.find, mutation.replace));
-    const result = run('npx', [mutation.runner, ...mutation.args]);
-    if (result.ok) {
-      survived += 1;
-      console.error(`SURVIVED  ${mutation.name}`);
-      console.error(`          ${mutation.why}`);
-      console.error(`          ${mutation.runner} ${mutation.args.join(' ')} passed with the behaviour broken.`);
-    } else {
-      console.log(`killed    ${mutation.name}`);
+  const snapshots = new Map(MUTATIONS.map((mutation) => [mutation.file, readFileSync(mutation.file, 'utf8')]));
+
+  let restored = false;
+  const restoreAll = () => {
+    if (restored) return;
+    restored = true;
+    for (const [file, original] of snapshots) {
+      try {
+        if (readFileSync(file, 'utf8') !== original) writeFileSync(file, original);
+      } catch (error) {
+        console.error(`could not restore ${file}: ${error.message}`);
+      }
     }
-  } finally {
-    writeFileSync(mutation.file, original);
-    if (readFileSync(mutation.file, 'utf8') !== original) {
-      console.error(`RESTORE FAILED for ${mutation.file}`);
-      survived += 1;
+    clearJournal();
+  };
+
+  process.on('exit', restoreAll);
+  for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP']) {
+    process.on(signal, () => {
+      restoreAll();
+      console.error(`\ninterrupted by ${signal}; every mutated file was restored`);
+      process.exit(130);
+    });
+  }
+
+  let survived = 0;
+  let stale = 0;
+
+  for (const mutation of MUTATIONS) {
+    const original = snapshots.get(mutation.file);
+    const occurrences = original.split(mutation.find).length - 1;
+
+    if (occurrences !== 1) {
+      console.error(`STALE  ${mutation.name}`);
+      console.error(
+        occurrences === 0
+          ? `       ${mutation.file} no longer contains the text this mutation edits.`
+          : `       the anchor appears ${occurrences} times in ${mutation.file}; make it specific.`,
+      );
+      console.error('       Update the mutation: the behaviour it guards may have moved or gone.');
+      stale += 1;
+      continue;
+    }
+
+    const backup = path.join(JOURNAL_DIR, `${path.basename(mutation.file)}.bak`);
+    mkdirSync(JOURNAL_DIR, { recursive: true });
+    writeFileSync(backup, original);
+    writeJournal([{ file: mutation.file, backup }]);
+
+    try {
+      writeFileSync(mutation.file, original.replace(mutation.find, mutation.replace));
+      const result = await run('npx', [mutation.runner, ...mutation.args]);
+      if (result.ok) {
+        survived += 1;
+        console.error(`SURVIVED  ${mutation.name}`);
+        console.error(`          ${mutation.why}`);
+        console.error(`          ${mutation.runner} ${mutation.args.join(' ')} passed with the behaviour broken.`);
+      } else {
+        console.log(`killed    ${mutation.name}`);
+      }
+    } finally {
+      writeFileSync(mutation.file, original);
+      if (readFileSync(mutation.file, 'utf8') !== original) {
+        console.error(`RESTORE FAILED for ${mutation.file}`);
+        survived += 1;
+      }
+      clearJournal();
     }
   }
-}
 
-console.log('');
-console.log(`${MUTATIONS.length - survived - stale}/${MUTATIONS.length} mutations killed`);
+  restoreAll();
 
-// The runner is part of the gate: if it left anything behind, that is a failure, not a footnote.
-const after = run('git', ['status', '--porcelain']);
-if (!after.ok || after.output.trim()) {
-  console.error('the mutation runner left the tree dirty:');
-  console.error(after.output.trim() || '(could not read git status)');
-  process.exit(5);
-}
+  console.log('');
+  console.log(`${MUTATIONS.length - survived - stale}/${MUTATIONS.length} mutations killed`);
 
-if (stale > 0) process.exit(2);
-if (survived > 0) process.exit(1);
+  // The runner is part of the gate: if it left anything behind, that is a failure, not a footnote.
+  const after = await treeStatus();
+  if (!after.known || after.dirty.length) {
+    console.error('the mutation runner left the tree dirty:');
+    console.error(after.dirty.join('\n') || '(could not read git status)');
+    process.exit(5);
+  }
+
+  if (stale > 0) process.exit(2);
+  if (survived > 0) process.exit(1);
+};
+
+await main();
